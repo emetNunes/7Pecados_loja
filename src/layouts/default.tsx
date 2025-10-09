@@ -7,10 +7,10 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col h-screen">
+    <div className="relative flex flex-col h-screen bg-background">
       <main className="container mx-auto max-w-8xl flex-grow">
         <section className="grid grid-cols-[auto_1fr]">
-          <div className="grid col h-dvh">
+          <div className="grid col h-dvh bg-base">
             <NavbarVertical />
           </div>
           <div className="grid col">

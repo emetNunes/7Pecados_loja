@@ -3,10 +3,9 @@ import { CustomNavLink } from "./customNavLink";
 
 export const NavbarVertical = () => {
   return (
-    <div className="col-span-3 lg:col-span-2 bg-gray-200">
+    <div className="col-span-3 lg:col-span-2">
       <section className="flex flex-col w-full h-full justify-between p-6 items-center">
         <div className="">
-          LOGO
           <Divider className="my-4" />
         </div>
         <nav className="flex flex-col items-start h-full">

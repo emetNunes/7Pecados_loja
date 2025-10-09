@@ -2,7 +2,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 
 export const Header = () => {
   return (
-    <header className="bg-gray-200 flex justify-between items-center">
+    <header className=" flex justify-between items-center">
       <section>
         <div>Pagina</div>
         <div>Logo</div>

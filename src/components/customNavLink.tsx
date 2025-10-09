@@ -10,7 +10,7 @@ export const CustomNavLink = ({
   children,
   ...props
 }: CustomNavLinkProps) => {
-  const activeClass = "text-[#A62940] font-bold";
+  const activeClass = "text-primary font-bold";
   const inactiveClass = "";
 
   return (
