@@ -38,6 +38,7 @@ export const siteConfig = {
       label: "Atendimento",
       href: "/service",
     },
+    
   ],
   // Ver isso aqui depois
   links: {
