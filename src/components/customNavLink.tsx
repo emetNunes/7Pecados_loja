@@ -10,11 +10,12 @@ export const CustomNavLink = ({
   children,
   ...props
 }: CustomNavLinkProps) => {
-  const activeClass = "text-primary font-bold";
-  const inactiveClass = "";
+  const activeClass =
+    "bg-primary text-base font-bold flex w-full justify-center px-6 p-2 rounded-e-lg";
+  const inactiveClass = "px-6 p-2 rounded-e-lg";
 
   return (
-    <div>
+    <div className="flex w-full justify-center">
       <NavLink
         to={to}
         className={({ isActive }) => (isActive ? activeClass : inactiveClass)}

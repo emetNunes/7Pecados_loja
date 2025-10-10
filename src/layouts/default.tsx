@@ -8,9 +8,9 @@ export default function DefaultLayout({
 }) {
   return (
     <div className="relative flex flex-col h-screen bg-background">
-      <main className="container mx-auto max-w-8xl flex-grow">
+      <main className="container mx-auto max-[1980px] flex-grow">
         <section className="grid grid-cols-[auto_1fr]">
-          <div className="grid col h-dvh bg-base">
+          <div className="grid col h-dvh bg-base rounded-e-xl">
             <NavbarVertical />
           </div>
           <div className="grid col">

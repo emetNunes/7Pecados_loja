@@ -1,34 +1,48 @@
 import { Divider } from "@heroui/divider";
 import { CustomNavLink } from "./customNavLink";
 import { Image } from "@heroui/react";
-import icon_7pecados from "../../public/icons/7pecados.png";
+import icon_nabar_7pecados from "@/icons/icon_nabar_7pecados.png";
+import {
+  House,
+  PackageSearch,
+  SquareKanban,
+  ShoppingCart,
+  LogOut,
+} from "lucide-react";
 
 export const NavbarVertical = () => {
+  let icon_size = 32;
+  let icon_stroke = 2.4;
+
   return (
     <div className="col-span-3 lg:col-span-2">
-      <section className="flex flex-col w-full h-full justify-between p-6 items-center">
-        <div className="">
-          <Image alt="HeroUI hero Image" src={icon_7pecados} width={106} />
-          <Divider className="my-4" />
+      <section className="flex flex-col w-full h-full justify-between items-center py-4">
+        <div>
+          <Image
+            alt="icon 7pecados"
+            src={icon_nabar_7pecados}
+            height={icon_size}
+          />
         </div>
-        <nav className="flex flex-col items-start h-full">
-          <div>
-            <CustomNavLink to={"/"}>Linha 1</CustomNavLink>
-          </div>
-          <div>
-            <CustomNavLink to="/stock">Linha 2</CustomNavLink>
-          </div>
-          <Divider className="my-4" />
-          <div>
-            <CustomNavLink to="/production">Linha 3</CustomNavLink>
-          </div>
-          <div>
-            <CustomNavLink to="/service">Linha 4</CustomNavLink>
-          </div>
+        <Divider className="my-4" />
+        <nav className="flex flex-col items-center h-full gap-6">
+          <CustomNavLink to={"/"}>
+            <House size={icon_size} strokeWidth={icon_stroke} />
+          </CustomNavLink>
+          <CustomNavLink to="/stock">
+            <PackageSearch size={icon_size} strokeWidth={icon_stroke} />
+          </CustomNavLink>
+          <Divider />
+          <CustomNavLink to="/production">
+            <SquareKanban size={icon_size} strokeWidth={icon_stroke} />
+          </CustomNavLink>
+          <CustomNavLink to="/service">
+            <ShoppingCart size={icon_size} strokeWidth={icon_stroke} />
+          </CustomNavLink>
         </nav>
-        <div className="">
-          <Divider className="my-4" />
-          Sair
+        <Divider className="my-4" />
+        <div className="text-primary">
+          <LogOut size={24} />
         </div>
       </section>
     </div>
