@@ -1,6 +1,6 @@
 import { Header } from "@/components/header";
 import { NavbarVertical } from "@/components/navbarVertical";
-
+import { motion } from "framer-motion";
 export default function DefaultLayout({
   children,
 }: {
@@ -15,8 +15,15 @@ export default function DefaultLayout({
           </div>
           <div className="grid col">
             <main className="p-6">
-              <Header />
-              <div className="mt-4">{children}</div>
+              <motion.div
+                initial={{ opacity: 0.6 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }} // Duração da animação
+              >
+                <Header />
+                <div className="mt-4">{children}</div>
+              </motion.div>
             </main>
           </div>
         </section>
