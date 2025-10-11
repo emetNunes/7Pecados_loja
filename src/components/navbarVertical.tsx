@@ -10,10 +10,29 @@ import {
   LogOut,
 } from "lucide-react";
 
-export const NavbarVertical = () => {
-  let icon_size = 32;
-  let icon_stroke = 2.4;
+let icon_size = 32;
+let icon_stroke = 2.4;
 
+let navbarList = [
+  {
+    router: "/",
+    icon: <House size={icon_size} strokeWidth={icon_stroke} />,
+  },
+  {
+    router: "/stock",
+    icon: <PackageSearch size={icon_size} strokeWidth={icon_stroke} />,
+  },
+  {
+    router: "/production",
+    icon: <SquareKanban size={icon_size} strokeWidth={icon_stroke} />,
+  },
+  {
+    router: "/service",
+    icon: <ShoppingCart size={icon_size} strokeWidth={icon_stroke} />,
+  },
+];
+
+export const NavbarVertical = () => {
   return (
     <div className="col-span-3 lg:col-span-2">
       <section className="flex flex-col w-full h-full justify-between items-center py-4">
@@ -26,19 +45,17 @@ export const NavbarVertical = () => {
         </div>
         <Divider className="my-4" />
         <nav className="flex flex-col items-center h-full gap-6">
-          <CustomNavLink to={"/"}>
-            <House size={icon_size} strokeWidth={icon_stroke} />
-          </CustomNavLink>
-          <CustomNavLink to="/stock">
-            <PackageSearch size={icon_size} strokeWidth={icon_stroke} />
-          </CustomNavLink>
-          <Divider />
-          <CustomNavLink to="/production">
-            <SquareKanban size={icon_size} strokeWidth={icon_stroke} />
-          </CustomNavLink>
-          <CustomNavLink to="/service">
-            <ShoppingCart size={icon_size} strokeWidth={icon_stroke} />
-          </CustomNavLink>
+          {navbarList.flatMap((elemento, index) => {
+            const items = [
+              <CustomNavLink to={`${elemento.router}`}>
+                {elemento.icon}
+              </CustomNavLink>,
+            ];
+            if (index === 1) {
+              items.push(<Divider key="divider-1" />);
+            }
+            return items;
+          })}
         </nav>
         <Divider className="my-4" />
         <div className="text-primary">
