@@ -10,18 +10,20 @@ export default function DefaultLayout({
     <div className="relative flex flex-col w-full h-screen bg-background">
       <main className="mx-auto max-[1980px] flex-grow w-full">
         <section className="grid grid-cols-[auto_1fr]">
-          <div className="grid col h-dvh bg-base rounded-e-xl">
+          <div className="grid col h-dvh bg-base rounded-e-xl sticky top-0">
             <NavbarVertical />
           </div>
           <div className="grid col">
-            <main className="py-8 px-10">
+            <div className="sticky top-0">
+              <Header />
+            </div>
+            <main className="py-6 px-10">
               <motion.div
                 initial={{ opacity: 0.6 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }} // Duração da animação
               >
-                <Header />
                 <div className="mt-4">{children}</div>
               </motion.div>
             </main>

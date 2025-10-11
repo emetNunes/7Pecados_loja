@@ -22,7 +22,7 @@ export const Header = () => {
   }
 
   return (
-    <header className=" flex justify-between items-center">
+    <header className=" flex justify-between items-center bg-background shadow-lg py-2 px-10">
       <section>
         <div className="text-2xl font-bold">{currentPage}</div>
         <div>
