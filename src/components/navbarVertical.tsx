@@ -52,7 +52,7 @@ export const NavbarVertical = () => {
           {navbarList.flatMap((elemento, index) => {
             const items = [
               <CustomNavLink to={`${elemento.router}`}>
-                <Tooltip content={`${elemento.namePage}`} showArrow={true}>
+                <Tooltip content={`${elemento.namePage}`} showArrow={true} placement="right">
                   {elemento.icon}
                 </Tooltip>
               </CustomNavLink>,
