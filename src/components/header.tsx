@@ -37,7 +37,7 @@ export const Header = () => {
         <ThemeSwitch />
         <div className="flex flex-row gap-6 items-center">
           <Badge size="sm" color="danger" content="99+" shape="circle">
-            <Bell size={24} strokeWidth={2.4} />
+            <Bell className="text-primary" size={24} strokeWidth={2.4} />
           </Badge>
           <div className="flex flex-col items-center">
             <User

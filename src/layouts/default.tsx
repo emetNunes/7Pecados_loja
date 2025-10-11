@@ -14,7 +14,7 @@ export default function DefaultLayout({
             <NavbarVertical />
           </div>
           <div className="grid col">
-            <main className="p-6">
+            <main className="py-8 px-10">
               <motion.div
                 initial={{ opacity: 0.6 }}
                 animate={{ opacity: 1 }}
