@@ -1,5 +1,6 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
+import { CardAccess } from "@/components/cardAccess";
 import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
 
 export default function IndexPage() {
@@ -44,7 +45,14 @@ export default function IndexPage() {
             <label className="text-2xl font-bold">Histórico de conta</label>
           </div>
         </section>
-        <section>OUTRA SECTION</section>
+        <section>
+          <CardAccess
+            title="Vai efetuar uma venda em sua loja?"
+            description="Clique no botão abaixo para iniciar o modo atendimento"
+          >
+            Modo atendimento
+          </CardAccess>
+        </section>
       </main>
     </DefaultLayout>
   );
