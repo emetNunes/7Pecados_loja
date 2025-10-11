@@ -10,7 +10,7 @@ export default function DefaultLayout({
     <div className="relative flex flex-col w-full h-screen bg-background">
       <main className="mx-auto max-[1980px] flex-grow w-full">
         <section className="grid grid-cols-[auto_1fr]">
-          <div className="grid col h-dvh bg-base rounded-e-xl sticky top-0">
+          <div className="grid col h-dvh bg-base rounded-e-xl sticky top-0 z-40">
             <NavbarVertical />
           </div>
           <div className="grid col">
