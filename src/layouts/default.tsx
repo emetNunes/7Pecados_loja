@@ -7,8 +7,8 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col h-screen bg-background">
-      <main className="container mx-auto max-[1980px] flex-grow">
+    <div className="relative flex flex-col w-full h-screen bg-background">
+      <main className="mx-auto max-[1980px] flex-grow w-full">
         <section className="grid grid-cols-[auto_1fr]">
           <div className="grid col h-dvh bg-base rounded-e-xl">
             <NavbarVertical />
