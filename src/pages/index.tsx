@@ -1,6 +1,7 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
+import { CardHistory } from "@/components/cardHistory";
 import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
 
 export default function IndexPage() {
@@ -43,6 +44,7 @@ export default function IndexPage() {
           </div>
           <div>
             <label className="text-2xl font-bold">Histórico de conta</label>
+            <CardHistory />
           </div>
         </section>
         <section>
