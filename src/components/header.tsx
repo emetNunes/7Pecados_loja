@@ -4,6 +4,16 @@ import { Bell } from "lucide-react";
 import icon_7pecados_name from "@/icons/7pecados_name.png";
 import { useLocation } from "react-router-dom";
 
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
+  Button,
+  useDisclosure,
+} from "@heroui/react";
+
 export const Header = () => {
   let currentPage = "";
   switch (useLocation().pathname) {
@@ -20,7 +30,7 @@ export const Header = () => {
       currentPage = "Ponto de Atendimento";
       break;
   }
-
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <header className=" flex justify-between items-center bg-background shadow-lg py-2 px-10">
       <section>
@@ -36,9 +46,11 @@ export const Header = () => {
       <section className="flex gap-4 items-center">
         <ThemeSwitch />
         <div className="flex flex-row gap-6 items-center">
-          <Badge size="sm" color="danger" content="99+" shape="circle">
-            <Bell className="text-primary" size={24} strokeWidth={2.4} />
-          </Badge>
+          <div onClick={onOpen} className="cursor-pointer flex">
+            <Badge size="sm" color="danger" content="99+" shape="circle">
+              <Bell className="text-primary" size={24} strokeWidth={2.4} />
+            </Badge>
+          </div>
           <div className="flex flex-col items-center">
             <User
               avatarProps={{
@@ -54,6 +66,23 @@ export const Header = () => {
           </div>
         </div>
       </section>
+      <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
+        <DrawerContent>
+          {(onClose) => (
+            <>
+              <DrawerHeader className="flex flex-col gap-1">Nofificações</DrawerHeader>
+              <DrawerBody>
+                Fazer as notificações aqui!
+              </DrawerBody>
+              <DrawerFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+              </DrawerFooter>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
     </header>
   );
 };

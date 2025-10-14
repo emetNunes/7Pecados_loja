@@ -49,7 +49,7 @@ const data = [
 
 export const BarChartComponent = () => {
     return (
-        <div className='w-full h-[400px] bg-base px-8 pb-10 pt-10 rounded-xl mt-4'>
+        <div className='w-full h-[400px] bg-base px-8 pb-10 pt-10 rounded-xl mt-4  shadow-2xs'>
             <div className=' flex w-full justify-end text-secondary'>
                 Set/2025
             </div>

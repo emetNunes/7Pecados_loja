@@ -121,7 +121,7 @@ export const CardHistory = () => {
     }, []);
 
     return (
-        <div className="py-6 px-8 bg-base rounded-xl mt-4">
+        <div className="py-6 px-8 bg-base rounded-xl mt-4  shadow-2xs">
             <Table removeWrapper
                 aria-label="Tabela de histórico de conta" classNames={{
                     table: "min-w-full",
