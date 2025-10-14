@@ -14,7 +14,7 @@ export default function DefaultLayout({
             <NavbarVertical />
           </div>
           <div className="grid col">
-            <div className="sticky top-0">
+            <div className="sticky top-0 z-30">
               <Header />
             </div>
             <main className="py-6 px-10">
