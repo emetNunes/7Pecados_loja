@@ -3,6 +3,7 @@ import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/cardHistory";
 import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
+import { BarChartComponent } from "@/components/charts/barChartComponent";
 
 export default function IndexPage() {
   let icon_size = 48;
@@ -41,6 +42,9 @@ export default function IndexPage() {
           </div>
           <div>
             <label className="text-2xl font-bold">Extrato recente</label>
+            <div>
+              <BarChartComponent/>
+            </div>
           </div>
           <div>
             <label className="text-2xl font-bold">Histórico de conta</label>
