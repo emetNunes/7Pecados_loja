@@ -4,6 +4,7 @@ import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/cardHistory";
 import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
 import { BarChartComponent } from "@/components/charts/barChartComponent";
+import { CardStatusOrders } from "@/components/cardStatusOrders";
 
 export default function IndexPage() {
   let icon_size = 48;
@@ -11,8 +12,8 @@ export default function IndexPage() {
 
   return (
     <DefaultLayout>
-      <main className="w-full grid grid-cols-[70%_1fr] gap-8">
-        <section className="flex flex-col gap-12">
+      <main className="w-full grid grid-cols-[auto_380px] gap-8">
+        <section className="flex flex-col gap-12 max-w-[1380px]">
           <div className="flex gap-6">
             <CardDefaultValue
               icon={<Wallet size={icon_size} strokeWidth={icon_stroke} />}
@@ -43,7 +44,7 @@ export default function IndexPage() {
           <div>
             <label className="text-2xl font-bold">Extrato recente</label>
             <div>
-              <BarChartComponent/>
+              <BarChartComponent />
             </div>
           </div>
           <div>
@@ -51,13 +52,14 @@ export default function IndexPage() {
             <CardHistory />
           </div>
         </section>
-        <section>
+        <section className="flex flex-col gap-6">
           <CardAccess
             title="Vai efetuar uma venda em sua loja?"
             description="Clique no botão abaixo para iniciar o modo atendimento"
           >
             Modo atendimento
           </CardAccess>
+          <CardStatusOrders></CardStatusOrders>
         </section>
       </main>
     </DefaultLayout>
