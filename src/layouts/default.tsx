@@ -13,7 +13,7 @@ export default function DefaultLayout({
           <div className="grid col h-dvh bg-base rounded-e-xl sticky top-0 z-40">
             <NavbarVertical />
           </div>
-          <div className="grid col">
+          <div className="grid grid-rows-[auto_1fr]">
             <div className="sticky top-0 z-30">
               <Header />
             </div>
