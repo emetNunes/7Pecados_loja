@@ -13,15 +13,21 @@ type ListInfoItem = {
 
 type CardStatusOrdersProps = {
   listInfo: ListInfoItem[];
+  title: string;
+  description: string;
 };
 
-export const CardStatusOrders = ({ listInfo }: CardStatusOrdersProps) => {
+export const CardStatusOrders = ({
+  listInfo,
+  title,
+  description,
+}: CardStatusOrdersProps) => {
   return (
     <div className="bg-base px-6 py-8 rounded-xl shadow-2xs">
       <div className="grid grid-cols-1 gap-8">
         <div className="flex flex-col items-start gap-2">
-          <div className="text-2xl font-bold">Pedidos Finalizados</div>
-          <div className="text-md text-default-500">Últimos 5 pedidos</div>
+          <div className="text-2xl font-bold">{title}</div>
+          <div className="text-md text-default-500">{description}</div>
         </div>
         <hr className="text-gray-200" />
         <div className="flex flex-col gap-4">

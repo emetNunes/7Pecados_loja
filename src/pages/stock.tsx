@@ -2,9 +2,129 @@ import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/cardHistory";
-import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
+import { Wallet, BanknoteArrowUp, Lollipop, IceCreamBowl } from "lucide-react";
 import { BarChartComponent } from "@/components/charts/barChartComponent";
 import { CardStatusOrders } from "@/components/cardStatusOrders";
+import { CardMakePurchase } from "@/components/cardMakePurchase";
+
+// Lista para cardHistory
+const database_list = [
+  {
+    key: "1",
+    description: "Categoria - Fruta",
+    info: "20 unidades",
+    value: "R$ 6,00",
+    title: "Morango",
+    type_movement: "buy",
+  },
+  {
+    key: "2",
+    description: "Categoria - Perecível",
+    info: "1 unidade",
+    value: "R$ 12,00",
+    title: "Nutella",
+    type_movement: "buy",
+  },
+  {
+    key: "3",
+    description: "Categoria - Fruta",
+    info: "20 unidades",
+    value: "R$ 6,00",
+    title: "Morango",
+    type_movement: "buy",
+  },
+  {
+    key: "4",
+    description: "Categoria - Perecível",
+    info: "1 unidade",
+    value: "R$ 12,00",
+    title: "Nutella",
+    type_movement: "buy",
+  },
+  {
+    key: "5",
+    description: "Categoria - Fruta",
+    info: "20 unidades",
+    value: "R$ 6,00",
+    title: "Morango",
+    type_movement: "buy",
+  },
+  {
+    key: "6",
+    description: "Categoria - Perecível",
+    info: "1 unidade",
+    value: "R$ 12,00",
+    title: "Nutella",
+    type_movement: "buy",
+  },
+  {
+    key: "7",
+    description: "Categoria - Fruta",
+    info: "20 unidades",
+    value: "R$ 6,00",
+    title: "Morango",
+    type_movement: "buy",
+  },
+];
+
+const columns_list = [
+  {
+    key: "description",
+    label: "Produto",
+  },
+  {
+    key: "info",
+    label: "Quantidade",
+  },
+  {
+    key: "value",
+    label: "Preço",
+  },
+];
+
+// Lista para o componente cardStatusOrders
+const listInfo_list = [
+  {
+    id: "1",
+    icon: <IceCreamBowl />,
+    title: "Taça do amor",
+    description: "Categoria - Taça",
+    status: "",
+    info: "20/Mês",
+  },
+  {
+    id: "2",
+    icon: <IceCreamBowl />,
+    title: "Taça da perdi.",
+    description: "Categoria - Taça",
+    status: "",
+    info: "15/Mês",
+  },
+  {
+    id: "3",
+    icon: <Lollipop />,
+    title: "Bolo de Brownwin",
+    description: "Categoria - Docess",
+    status: "",
+    info: "10/Mês",
+  },
+  {
+    id: "4",
+    icon: <IceCreamBowl />,
+    title: "Taça do amor",
+    description: "Categoria - Taça",
+    status: "",
+    info: "10/Mês",
+  },
+  {
+    id: "5",
+    icon: <IceCreamBowl />,
+    title: "Taça do amor",
+    description: "Categoria - Taça",
+    status: "",
+    info: "10/Mês",
+  },
+];
 
 export default function StockPage() {
   let icon_size = 48;
@@ -31,15 +151,7 @@ export default function StockPage() {
             >
               +100 vendas
             </CardDefaultValue>
-            <CardDefaultValue
-              icon={
-                <BanknoteArrowDown size={icon_size} strokeWidth={icon_stroke} />
-              }
-              description={"Efetuar compra"}
-              type_color={"tertiary"}
-            >
-              de mercadoria
-            </CardDefaultValue>
+            <CardMakePurchase />
           </div>
           <div>
             <label className="text-2xl font-bold">Informação do estoque</label>
@@ -51,7 +163,7 @@ export default function StockPage() {
             <label className="text-2xl font-bold">
               Inventário de mercadoria
             </label>
-            <CardHistory />
+            <CardHistory database={database_list} columns={columns_list} />
           </div>
         </section>
         <section className="flex flex-col gap-6">
@@ -61,7 +173,11 @@ export default function StockPage() {
           >
             Cadastrar produto
           </CardAccess>
-          <CardStatusOrders></CardStatusOrders>
+          <CardStatusOrders
+            listInfo={listInfo_list}
+            title="Produtos mais vendidos"
+            description="Últimos 5 pedidos"
+          />
         </section>
       </main>
     </DefaultLayout>

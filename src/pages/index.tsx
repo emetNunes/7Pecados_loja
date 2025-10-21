@@ -178,7 +178,11 @@ export default function IndexPage() {
           >
             Modo atendimento
           </CardAccess>
-          <CardStatusOrders listInfo={listInfo_list} />
+          <CardStatusOrders
+            listInfo={listInfo_list}
+            title="Pedidos finalizados"
+            description="Últimos 5 pedidos"
+          />
         </section>
       </main>
     </DefaultLayout>

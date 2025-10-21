@@ -92,7 +92,7 @@ export const CardHistory = ({ database, columns }: CardHistoryProps) => {
         case "value":
           return (
             <div
-              className={`${date.type_movement == "entrance" ? "text-secondary" : "text-primary"}`}
+              className={`${date.type_movement == "entrance" || "buy" ? "text-secondary" : "text-primary"}`}
             >
               {date.value}
             </div>
