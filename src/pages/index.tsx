@@ -2,9 +2,128 @@ import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/cardHistory";
-import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
+import { Wallet, BanknoteArrowUp, BanknoteArrowDown, User } from "lucide-react";
 import { BarChartComponent } from "@/components/charts/barChartComponent";
 import { CardStatusOrders } from "@/components/cardStatusOrders";
+
+// Lista para cardHistory
+const database_list = [
+  {
+    key: "1",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "entrance",
+  },
+  {
+    key: "2",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "exit",
+  },
+  {
+    key: "3",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "exit",
+  },
+  {
+    key: "4",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "exit",
+  },
+  {
+    key: "5",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "entrance",
+  },
+  {
+    key: "6",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "entrance",
+  },
+  {
+    key: "7",
+    description: "Rua tal, nº 100",
+    info: "22/08/2025",
+    value: "R$ 80,96",
+    title: "Feita na loja",
+    type_movement: "entrance",
+  },
+];
+
+const columns_list = [
+  {
+    key: "description",
+    label: "Resumo",
+  },
+  {
+    key: "info",
+    label: "Data",
+  },
+  {
+    key: "value",
+    label: "Valor",
+  },
+];
+
+// Lista para o componente cardStatusOrders
+const listInfo_list = [
+  {
+    id: "1",
+    icon: <User />,
+    title: "Maria Jose",
+    description: "Rua das Jacas, n°160",
+    status: "Finalizado em 15min",
+    info: "R$245,90",
+  },
+  {
+    id: "2",
+    icon: <User />,
+    title: "Maria Jose",
+    description: "Rua das Jacas, n°160",
+    status: "Finalizado em 15min",
+    info: "R$245,90",
+  },
+  {
+    id: "3",
+    icon: <User />,
+    title: "Maria Jose",
+    description: "Rua das Jacas, n°160",
+    status: "Finalizado em 15min",
+    info: "R$245,90",
+  },
+  {
+    id: "4",
+    icon: <User />,
+    title: "Maria Jose",
+    description: "Rua das Jacas, n°160",
+    status: "Finalizado em 15min",
+    info: "R$245,90",
+  },
+  {
+    id: "5",
+    icon: <User />,
+    title: "Maria Jose",
+    description: "Rua das Jacas, n°160",
+    status: "Finalizado em 15min",
+    info: "R$245,90",
+  },
+];
 
 export default function IndexPage() {
   let icon_size = 48;
@@ -49,7 +168,7 @@ export default function IndexPage() {
           </div>
           <div>
             <label className="text-2xl font-bold">Histórico de conta</label>
-            <CardHistory />
+            <CardHistory database={database_list} columns={columns_list} />
           </div>
         </section>
         <section className="flex flex-col gap-6">
@@ -59,7 +178,7 @@ export default function IndexPage() {
           >
             Modo atendimento
           </CardAccess>
-          <CardStatusOrders></CardStatusOrders>
+          <CardStatusOrders listInfo={listInfo_list} />
         </section>
       </main>
     </DefaultLayout>
