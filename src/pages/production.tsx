@@ -1,6 +1,7 @@
 import DefaultLayout from "@/layouts/default";
 import { Input } from "@heroui/input";
 import { Search } from "lucide-react";
+import { ColumnsProduction } from "@/components/columnsProduction";
 
 export default function ProductionPage() {
   return (
@@ -20,7 +21,36 @@ export default function ProductionPage() {
             />
           </div>
         </section>
-        <section>Grid</section>
+        <section className="grid grid-cols-4">
+          <ColumnsProduction
+            title={"Pendente"}
+            quantityOfItems={"1"}
+            type_rounded={"rounded-tl-xl"}
+          >
+            A
+          </ColumnsProduction>
+          <ColumnsProduction
+            title={"Em produção"}
+            quantityOfItems={"2"}
+            type_rounded={"none"}
+          >
+            B
+          </ColumnsProduction>
+          <ColumnsProduction
+            title={"Prontos"}
+            quantityOfItems={"3"}
+            type_rounded={"none"}
+          >
+            C
+          </ColumnsProduction>
+          <ColumnsProduction
+            title={"Entregues"}
+            quantityOfItems={"4"}
+            type_rounded={"rounded-tr-xl"}
+          >
+            D
+          </ColumnsProduction>
+        </section>
       </main>
     </DefaultLayout>
   );
