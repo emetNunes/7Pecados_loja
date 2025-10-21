@@ -3,9 +3,10 @@ import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/cardHistory";
 import { Wallet, BanknoteArrowUp, Lollipop, IceCreamBowl } from "lucide-react";
-import { BarChartComponent } from "@/components/charts/barChartComponent";
+import { PieChartComponent } from "@/components/charts/pieChartComponent";
 import { CardStatusOrders } from "@/components/cardStatusOrders";
 import { CardMakePurchase } from "@/components/cardMakePurchase";
+import { CardAlert } from "@/components/cardAlert";
 
 // Lista para cardHistory
 const database_list = [
@@ -155,8 +156,20 @@ export default function StockPage() {
           </div>
           <div>
             <label className="text-2xl font-bold">Informação do estoque</label>
-            <div>
-              <BarChartComponent />
+            <div className="flex flex-row gap-6">
+              <PieChartComponent />
+              <div className="flex flex-col justify-between gap-6">
+                <CardAlert
+                  title="Mercadorias paradas em seu estoque"
+                  description="Clique aqui para verificar no estoque →"
+                />
+                <CardAccess
+                  title="Adicione mercadoria em seu estoque"
+                  description="Clique no botão abaixo para cadastrar mercadoria"
+                >
+                  Adicionar mercadoria
+                </CardAccess>
+              </div>
             </div>
           </div>
           <div>
