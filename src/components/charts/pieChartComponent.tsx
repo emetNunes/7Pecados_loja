@@ -44,7 +44,7 @@ export const PieChartComponent = ({
   isAnimationActive?: boolean;
 }) => {
   return (
-    <div className="bg-base rounded-xl shadow-2xs w-full flex flex-row px-6 py-8 justify-between items-center justify-center">
+    <div className="bg-base rounded-xl shadow-2xs w-full flex flex-row px-6 py-8 items-center justify-center">
       <PieChart
         style={{
           width: "100%",
