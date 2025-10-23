@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Button } from "@heroui/button";
-import { Hash } from "lucide-react";
+import { Hash, CircleCheck } from "lucide-react";
 
 type CardProductionProps = {
   id: string;
@@ -10,6 +10,7 @@ type CardProductionProps = {
   type_payment: string;
   total_value: string;
   status: string;
+  completion_time?: string;
   children: ReactNode;
 };
 
@@ -21,6 +22,7 @@ export const CardProduction = ({
   type_payment,
   total_value,
   status,
+  completion_time = "",
   children,
 }: CardProductionProps) => {
   let type_color;
@@ -41,26 +43,42 @@ export const CardProduction = ({
       title_button = "Entregue";
       break;
   }
+
   return (
-    <div className="flex flex-col bg-base px-6 py-8 gap-4 shadow-2xs rounded-xl mx-2 mt-3">
+    <div
+      className={`flex flex-col ${status != "delivered" ? "bg-base" : "bg-primary"} px-6 py-8 gap-4 shadow-2xs rounded-xl mx-2 mt-3`}
+    >
       <div className="flex w-full justify-between items-center">
-        <div className={`text-${type_color} flex items-center font-bold`}>
-          <Hash size={16} strokeWidth={3} />
-          {id}
+        <div
+          className={`text-${status != "delivered" ? type_color : "white"} flex items-center font-bold`}
+        >
+          <div className={`${status != "delivered" ? "hidden" : ""}`}>
+            <CircleCheck />
+          </div>
+          <div
+            className={`flex items-center font-bold ${status === "delivered" ? "hidden" : ""}`}
+          >
+            <Hash size={16} strokeWidth={3} />
+            {id}
+          </div>
         </div>
         <div
-          className={`bg-${type_color} w-fit px-4 py-1 rounded-xl text-white text-[0.75rem]`}
+          className={`bg-${status != "delivered" ? type_color : "white"} w-fit px-4 py-1 rounded-xl ${status != "delivered" ? "text-base" : "text-primary"} text-[0.75rem]`}
         >
-          {place_to_buy}
+          {status != "delivered" ? place_to_buy : "#" + id}
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div
+        className={`flex flex-col gap-2 ${status != "delivered" ? "" : "hidden"}`}
+      >
         <hr className="border-gray-200" />
         <div className={`flex flex-col text-${type_color}`}>
           <div className="font-bold text-lg">{name_user}</div>
           <div className="text-xs">{address}</div>
         </div>
-        <div>{children}</div>
+        <div className={`${status === "delivered" ? "hidden" : ""}`}>
+          {children}
+        </div>
         <div>
           <hr className="border-gray-200 border-dashed border-1" />
           <div
@@ -71,9 +89,18 @@ export const CardProduction = ({
           </div>
         </div>
       </div>
+      <div
+        className={`flex flex-col gap-2 text-base ${status === "delivered" ? "" : "hidden"}`}
+      >
+        <div className="flex flex-col text-lg">
+          <div>Pedido de {name_user}</div>
+          <div>Entregue!</div>
+        </div>
+        <div className="text-sm">Concluído em {completion_time}</div>
+      </div>
       <div>
         <Button
-          className={`bg-primary text-base rounded-xl bg-${type_color} flex w-full`}
+          className={`bg-primary text-base rounded-xl bg-${type_color} flex w-full ${status === "delivered" ? "hidden" : ""}`}
         >
           <span className="default invert">{title_button}</span>
         </Button>

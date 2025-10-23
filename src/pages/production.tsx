@@ -90,6 +90,34 @@ const list_productions = [
       },
     ],
   },
+  {
+    id: "1322",
+    place_to_buy: "Entrega",
+    name_user: "Nathalia Gomes",
+    address: "Rua agostinho Gama - 42",
+    type_payment: "Pagamento no pix",
+    total_value: "R$50,58",
+    status: "delivered",
+    completion_time: "15 minutos",
+    all_list_products: [
+      {
+        id_product: "4312",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+      {
+        id_product: "8812",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+    ],
+  },
 ];
 
 export default function ProductionPage() {
@@ -101,6 +129,9 @@ export default function ProductionPage() {
   );
   const ready_list_filter_production = list_productions.filter(
     (production) => production.status === "ready"
+  );
+  const delivered_filter_production = list_productions.filter(
+    (production) => production.status === "delivered"
   );
 
   return (
@@ -184,10 +215,23 @@ export default function ProductionPage() {
           {/* Entregues */}
           <ColumnsProduction
             title={"Entregues"}
-            quantityOfItems={"4"}
+            quantityOfItems={String(delivered_filter_production.length)}
             type_rounded={"rounded-tr-xl"}
           >
-            D
+            {delivered_filter_production.map((element) => (
+              <CardProduction
+                id={element.id}
+                place_to_buy={element.place_to_buy}
+                name_user={element.name_user}
+                address={element.address}
+                type_payment={element.type_payment}
+                total_value={element.total_value}
+                status={element.status}
+                completion_time={element.completion_time}
+              >
+                <ItemCardProduction list_items={element.all_list_products} />
+              </CardProduction>
+            ))}
           </ColumnsProduction>
         </section>
       </main>
