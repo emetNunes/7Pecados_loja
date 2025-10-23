@@ -3,6 +3,7 @@ import { Input } from "@heroui/input";
 import { Search } from "lucide-react";
 import { ColumnsProduction } from "@/components/columnsProduction";
 import { CardProduction } from "@/components/cardProduction";
+import { ItemCardProduction } from "@/components/itemCardProduction";
 
 const list_productions = [
   {
@@ -13,6 +14,16 @@ const list_productions = [
     type_payment: "Pagamento no cartão",
     total_value: "R$26,58",
     status: "pending",
+    all_list_products: [
+      {
+        id_product: "0312",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+    ],
   },
   {
     id: "1321",
@@ -22,6 +33,16 @@ const list_productions = [
     type_payment: "Pagamento no cartão",
     total_value: "R$30,58",
     status: "in_production",
+    all_list_products: [
+      {
+        id_product: "1312",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+    ],
   },
   {
     id: "1344",
@@ -31,6 +52,16 @@ const list_productions = [
     type_payment: "Pagamento no cartão",
     total_value: "R$30,58",
     status: "in_production",
+    all_list_products: [
+      {
+        id_product: "2312",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+    ],
   },
   {
     id: "1322",
@@ -40,6 +71,24 @@ const list_productions = [
     type_payment: "Pagamento no pix",
     total_value: "R$50,58",
     status: "ready",
+    all_list_products: [
+      {
+        id_product: "4312",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+      {
+        id_product: "8812",
+        photo_product: "default",
+        title_product: "Taça do amor",
+        qtd_product: "1",
+        type_product: "Taça",
+        total_value_product: "R$26,58",
+      },
+    ],
   },
 ];
 
@@ -70,9 +119,10 @@ export default function ProductionPage() {
           <div>Botão aqui do lado : )</div>
         </section>
         <section className="grid grid-cols-4">
+          {/* Pendente */}
           <ColumnsProduction
             title={"Pendente"}
-            quantityOfItems={"1"}
+            quantityOfItems={String(pending_list_filter_production.length)}
             type_rounded={"rounded-tl-xl"}
           >
             {pending_list_filter_production.map((element) => (
@@ -85,14 +135,16 @@ export default function ProductionPage() {
                 total_value={element.total_value}
                 status={element.status}
               >
-                ITEM AQUI
+                <ItemCardProduction list_items={element.all_list_products} />
               </CardProduction>
             ))}
           </ColumnsProduction>
-
+          {/* Em produção */}
           <ColumnsProduction
             title={"Em produção"}
-            quantityOfItems={"2"}
+            quantityOfItems={String(
+              in_production_list_filter_production.length
+            )}
             type_rounded={"none"}
           >
             {in_production_list_filter_production.map((element) => (
@@ -105,13 +157,14 @@ export default function ProductionPage() {
                 total_value={element.total_value}
                 status={element.status}
               >
-                ITEM AQUI
+                <ItemCardProduction list_items={element.all_list_products} />
               </CardProduction>
             ))}
           </ColumnsProduction>
+          {/* Prontos */}
           <ColumnsProduction
             title={"Prontos"}
-            quantityOfItems={"3"}
+            quantityOfItems={String(ready_list_filter_production.length)}
             type_rounded={"none"}
           >
             {ready_list_filter_production.map((element) => (
@@ -124,10 +177,11 @@ export default function ProductionPage() {
                 total_value={element.total_value}
                 status={element.status}
               >
-                ITEM AQUI
+                <ItemCardProduction list_items={element.all_list_products} />
               </CardProduction>
             ))}
           </ColumnsProduction>
+          {/* Entregues */}
           <ColumnsProduction
             title={"Entregues"}
             quantityOfItems={"4"}

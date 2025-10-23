@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Button } from "@heroui/button";
+import { Hash } from "lucide-react";
 
 type CardProductionProps = {
   id: string;
@@ -42,7 +43,11 @@ export const CardProduction = ({
   }
   return (
     <div className="flex flex-col bg-base px-6 py-8 gap-4 shadow-2xs rounded-xl mx-2 mt-3">
-      <div className="flex w-full justify-start">
+      <div className="flex w-full justify-between items-center">
+        <div className={`text-${type_color} flex items-center font-bold`}>
+          <Hash size={16} strokeWidth={3} />
+          {id}
+        </div>
         <div
           className={`bg-${type_color} w-fit px-4 py-1 rounded-xl text-white text-[0.75rem]`}
         >
@@ -50,15 +55,14 @@ export const CardProduction = ({
         </div>
       </div>
       <div className="flex flex-col gap-2">
+        <hr className="border-gray-200" />
         <div className={`flex flex-col text-${type_color}`}>
-          <div className="font-bold text-lg">
-            {name_user} - #{id}
-          </div>
+          <div className="font-bold text-lg">{name_user}</div>
           <div className="text-xs">{address}</div>
         </div>
         <div>{children}</div>
         <div>
-          <hr className="border-gray-500 border-dashed border-1" />
+          <hr className="border-gray-200 border-dashed border-1" />
           <div
             className={`text-${type_color} flex flex-row justify-between text-sm`}
           >
