@@ -1,5 +1,6 @@
 import DefaultLayout from "@/layouts/default";
 import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
 import { Search } from "lucide-react";
 import { ColumnsProduction } from "@/components/columnsProduction";
 import { CardProduction } from "@/components/cardProduction";
@@ -137,7 +138,7 @@ export default function ProductionPage() {
   return (
     <DefaultLayout>
       <main className="flex flex-col gap-6">
-        <section className="flex gap-4">
+        <section className="flex gap-4 items-center">
           <div className="max-w-[320px]">
             <Input
               className="bg-base shadow-2xl rounded-xl"
@@ -147,7 +148,9 @@ export default function ProductionPage() {
               startContent={<Search />}
             />
           </div>
-          <div>Botão aqui do lado : )</div>
+          <Button className="bg-primary">
+            <span className="invert">Buscar</span>
+          </Button>
         </section>
         <section className="grid grid-cols-4">
           {/* Pendente */}
