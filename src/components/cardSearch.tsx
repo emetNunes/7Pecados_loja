@@ -9,7 +9,7 @@ type CardSearchProps = {
 export const CardSearch = ({ text_label, text_button }: CardSearchProps) => {
   return (
     <section className="flex gap-4 items-center">
-      <div className="max-w-[320px]">
+      <div className="w-[420px]">
         <Input
           className="bg-base shadow-2xl rounded-xl"
           label={text_label}
