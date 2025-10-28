@@ -33,7 +33,7 @@ export const CardProduct = ({
 
   return (
     <div key={id}>
-      <div className="flex flex-col border-2 border-default-300 rounded-2xl">
+      <div className="flex flex-col border-2 border-default-300 rounded-2xl bg-base">
         <div className="bg-default-200 w-full h-[220px] rounded-2xl">
           <div className="flex justify-center items-center h-full text-base">
             <Image />
