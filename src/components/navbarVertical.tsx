@@ -9,6 +9,7 @@ import {
   ShoppingCart,
   LogOut,
 } from "lucide-react";
+import { LogoutButton } from "../components/LogoutButton";
 
 let icon_size = 32;
 let icon_stroke = 2.4;
@@ -49,11 +50,15 @@ export const NavbarVertical = () => {
         </div>
         <Divider className="my-4" />
         <nav className="flex flex-col items-center h-full gap-6">
-          {navbarList.flatMap((elemento, index) => {
+          {navbarList.flatMap((element, index) => {
             const items = [
-              <CustomNavLink to={`${elemento.router}`}>
-                <Tooltip content={`${elemento.namePage}`} showArrow={true} placement="right">
-                  {elemento.icon}
+              <CustomNavLink key={element.namePage} to={`${element.router}`}>
+                <Tooltip
+                  content={`${element.namePage}`}
+                  showArrow={true}
+                  placement="right"
+                >
+                  {element.icon}
                 </Tooltip>
               </CustomNavLink>,
             ];
@@ -65,7 +70,9 @@ export const NavbarVertical = () => {
         </nav>
         <Divider className="my-4" />
         <div className="text-primary">
-          <LogOut size={24} />
+          <LogoutButton>
+            <LogOut size={24} />
+          </LogoutButton>
         </div>
       </section>
     </div>

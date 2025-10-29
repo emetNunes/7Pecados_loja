@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AnimatePresence } from "framer-motion";
 
 import IndexPage from "@/pages/index";
@@ -8,14 +9,43 @@ import ProductionPage from "./pages/production";
 import ServicePage from "./pages/service";
 
 function App() {
+  const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes>
-        <Route element={<IndexPage />} path="/" />
+      <Routes location={location} key={location.pathname}>
         <Route element={<LoginPage />} path="/login" />
-        <Route element={<StockPage />} path="/stock" />
-        <Route element={<ProductionPage />} path="/production" />
-        <Route element={<ServicePage />} path="/service" />
+        <Route
+          element={
+            <ProtectedRoute>
+              <IndexPage />
+            </ProtectedRoute>
+          }
+          path="/"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <StockPage />
+            </ProtectedRoute>
+          }
+          path="/stock"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <ProductionPage />
+            </ProtectedRoute>
+          }
+          path="/production"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <ServicePage />
+            </ProtectedRoute>
+          }
+          path="/service"
+        />
       </Routes>
     </AnimatePresence>
   );
