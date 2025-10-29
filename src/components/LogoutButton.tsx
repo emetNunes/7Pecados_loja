@@ -48,5 +48,9 @@ export const LogoutButton = ({ children }: LogoutButtonProps) => {
     }
   };
 
-  return <Button onClick={handleLogout}>{children}</Button>;
+  return (
+    <Button onClick={handleLogout} className="bg-base">
+      {children}
+    </Button>
+  );
 };
