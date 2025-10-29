@@ -46,7 +46,7 @@ export const Header = () => {
       <section className="flex gap-4 items-center">
         <ThemeSwitch />
         <div className="flex flex-row gap-6 items-center">
-          <div onClick={onOpen} className="cursor-pointer flex">
+          <div onClick={onOpen} className="cursor-pointer hidden">
             <Badge size="sm" color="danger" content="99+" shape="circle">
               <Bell className="text-primary" size={24} strokeWidth={2.4} />
             </Badge>
@@ -66,14 +66,14 @@ export const Header = () => {
           </div>
         </div>
       </section>
-      <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Drawer isOpen={isOpen} onOpenChange={onOpenChange} className="hidden">
         <DrawerContent>
           {(onClose) => (
             <>
-              <DrawerHeader className="flex flex-col gap-1">Nofificações</DrawerHeader>
-              <DrawerBody>
-                Fazer as notificações aqui!
-              </DrawerBody>
+              <DrawerHeader className="flex flex-col gap-1">
+                Nofificações
+              </DrawerHeader>
+              <DrawerBody>Fazer as notificações aqui!</DrawerBody>
               <DrawerFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
