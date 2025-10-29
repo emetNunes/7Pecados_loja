@@ -1,6 +1,6 @@
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Image, Badge, User } from "@heroui/react";
-import { Bell } from "lucide-react";
+import { Bell, UserCog, UserIcon } from "lucide-react";
 import icon_7pecados_name from "@/icons/7pecados_name.png";
 import { useLocation } from "react-router-dom";
 
@@ -15,6 +15,17 @@ import {
 } from "@heroui/react";
 
 export const Header = () => {
+  const userString = localStorage.getItem("user");
+  let user_save = null;
+  if (userString) {
+    try {
+      user_save = JSON.parse(userString);
+    } catch (e) {
+      console.error("Erro ao fazer parse do usuário:", e);
+      localStorage.removeItem("user");
+    }
+  }
+
   let currentPage = "";
   switch (useLocation().pathname) {
     case "/":
@@ -54,10 +65,15 @@ export const Header = () => {
           <div className="flex flex-col items-center">
             <User
               avatarProps={{
-                src: "https://avatars.githubusercontent.com/u/88737544?v=4",
+                icon:
+                  user_save.permission === "admin" ? (
+                    <UserCog />
+                  ) : (
+                    <UserIcon size={24} />
+                  ),
               }}
-              description="Front-End"
-              name="Victor Santos"
+              description={user_save.permission}
+              name={user_save.name}
               classNames={{
                 name: "font-bold",
                 description: "text-sm text-default-500",
