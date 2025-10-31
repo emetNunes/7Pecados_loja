@@ -7,6 +7,8 @@ import { PieChartComponent } from "@/components/charts/pieChartComponent";
 import { CardStatusOrders } from "@/components/cardStatusOrders";
 import { CardMakePurchase } from "@/components/cardMakePurchase";
 import { CardAlert } from "@/components/cardAlert";
+import { DrawerComponent } from "@/components/drawerComponent";
+import { CardFormPurchaseMerchandise } from "@/components/form/cardFormPurchaseMerchandise";
 
 // Lista para cardHistory
 const database_list = [
@@ -152,7 +154,14 @@ export default function StockPage() {
             >
               +100 vendas
             </CardDefaultValue>
-            <CardMakePurchase />
+            <div className="flex w-full">
+              <DrawerComponent
+                title="Adicionar Mercadoria"
+                trigger={<CardMakePurchase />}
+              >
+                <CardFormPurchaseMerchandise />
+              </DrawerComponent>
+            </div>
           </div>
           <div>
             <label className="text-2xl font-bold">Informação do estoque</label>
