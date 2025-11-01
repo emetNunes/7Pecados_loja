@@ -3,6 +3,7 @@ import { Image, Badge, User } from "@heroui/react";
 import { Bell, UserCog, UserIcon } from "lucide-react";
 import icon_7pecados_name from "@/icons/7pecados_name.png";
 import { useLocation } from "react-router-dom";
+import "../styles/header.css";
 
 export const Header = () => {
   const userString = localStorage.getItem("user");
@@ -33,7 +34,7 @@ export const Header = () => {
   }
 
   return (
-    <header className=" flex justify-between items-center bg-background shadow-lg py-2 px-10">
+    <header className=" flex justify-between items-center py-2 px-10 grass_efect">
       <section>
         <div className="text-2xl font-bold">{currentPage}</div>
         <div>
