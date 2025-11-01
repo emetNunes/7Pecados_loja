@@ -1,10 +1,21 @@
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Input } from "@heroui/react";
-import { Button } from "@heroui/react";
+import { Input, Button } from "@heroui/react";
 import { useState, FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchApi } from "../services/api";
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
 
-const API_URL = "https://api-7pecados.onrender.com";
+interface LoginResponse {
+  token: string;
+  user?: User;
+  id?: number;
+  username?: string;
+  email?: string;
+}
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -25,39 +36,35 @@ export default function LoginPage() {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
-
     try {
-      const response = await fetch(`${API_URL}/user/login/`, {
+      const loginData = {
+        login: usuario,
+        password: password,
+      };
+      const data = await fetchApi<LoginResponse>("/user/login/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          login: usuario,
-          password: password,
-        }),
+        body: loginData,
       });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.token) {
-          localStorage.setItem("authToken", data.token);
-        }
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        } else {
-          const userData = { ...data };
-          delete userData.token;
-          localStorage.setItem("user", JSON.stringify(userData));
-        }
-        console.log("Login realizado com sucesso, redirecionando...");
-        navigate("/", { replace: true });
-      } else {
-        console.error("Falha no login: Usuário ou senha inválidos.");
-        setError("Falha no login: Usuário ou senha inválidos.");
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
       }
-    } catch (error) {
-      console.error("Erro de rede ou ao conectar com a API:", error);
-      setError("Erro de rede. Tente novamente mais tarde.");
+      let userToStore: User | Omit<LoginResponse, "token">;
+      if (data.user) {
+        userToStore = data.user;
+      } else {
+        const { token, ...userData } = data;
+        userToStore = userData;
+      }
+      localStorage.setItem("user", JSON.stringify(userToStore));
+      navigate("/", { replace: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Falha no login:", err.message);
+        setError(err.message);
+      } else {
+        console.error("Erro inesperado:", err);
+        setError("Ocorreu um erro inesperado.");
+      }
     } finally {
       setIsLoading(false);
     }
