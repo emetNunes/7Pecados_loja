@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { ItemCardStatusOrders } from "./itemCardStatusOrders";
-import { Button } from "@heroui/button";
 
 type ListInfoItem = {
   id: string;
@@ -40,9 +39,6 @@ export const CardStatusOrders = ({
               info={element.info}
             />
           ))}
-          <Button className="bg-primary text-base rounded-xl">
-            <span className="default invert">Clique para ver mais</span>
-          </Button>
         </div>
       </div>
     </div>
