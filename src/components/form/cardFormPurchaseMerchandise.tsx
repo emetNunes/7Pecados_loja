@@ -242,7 +242,6 @@ export const CardFormPurchaseMerchandise = () => {
                             className="rounded-full !p-1 bg-base"
                           >
                             <Trash className="h-5 w-5" />
-                            Button
                           </Button>
                         </div>
                       </li>
