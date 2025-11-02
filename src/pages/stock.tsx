@@ -8,7 +8,7 @@ import { CardStatusOrders } from "@/components/cardStatusOrders";
 import { CardMakePurchase } from "@/components/cardMakePurchase";
 import { CardAlert } from "@/components/cardAlert";
 import { DrawerComponent } from "@/components/drawerComponent";
-import { CardFormPurchaseMerchandise } from "@/components/form/cardFormPurchaseMerchandise";
+import { CardFormPurchaseMerchandise } from "@/components/cardFormPurchaseMerchandise";
 
 // Lista para cardHistory
 const database_list = [

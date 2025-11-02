@@ -1,9 +1,11 @@
 import { Form, Input, Button } from "@heroui/react";
-import { Plus, Trash, Minus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Select, SelectItem } from "@heroui/react";
-import { useState, useEffect } from "react";
-import { SearchableDropdown } from "../searchableDropdown";
-import { fetchApi } from "../../services/api";
+import { useState } from "react";
+import { SearchableDropdown } from "./searchableDropdown";
+
+import { useIngredients } from "../hooks/useIngredients";
+import { AddedItemsList } from "./addedItemsList";
 
 type Option = {
   value: string;
@@ -13,58 +15,18 @@ type Option = {
 type AddedItem = Option & {
   quantity: number;
 };
-interface ApiIngredient {
-  _id: string;
-  name: string;
-}
-interface ApiResponse {
-  total: number;
-  page: number;
-  pages: number;
-  ingredient: ApiIngredient[];
-}
 
 export const location_buy = [{ key: "1", label: "Estoque principal" }];
 
-export const select_list_category = [
-  { key: "1", label: "Taças" },
-  { key: "2", label: "Doces" },
-];
-
 export const CardFormPurchaseMerchandise = () => {
+  const {
+    ingredients: allItems,
+    isLoading: isLoadingIngredients,
+    error: fetchError,
+  } = useIngredients();
+
   const [selectIngredient, setSelectIngredient] = useState<string | null>(null);
   const [addedItems, setAddedItems] = useState<AddedItem[]>([]);
-  const [allItems, setAllItems] = useState<Option[]>([]);
-  const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadIngredients = async () => {
-      try {
-        setIsLoadingIngredients(true);
-        setFetchError(null);
-        const data = await fetchApi<ApiResponse>(
-          "/admin/stock/ingredients/historic"
-        );
-        const formattedOptions: Option[] = data.ingredient.map(
-          (ingredient) => ({
-            value: ingredient._id,
-            label: ingredient.name,
-          })
-        );
-        setAllItems(formattedOptions);
-      } catch (error) {
-        if (error instanceof Error) {
-          setFetchError(`Erro ao carregar ingredientes: ${error.message}`);
-        } else {
-          setFetchError("Ocorreu um erro desconhecido.");
-        }
-      } finally {
-        setIsLoadingIngredients(false);
-      }
-    };
-    loadIngredients();
-  }, []);
 
   const onSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -199,59 +161,15 @@ export const CardFormPurchaseMerchandise = () => {
                 </Button>
               </div>
 
-              {addedItems.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="text-sm">Itens Adicionados:</h2>
-                  <ul className="mt-2 space-y-2">
-                    {addedItems.map((item) => (
-                      <li
-                        key={item.value}
-                        className="flex justify-between items-center py-2 px-4 bg-base rounded-2xl shadow-sm"
-                      >
-                        <span className="text-default-700 font-medium">
-                          {item.label}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              onClick={() =>
-                                handleQuantityChange(item.value, "decrement")
-                              }
-                              size="sm"
-                              className="flex rounded-full data-[disabled]:opacity-50 bg-red-400"
-                              disabled={item.quantity <= 1}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="font-medium w-6 text-center tabular-nums">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              onClick={() =>
-                                handleQuantityChange(item.value, "increment")
-                              }
-                              size="sm"
-                              className="flex rounded-full bg-success-400"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <Button
-                            onClick={() => handleRemoveItem(item.value)}
-                            size="sm"
-                            className="rounded-full !p-1 bg-base"
-                          >
-                            <Trash className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <AddedItemsList
+                items={addedItems}
+                onRemoveItem={handleRemoveItem}
+                onQuantityChange={handleQuantityChange}
+              />
             </div>
           </div>
         </div>
+
         <Button
           type="submit"
           variant="solid"
