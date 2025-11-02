@@ -1,18 +1,28 @@
 import { Form, Input, Button } from "@heroui/react";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, Minus } from "lucide-react";
 import { Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchableDropdown } from "../searchableDropdown";
+import { fetchApi } from "../../services/api";
 
 type Option = {
   value: string;
   label: string;
 };
 
-const allItems: Option[] = [
-  { value: "banana", label: "Banana" },
-  { value: "morango", label: "Morango" },
-];
+type AddedItem = Option & {
+  quantity: number;
+};
+interface ApiIngredient {
+  _id: string;
+  name: string;
+}
+interface ApiResponse {
+  total: number;
+  page: number;
+  pages: number;
+  ingredient: ApiIngredient[];
+}
 
 export const location_buy = [{ key: "1", label: "Estoque principal" }];
 
@@ -22,20 +32,50 @@ export const select_list_category = [
 ];
 
 export const CardFormPurchaseMerchandise = () => {
+  const [selectIngredient, setSelectIngredient] = useState<string | null>(null);
+  const [addedItems, setAddedItems] = useState<AddedItem[]>([]);
+  const [allItems, setAllItems] = useState<Option[]>([]);
+  const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadIngredients = async () => {
+      try {
+        setIsLoadingIngredients(true);
+        setFetchError(null);
+        const data = await fetchApi<ApiResponse>(
+          "/admin/stock/ingredients/historic"
+        );
+        const formattedOptions: Option[] = data.ingredient.map(
+          (ingredient) => ({
+            value: ingredient._id,
+            label: ingredient.name,
+          })
+        );
+        setAllItems(formattedOptions);
+      } catch (error) {
+        if (error instanceof Error) {
+          setFetchError(`Erro ao carregar ingredientes: ${error.message}`);
+        } else {
+          setFetchError("Ocorreu um erro desconhecido.");
+        }
+      } finally {
+        setIsLoadingIngredients(false);
+      }
+    };
+    loadIngredients();
+  }, []);
+
   const onSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    console.log("Formulário enviado com:", {
+      items: addedItems,
+    });
   };
 
-  const [selectedFramework, setSelectedFramework] = useState<string | null>(
-    null
-  );
-
-  const [addedItems, setAddedItems] = useState<Option[]>([]);
-
   const handleAddItem = () => {
-    if (!selectedFramework) return;
-
-    const itemToAdd = allItems.find((item) => item.value === selectedFramework);
+    if (!selectIngredient) return;
+    const itemToAdd = allItems.find((item) => item.value === selectIngredient);
     if (!itemToAdd) return;
 
     const alreadyAdded = addedItems.some(
@@ -43,17 +83,36 @@ export const CardFormPurchaseMerchandise = () => {
     );
     if (alreadyAdded) {
       alert("Este item já foi adicionado!");
-      setSelectedFramework(null);
+      setSelectIngredient(null);
       return;
     }
 
-    setAddedItems((prevItems) => [...prevItems, itemToAdd]);
-    setSelectedFramework(null);
+    setAddedItems((prevItems) => [...prevItems, { ...itemToAdd, quantity: 1 }]);
+    setSelectIngredient(null);
   };
 
   const handleRemoveItem = (valueToRemove: string) => {
     setAddedItems((prevItems) =>
       prevItems.filter((item) => item.value !== valueToRemove)
+    );
+  };
+
+  const handleQuantityChange = (
+    itemValue: string,
+    direction: "increment" | "decrement"
+  ) => {
+    setAddedItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.value === itemValue) {
+          let newQuantity =
+            direction === "increment" ? item.quantity + 1 : item.quantity - 1;
+          if (newQuantity < 1) {
+            newQuantity = 1;
+          }
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
     );
   };
 
@@ -66,7 +125,6 @@ export const CardFormPurchaseMerchandise = () => {
           </h2>
           <hr className="border-default-200" />
           <div className="flex flex-col gap-4">
-            {/* Local da compra */}
             <div className="flex flex-col gap-2">
               <h2 className="text-sm text-default-700">Local da compra</h2>
               <Select
@@ -97,7 +155,9 @@ export const CardFormPurchaseMerchandise = () => {
             </div>
           </div>
         </div>
+
         <hr className="w-full border-default" />
+
         <div className="flex flex-col w-full gap-2">
           <h2 className="text-blue-500 text-center">
             -- Mercadoria comprada --
@@ -108,17 +168,29 @@ export const CardFormPurchaseMerchandise = () => {
             <div>
               <div className="flex items-end gap-2">
                 <div className="flex-grow">
-                  <SearchableDropdown
-                    options={allItems}
-                    value={selectedFramework}
-                    onChange={setSelectedFramework}
-                    placeholder="Escolha um ingrediente..."
-                    searchPlaceholder="Buscar..."
-                  />
+                  {isLoadingIngredients ? (
+                    <div className="h-10 flex items-center px-3 rounded-lg border border-default-200">
+                      <p className="text-sm text-default-600">
+                        Carregando ingredientes...
+                      </p>
+                    </div>
+                  ) : fetchError ? (
+                    <div className="h-10 flex items-center px-3 rounded-lg border border-danger">
+                      <p className="text-sm text-danger">{fetchError}</p>
+                    </div>
+                  ) : (
+                    <SearchableDropdown
+                      options={allItems}
+                      value={selectIngredient}
+                      onChange={setSelectIngredient}
+                      placeholder="Escolha um ingrediente..."
+                      searchPlaceholder="Buscar..."
+                    />
+                  )}
                 </div>
                 <Button
                   onClick={handleAddItem}
-                  disabled={!selectedFramework}
+                  disabled={!selectIngredient || isLoadingIngredients}
                   className="shrink-0 bg-success"
                 >
                   <span className="invert">
@@ -126,6 +198,7 @@ export const CardFormPurchaseMerchandise = () => {
                   </span>
                 </Button>
               </div>
+
               {addedItems.length > 0 && (
                 <div className="mt-6">
                   <h2 className="text-sm">Itens Adicionados:</h2>
@@ -138,13 +211,40 @@ export const CardFormPurchaseMerchandise = () => {
                         <span className="text-default-700 font-medium">
                           {item.label}
                         </span>
-                        <Button
-                          onClick={() => handleRemoveItem(item.value)}
-                          size="sm"
-                          className="rounded-full !p-1 bg-base"
-                        >
-                          <Trash />
-                        </Button>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() =>
+                                handleQuantityChange(item.value, "decrement")
+                              }
+                              size="sm"
+                              className="flex rounded-full data-[disabled]:opacity-50 bg-red-400"
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="font-medium w-6 text-center tabular-nums">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              onClick={() =>
+                                handleQuantityChange(item.value, "increment")
+                              }
+                              size="sm"
+                              className="flex rounded-full bg-success-400"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <Button
+                            onClick={() => handleRemoveItem(item.value)}
+                            size="sm"
+                            className="rounded-full !p-1 bg-base"
+                          >
+                            <Trash className="h-5 w-5" />
+                            Button
+                          </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>

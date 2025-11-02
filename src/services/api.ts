@@ -4,7 +4,7 @@ interface ApiError {
   message: string;
 }
 
-type ApiOptions = Omit<RequestInit, 'body'> & {
+type ApiOptions = Omit<RequestInit, "body"> & {
   body?: BodyInit | null | Record<string, any>;
 };
 
@@ -16,19 +16,21 @@ type ApiOptions = Omit<RequestInit, 'body'> & {
  * @throws Lança um erro se a requisição falhar.
  */
 
-export async function fetchApi<T>(path: string, options: ApiOptions = {}): Promise<T> {
+export async function fetchApi<T>(
+  path: string,
+  options: ApiOptions = {}
+): Promise<T> {
   const { body, ...restOptions } = options;
 
   const url = `${API_URL}${path}`;
   const token = localStorage.getItem("authToken");
-
   const defaultHeaders: HeadersInit = {};
 
-  if (body && typeof body === 'object' && !(body instanceof FormData)) {
+  if (body && typeof body === "object" && !(body instanceof FormData)) {
     defaultHeaders["Content-Type"] = "application/json";
   }
   if (token) {
-    defaultHeaders["Authorization"] = `Bearer ${token}`;
+    defaultHeaders["Authorization"] = `${token}`;
   }
 
   const mergedOptions: RequestInit = {
@@ -39,7 +41,7 @@ export async function fetchApi<T>(path: string, options: ApiOptions = {}): Promi
     },
   };
 
-  if (body && typeof body === 'object' && !(body instanceof FormData)) {
+  if (body && typeof body === "object" && !(body instanceof FormData)) {
     mergedOptions.body = JSON.stringify(body);
   } else if (body) {
     mergedOptions.body = body as BodyInit | null | undefined;
@@ -53,7 +55,9 @@ export async function fetchApi<T>(path: string, options: ApiOptions = {}): Promi
       try {
         errorData = await response.json();
       } catch (e) {
-        errorData = { message: `Erro ${response.status}: ${response.statusText}` };
+        errorData = {
+          message: `Erro ${response.status}: ${response.statusText}`,
+        };
       }
       throw new Error(errorData?.message || `Erro ${response.status}`);
     }
@@ -62,10 +66,12 @@ export async function fetchApi<T>(path: string, options: ApiOptions = {}): Promi
       return null as T;
     }
 
-    return await response.json() as T;
-
+    return (await response.json()) as T;
   } catch (error) {
-    console.error(`Erro na chamada da API para ${path}:`, (error as Error).message);
+    console.error(
+      `Erro na chamada da API para ${path}:`,
+      (error as Error).message
+    );
     throw error;
   }
 }
