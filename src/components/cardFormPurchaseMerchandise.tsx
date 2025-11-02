@@ -1,48 +1,78 @@
 import { Form, Input, Button } from "@heroui/react";
-import { Plus } from "lucide-react";
+import { Plus, Trash, Minus } from "lucide-react";
 import { Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchableDropdown } from "./searchableDropdown";
-
-import { useIngredients } from "../hooks/useIngredients";
-import { AddedItemsList } from "./addedItemsList";
-
-type Option = {
-  value: string;
-  label: string;
+import { fetchApi } from "../services/api";
+type IngredientOption = {
+  _id: string;
+  name: string;
+  unitCost: number;
+  measurement: string;
 };
 
-type AddedItem = Option & {
+type AddedItem = IngredientOption & {
   quantity: number;
 };
+interface ApiIngredient {
+  _id: string;
+  name: string;
+  unitCost: number;
+  measurement: string;
+}
+interface ApiResponse {
+  total: number;
+  page: number;
+  pages: number;
+  ingredient: ApiIngredient[];
+}
 
 export const location_buy = [{ key: "1", label: "Estoque principal" }];
 
 export const CardFormPurchaseMerchandise = () => {
-  const {
-    ingredients: allItems,
-    isLoading: isLoadingIngredients,
-    error: fetchError,
-  } = useIngredients();
-
   const [selectIngredient, setSelectIngredient] = useState<string | null>(null);
   const [addedItems, setAddedItems] = useState<AddedItem[]>([]);
+  // CORRIGIDO: Usa o novo tipo
+  const [allItems, setAllItems] = useState<IngredientOption[]>([]);
+  const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const onSubmit = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    console.log("Formulário enviado com:", {
-      items: addedItems,
-    });
-  };
+  useEffect(() => {
+    const loadIngredients = async () => {
+      try {
+        setIsLoadingIngredients(true);
+        setFetchError(null);
+        const data = await fetchApi<ApiResponse>(
+          "/admin/stock/ingredients/historic"
+        );
+        console.log(data);
+        const formattedOptions: IngredientOption[] = data.ingredient.map(
+          (ingredient) => ({
+            _id: ingredient._id,
+            name: ingredient.name,
+            unitCost: ingredient.unitCost,
+            measurement: ingredient.measurement,
+          })
+        );
+        setAllItems(formattedOptions);
+      } catch (error) {
+        if (error instanceof Error) {
+          setFetchError(`Erro ao carregar ingredientes: ${error.message}`);
+        } else {
+          setFetchError("Ocorreu um erro desconhecido.");
+        }
+      } finally {
+        setIsLoadingIngredients(false);
+      }
+    };
+    loadIngredients();
+  }, []);
 
   const handleAddItem = () => {
     if (!selectIngredient) return;
-    const itemToAdd = allItems.find((item) => item.value === selectIngredient);
+    const itemToAdd = allItems.find((item) => item._id === selectIngredient);
     if (!itemToAdd) return;
-
-    const alreadyAdded = addedItems.some(
-      (item) => item.value === itemToAdd.value
-    );
+    const alreadyAdded = addedItems.some((item) => item._id === itemToAdd._id);
     if (alreadyAdded) {
       alert("Este item já foi adicionado!");
       setSelectIngredient(null);
@@ -55,7 +85,7 @@ export const CardFormPurchaseMerchandise = () => {
 
   const handleRemoveItem = (valueToRemove: string) => {
     setAddedItems((prevItems) =>
-      prevItems.filter((item) => item.value !== valueToRemove)
+      prevItems.filter((item) => item._id !== valueToRemove)
     );
   };
 
@@ -65,7 +95,7 @@ export const CardFormPurchaseMerchandise = () => {
   ) => {
     setAddedItems((prevItems) =>
       prevItems.map((item) => {
-        if (item.value === itemValue) {
+        if (item._id === itemValue) {
           let newQuantity =
             direction === "increment" ? item.quantity + 1 : item.quantity - 1;
           if (newQuantity < 1) {
@@ -77,6 +107,18 @@ export const CardFormPurchaseMerchandise = () => {
       })
     );
   };
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Formulário enviado com:", {
+      items: addedItems,
+    });
+  };
+
+  const dropdownOptions = allItems.map((item) => ({
+    value: item._id,
+    label: item.name,
+  }));
 
   return (
     <>
@@ -142,7 +184,7 @@ export const CardFormPurchaseMerchandise = () => {
                     </div>
                   ) : (
                     <SearchableDropdown
-                      options={allItems}
+                      options={dropdownOptions}
                       value={selectIngredient}
                       onChange={setSelectIngredient}
                       placeholder="Escolha um ingrediente..."
@@ -161,11 +203,66 @@ export const CardFormPurchaseMerchandise = () => {
                 </Button>
               </div>
 
-              <AddedItemsList
-                items={addedItems}
-                onRemoveItem={handleRemoveItem}
-                onQuantityChange={handleQuantityChange}
-              />
+              {addedItems.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="text-sm">Itens Adicionados:</h2>
+                  <ul className="mt-2 space-y-2">
+                    {addedItems.map((item) => (
+                      <li
+                        key={item._id}
+                        className="flex justify-between items-center py-2 px-4 bg-base rounded-2xl shadow-sm"
+                      >
+                        <div>
+                          <span className="text-default-700 font-medium">
+                            {item.name}
+                          </span>
+                          <p className="text-sm text-default-500">
+                            R$ {(item.unitCost * item.quantity).toFixed(2)}
+                            <span className="ml-2 text-default-400">
+                              (R$ {item.unitCost.toFixed(2)} /{" "}
+                              {item.measurement})
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() =>
+                                handleQuantityChange(item._id, "decrement")
+                              }
+                              size="sm"
+                              className="flex rounded-full data-[disabled]:opacity-50 bg-red-400"
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="font-medium w-6 text-center tabular-nums">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              onClick={() =>
+                                handleQuantityChange(item._id, "increment")
+                              }
+                              size="sm"
+                              className="flex rounded-full bg-success-400"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <Button
+                            onClick={() => handleRemoveItem(item._id)}
+                            size="sm"
+                            className="rounded-full !p-1 bg-base"
+                          >
+                            <Trash className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
