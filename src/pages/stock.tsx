@@ -9,7 +9,8 @@ import { CardMakePurchase } from "@/components/cardMakePurchase";
 import { CardAlert } from "@/components/cardAlert";
 import { DrawerComponent } from "@/components/drawerComponent";
 import { CardFormPurchaseMerchandise } from "@/components/cardFormPurchaseMerchandise";
-
+import AddMerchandiseDialog from "@/components/AddMerchandiseDialog";
+import { useState } from "react";
 // Lista para cardHistory
 const database_list = [
   {
@@ -133,6 +134,8 @@ export default function StockPage() {
   let icon_size = 48;
   let icon_stroke = 2;
 
+  const [addMerchandiseDialogIsOpen, setAddMerchandiseDialog] = useState(false);
+
   return (
     <DefaultLayout>
       <main className="w-full grid grid-cols-[auto_380px] gap-8">
@@ -176,10 +179,18 @@ export default function StockPage() {
                   title="Adicione mercadoria em seu estoque"
                   description="Clique no botão abaixo para cadastrar mercadoria"
                 >
-                  Adicionar mercadoria
+                  <button onClick={() => setAddMerchandiseDialog(true)}>
+                    Adicionar mercadoria
+                  </button>
                 </CardAccess>
               </div>
             </div>
+            <AddMerchandiseDialog
+              isOpen={addMerchandiseDialogIsOpen}
+              handleClose={() => {
+                setAddMerchandiseDialog(false);
+              }}
+            />
           </div>
           <div>
             <label className="text-2xl font-bold">
