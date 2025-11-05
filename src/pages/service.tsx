@@ -1,16 +1,18 @@
 import DefaultLayout from "@/layouts/default";
 import { CardSearch } from "@/components/cardSearch";
-import { HandPlatter, ListFilter } from "lucide-react";
 import { CardTypesProducts } from "@/components/cardTypesProducts";
-
+import { ListFilter } from "lucide-react";
 import { CardProduct } from "@/components/cardProduct";
 import { useState } from "react";
 
 // Lists
 import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import { listProduct_ } from "../assets/constants/listProduct";
+import AccountClient from "@/components/serviceComponents/accountClient";
+import AddClientDialog from "@/components/AddClientDialog";
 
 export default function ServicePage() {
+  const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
   const [listTypesProducts] = useState(listTypesProducts_);
   const [listProduct] = useState(listProduct_);
 
@@ -69,34 +71,24 @@ export default function ServicePage() {
               </h1>
             </div>
             {/* cliente com conta aberta vai ficar aqui */}
-            <div className="mt-4 p-2">
-              <p className="font-bold text-primary">Pedidos em andamento</p>
-              <div className="bg-base flex  justify-between border-dashed border-b-1 py-4 items-center  gap-2">
-                <div className="flex w-full">
-                  <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
-                  <div>
-                    <p className="font-bold  text-xl text-black">
-                      Marcelo aragão
-                    </p>
-                    <p className="text-sm text-primary">Cliente cadastrado</p>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <button className=" hover:text-white hover:outline-none hover:bg-primary outline-2 outline-offset-2 outline-solid w-35 text-primary font-bold rounded-md p-4">
-                      Abrir conta
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+            <AccountClient key={1} isOpen={true} />
             <div className="mt-auto flex flex-col border-t-1 p-2">
               <h1 className="font-bold text-primary text-xl py-2">
                 27 pedidos em andamento
               </h1>
-              <button className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6">
+              <button
+                onClick={() => setAddClientDialog(true)}
+                className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
+              >
                 Adicionar novo cliente
               </button>
+              <AddClientDialog
+                isOpen={addClientDialogIsOpen}
+                handleClose={() => {
+                  setAddClientDialog(false);
+                }}
+              />
             </div>
           </div>
         </div>
