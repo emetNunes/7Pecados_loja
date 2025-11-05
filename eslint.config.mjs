@@ -63,6 +63,32 @@ export default defineConfig([
       "jsx-a11y": fixupPluginRules(jsxA11Y),
       prettier: fixupPluginRules(prettier),
     },
+    overrides: [
+      {
+        files: ["**/*.{js,jsx}"],
+      },
+      {
+        files: ["**/*.{ts,tsx}"],
+        parser: "@typescript-eslint/parser",
+        plugins: ["@typescript-eslint", "react", "react-hooks"],
+        extends: [
+          "eslint:recommended",
+          "plugin:@typescript-eslint/recommended",
+          "plugin:react/recommended",
+          "plugin:react-hooks/recommended",
+        ],
+        parserOptions: {
+          ecmaVersion: 2021,
+          sourceType: "module",
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+        rules: {
+          "react/prop-types": "off",
+        },
+      },
+    ],
 
     languageOptions: {
       globals: {
@@ -89,7 +115,7 @@ export default defineConfig([
       },
     },
 
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts", "**/*.tsx, **/*.js", "**/*.jsx"],
 
     rules: {
       "no-console": "warn",
@@ -113,10 +139,9 @@ export default defineConfig([
         },
       ],
       "prettier/prettier": [
-        "error", // alternatively change to 'warn' if you want only warning
+        "error",
         {
-          endOfLine: "semi", // <---- this is the solution
-          // ... put other prettier rules here like "semi":false,
+          endOfLine: "semi",
         },
       ],
 
