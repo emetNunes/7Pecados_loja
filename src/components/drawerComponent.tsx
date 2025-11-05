@@ -30,7 +30,7 @@ export const DrawerComponent: React.FC<DrawerComponentProps> = ({
       <Drawer
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        backdrop="transparent"
+        backdrop="blur"
         className="relative h-screen left-[50%] translate-x-[-54%] bg-base"
       >
         <DrawerContent>
