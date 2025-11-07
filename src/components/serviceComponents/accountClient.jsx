@@ -1,7 +1,7 @@
 import { HandPlatter, ListFilter } from "lucide-react";
 import { useEffect, useState } from "react";
 
-function AccountClient({ isOpen }) {
+function AccountClient({ isOpen, onSelectClient }) {
   const [account, setAccount] = useState([]);
 
   const getAccouts = async () => {
@@ -24,14 +24,14 @@ function AccountClient({ isOpen }) {
       console.error("Erro ao buscar tarefas:", error);
     }
   };
-
   useEffect(() => {
     getAccouts();
-  }, [setAccount]);
+  }, [account]);
 
   return (
     <ul className="mt-4 p-2">
       <p className="font-bold text-primary">Pedidos em andamento</p>
+
       {account.length <= 0
         ? "nenhuma conta encontrada!"
         : account.map((acc) => (
@@ -43,12 +43,17 @@ function AccountClient({ isOpen }) {
                 <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
                 <div>
                   <p className="font-bold  text-xl text-black">{acc.name}</p>
-                  <p className="text-sm text-primary">Cliente cadastrado</p>
+                  <p className="text-sm text-primary">{acc._id}</p>
                 </div>
               </div>
               <div>
                 <div>
-                  <button className=" hover:text-white hover:outline-none hover:bg-primary outline-2 outline-offset-2 outline-solid w-35 text-primary font-bold rounded-md p-4">
+                  <button
+                    onClick={() => {
+                      onSelectClient(acc._id);
+                    }}
+                    className=" hover:text-white hover:outline-none hover:bg-primary outline-2 outline-offset-2 outline-solid w-35 text-primary font-bold rounded-md p-4"
+                  >
                     Abrir conta
                   </button>
                 </div>

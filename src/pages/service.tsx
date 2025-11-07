@@ -1,7 +1,13 @@
 import DefaultLayout from "@/layouts/default";
 import { CardSearch } from "@/components/cardSearch";
 import { CardTypesProducts } from "@/components/cardTypesProducts";
-import { ListFilter } from "lucide-react";
+import {
+  ClosedCaption,
+  ClosedCaptionIcon,
+  HandPlatter,
+  ListFilter,
+  XIcon,
+} from "lucide-react";
 import { CardProduct } from "@/components/cardProduct";
 import { useState } from "react";
 
@@ -10,11 +16,19 @@ import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import { listProduct_ } from "../assets/constants/listProduct";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AddClientDialog from "@/components/AddClientDialog";
+import AccountClientByID from "@/components/serviceComponents/accountClientByID";
 
 export default function ServicePage() {
   const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
   const [listTypesProducts] = useState(listTypesProducts_);
   const [listProduct] = useState(listProduct_);
+  const [clientID, setClientID] = useState("");
+
+  function onSelectClient(id) {
+    if (id.trim() !== "") {
+      setClientID(id);
+    }
+  }
 
   return (
     <DefaultLayout>
@@ -64,31 +78,96 @@ export default function ServicePage() {
               ))}
             </div>
           </div>
-          <div className="bg-white fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
-            <div className="p-2">
-              <h1 className="font-bold text-2xl">
-                Registro de clientes - Hoje
-              </h1>
+          <div className="bg-white  fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
+            <div className="p-2 ">
+              <div className="font-bold text-2xl flex justify-between">
+                {clientID === "" ? (
+                  "Registro de clientes - Hoje"
+                ) : (
+                  <>
+                    <h1>Carrinho do cliente</h1>{" "}
+                    <div
+                      className="text-2xl  hover:text-primary"
+                      onClick={() => {
+                        setClientID("");
+                      }}
+                    >
+                      <XIcon />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-            {/* cliente com conta aberta vai ficar aqui */}
 
-            <AccountClient key={1} isOpen={true} />
-            <div className="mt-auto flex flex-col border-t-1 p-2">
-              <h1 className="font-bold text-primary text-xl py-2">
-                27 pedidos em andamento
-              </h1>
-              <button
-                onClick={() => setAddClientDialog(true)}
-                className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
-              >
-                Adicionar novo cliente
-              </button>
-              <AddClientDialog
-                isOpen={addClientDialogIsOpen}
-                handleClose={() => {
-                  setAddClientDialog(false);
-                }}
+            {clientID === "" ? (
+              <AccountClient
+                key={1}
+                isOpen={true}
+                onSelectClient={onSelectClient}
               />
+            ) : (
+              <AccountClientByID clientID={clientID} />
+            )}
+
+            <div className="mt-auto flex flex-col  p-2">
+              {clientID === "" ? (
+                <>
+                  <h1 className="font-bold text-primary border-t-1 text-xl py-2">
+                    27 pedidos em andamento
+                  </h1>
+                  <button
+                    onClick={() => setAddClientDialog(true)}
+                    className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
+                  >
+                    Adicionar novo cliente
+                  </button>
+                  <AddClientDialog
+                    isOpen={addClientDialogIsOpen}
+                    handleClose={() => {
+                      setAddClientDialog(false);
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <ul className="mt-4 p-2">
+                    <h1 className="font-bold text-3xl">Cliente da conta</h1>
+                    <li
+                      key={clientID}
+                      className="bg-base flex  justify-between   py-4 items-center  gap-2"
+                    >
+                      <div className="flex w-full">
+                        <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
+                        <div>
+                          <p className="font-bold  text-xl text-primary">
+                            Matheus Nunes
+                          </p>
+                          <p className="text-sm text-slate-600">
+                            Cliente cadastrado
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div className="border-t-1 flex justify-between p-2">
+                    <div className="my-3 font-bold text-2xl">
+                      Total do pedido
+                    </div>
+                    <div className="my-3 font-bold text-3xl text-primary">
+                      R$123,00
+                    </div>
+                  </div>
+                  <div className="text-center p-2">
+                    <button className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6">
+                      fechar conta do cliente
+                    </button>
+                    <a href="#" className="text-center text-primary">
+                      Emitir comprovante do cliente
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
