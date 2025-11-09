@@ -1,13 +1,7 @@
 import DefaultLayout from "@/layouts/default";
 import { CardSearch } from "@/components/cardSearch";
 import { CardTypesProducts } from "@/components/cardTypesProducts";
-import {
-  ClosedCaption,
-  ClosedCaptionIcon,
-  HandPlatter,
-  ListFilter,
-  XIcon,
-} from "lucide-react";
+import { HandPlatter, ListFilter, XIcon } from "lucide-react";
 import { CardProduct } from "@/components/cardProduct";
 import { useMemo, useState } from "react";
 
