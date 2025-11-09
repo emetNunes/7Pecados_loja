@@ -9,24 +9,68 @@ import {
   XIcon,
 } from "lucide-react";
 import { CardProduct } from "@/components/cardProduct";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import useSWR from "swr";
 
 // Lists
 import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
-import { listProduct_ } from "../assets/constants/listProduct";
 import AccountClient from "@/components/serviceComponents/accountClient";
-import AddClientDialog from "@/components/AddClientDialog";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function ServicePage() {
-  const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
   const [listTypesProducts] = useState(listTypesProducts_);
-  const [listProduct] = useState(listProduct_);
+  const [page, setPage] = useState("");
   const [clientID, setClientID] = useState("");
+  const [search, setSearch] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
+  const handleToggle = (title: string, isSelected: boolean) => {
+    setSelectedTypes((prev) =>
+      isSelected ? [...prev, title] : prev.filter((t) => t !== title)
+    );
+  };
+
+  const { data, error, isLoading } = useSWR(
+    `https://api-7pecados.onrender.com/admin/stock/products/historic`,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+
+  // const handleSearch = () => setSearch(search);
+
+  const listProduct = data?.product || [];
+  const totalProduct = data?.total || 0;
+
+  const filteredProducts = useMemo(() => {
+    let filtered = listProduct;
+
+    // Filtro de busca textual
+    if (search.trim() !== "") {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(
+        (item: any) =>
+          item.name.toLowerCase().includes(searchLower) ||
+          item.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filtro por tipo (ex: Pizza, Açaí, etc)
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter((item: any) =>
+        selectedTypes.includes(item.category)
+      );
+    }
+
+    return filtered;
+  }, [listProduct, search, selectedTypes]);
 
   function onSelectClient(id) {
     if (id.trim() !== "") {
       setClientID(id);
+      setPage("carrinho");
     }
   }
 
@@ -36,35 +80,52 @@ export default function ServicePage() {
         <div className="flex ">
           <div className="w-3/4 p-4">
             <div className="flex items-center gap-4 justify-start mb-4">
-              <div className="bg-primary p-2 rounded-xl text-base">
-                <ListFilter size={24} strokeWidth={3} />
-              </div>
               <div>
                 <CardSearch
-                  text_label={"Pesquisar produto"}
-                  text_button={"Pesquisar"}
+                  value={search}
+                  text_label="Pesquisar produto"
+                  text_button="Pesquisar"
+                  onChange={setSearch}
+                  onSearch={() => {}}
                 />
               </div>
             </div>
+
             <div className="flex gap-6 ">
               {listTypesProducts.map((element) => (
-                <CardTypesProducts title={element.name} icon={element.icon} />
+                <CardTypesProducts
+                  key={element.name}
+                  title={element.name}
+                  icon={element.icon}
+                  onToggle={handleToggle}
+                />
               ))}
             </div>
+
             <div className="flex gap-2 items-center justify-between my-4">
               <div>
                 <h2 className="text-lg font-bold">
                   <span className="text-primary">Cardápio de</span>{" "}
-                  <span className="text-default-700">"Taças"</span>
+                  <span className="text-default-700">
+                    "{selectedTypes.join(", ") || "Todos"}"
+                  </span>
                 </h2>
               </div>
               <div className="text-lg text-primary">
-                (14 resultados encontrados)
+                ({filteredProducts.length} resultados encontrados)
               </div>
             </div>
             <div className="grid gap-8 grid-cols-[repeat(auto-fit,_minmax(250px,_1fr))]">
-              {listProduct.map((element) => (
+              {isLoading && <p>Carregando produtos...</p>}
+              {error && <p>Erro ao carregar produtos.</p>}
+
+              {!isLoading && listProduct.length === 0 && (
+                <p>Nenhum produto encontrado.</p>
+              )}
+
+              {filteredProducts.map((element: any) => (
                 <CardProduct
+                  key={element.id}
                   id={element.id}
                   name={element.name}
                   description={element.description}
@@ -78,97 +139,20 @@ export default function ServicePage() {
               ))}
             </div>
           </div>
-          <div className="bg-white  fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
-            <div className="p-2 ">
-              <div className="font-bold text-2xl flex justify-between">
-                {clientID === "" ? (
-                  "Registro de clientes - Hoje"
-                ) : (
-                  <>
-                    <h1>Carrinho do cliente</h1>{" "}
-                    <div
-                      className="text-2xl  hover:text-primary"
-                      onClick={() => {
-                        setClientID("");
-                      }}
-                    >
-                      <XIcon />
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {clientID === "" ? (
+          <div className="bg-white fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
+            {page === "" ? (
               <AccountClient
                 key={1}
-                isOpen={true}
                 onSelectClient={onSelectClient}
+                setPage={setPage}
               />
+            ) : page === "carrinho" ? (
+              <AccountClientByID clientID={clientID} setPage={setPage} />
+            ) : page === "pagamento" ? (
+              "PAGAMENTO"
             ) : (
-              <AccountClientByID clientID={clientID} />
+              "COMPROVANTE"
             )}
-
-            <div className="mt-auto flex flex-col  p-2">
-              {clientID === "" ? (
-                <>
-                  <h1 className="font-bold text-primary border-t-1 text-xl py-2">
-                    27 pedidos em andamento
-                  </h1>
-                  <button
-                    onClick={() => setAddClientDialog(true)}
-                    className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
-                  >
-                    Adicionar novo cliente
-                  </button>
-                  <AddClientDialog
-                    isOpen={addClientDialogIsOpen}
-                    handleClose={() => {
-                      setAddClientDialog(false);
-                    }}
-                  />
-                </>
-              ) : (
-                <>
-                  <ul className="mt-4 p-2">
-                    <h1 className="font-bold text-3xl">Cliente da conta</h1>
-                    <li
-                      key={clientID}
-                      className="bg-base flex  justify-between   py-4 items-center  gap-2"
-                    >
-                      <div className="flex w-full">
-                        <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
-                        <div>
-                          <p className="font-bold  text-xl text-primary">
-                            Matheus Nunes
-                          </p>
-                          <p className="text-sm text-slate-600">
-                            Cliente cadastrado
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-
-                  <div className="border-t-1 flex justify-between p-2">
-                    <div className="my-3 font-bold text-2xl">
-                      Total do pedido
-                    </div>
-                    <div className="my-3 font-bold text-3xl text-primary">
-                      R$123,00
-                    </div>
-                  </div>
-                  <div className="text-center p-2">
-                    <button className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6">
-                      fechar conta do cliente
-                    </button>
-                    <a href="#" className="text-center text-primary">
-                      Emitir comprovante do cliente
-                    </a>
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </section>

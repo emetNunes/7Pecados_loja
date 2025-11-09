@@ -3,41 +3,60 @@ import Input from "./Input";
 import { Button } from "@heroui/react";
 import ModelDefaultDialog from "./ModelDefaultDialog";
 import { useEffect, useState } from "react";
+import { mutate } from "swr";
 
-const AddClientDialog = ({ isOpen, handleClose }) => {
+const AddClientDialog = ({ isOpen, handleClose, getAccouts }) => {
   const [clientName, setClientName] = useState("");
-  const [successCreate, setSuccessCreate] = useState("");
+  const [creating, setCreating] = useState(false);
+
   const createAccountClient = async () => {
+    if (!clientName.trim()) return;
+
+    setCreating(true);
+
+    const newClient = { name: clientName };
+
     try {
-      const response = await fetch(
-        `https://api-7pecados.onrender.com/sale/account_client`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name: clientName }),
-        }
+      await mutate(
+        `https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true`,
+        async (currentData) => {
+          const response = await fetch(
+            `https://api-7pecados.onrender.com/sale/account_client`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newClient),
+            }
+          );
+
+          if (!response.ok) throw new Error("Erro ao criar conta do cliente");
+
+          const text = await response.text();
+
+          const newAccount = {
+            _id: Math.random().toString(),
+            name: clientName,
+          };
+          return {
+            ...currentData,
+            account: [...(currentData?.account || []), newAccount],
+          };
+        },
+        { revalidate: true }
       );
-
-      if (!response.ok) {
-        throw new Error("Erro ao criar conta do cliente");
-      }
-
-      const text = await response.text();
-      console.log("Resposta:", text);
-    } catch (error) {
-      console.error("Error ao criar o cliente:", error);
+      handleClose();
+      setClientName("");
+    } catch (err) {
+      console.error("Erro ao criar cliente:", err);
+    } finally {
+      setCreating(false);
     }
   };
 
-  const onAddNewClient = async (clientName) => {
-    if (!clientName.trim()) return;
-    await createAccountClient();
-    handleClose();
-  };
-
   if (!isOpen) return null;
+
   return createPortal(
     <ModelDefaultDialog
       title_dialog="Cadastra conta do cliente"
@@ -55,20 +74,18 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
         <Button
           className="bg-base text-base rounded-xl border-1 border-default-200 w-full"
           onPress={handleClose}
+          disable={creating}
         >
           <span className="default">Cancelar</span>
         </Button>
         <Button
-          onClick={() => {
-            if (clientName.trim() == "") {
-              return "O nome do cliente não pode ser vazio";
-            }
-
-            onAddNewClient(clientName);
-          }}
+          onClick={createAccountClient}
           className="bg-primary text-base rounded-xl w-full"
+          disabled={creating}
         >
-          <span className="default invert">Salvar</span>
+          <span className="default invert">
+            {creating ? "Salvando..." : "Salvar"}
+          </span>
         </Button>
       </div>
     </ModelDefaultDialog>,
