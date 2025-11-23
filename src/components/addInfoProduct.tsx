@@ -37,6 +37,7 @@ export const AddInfoProduct = ({
       onClose();
     }
   };
+
   return createPortal(
     <div
       className="fixed bottom-0 left-0 top-0 flex h-screen w-screen items-center justify-center backdrop-blur-xs z-100 animate-appearance-in"

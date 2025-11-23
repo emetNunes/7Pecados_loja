@@ -6,7 +6,7 @@ import IndexPage from "@/pages/index";
 import LoginPage from "./pages/login";
 import StockPage from "./pages/stock";
 import ProductionPage from "./pages/production";
-import ServicePage from "./pages/service";
+import ServicePage from "./pages/service.jsx";
 
 function App() {
   const location = useLocation();

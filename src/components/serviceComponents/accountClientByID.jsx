@@ -64,7 +64,7 @@ function AccountClientByID({ clientID, setPage }) {
 
   if (!account || account.length === 0)
     return (
-      <div className="p-4 sm:p-6 max-w-sm mx-auto">
+      <div className="p-4 ">
         <div className="flex justify-between items-center mb-6">
           <p className="font-bold text-2xl text-primary"></p>
 
@@ -83,9 +83,6 @@ function AccountClientByID({ clientID, setPage }) {
           <p className="font-semibold text-lg text-gray-700 mb-6">
             Nenhum pedido encontrado.
           </p>
-          <button className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary text-white font-semibold w-full text-lg py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
-            Adicionar pedido
-          </button>
         </div>
       </div>
     );

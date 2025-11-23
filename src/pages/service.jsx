@@ -1,8 +1,14 @@
 import DefaultLayout from "@/layouts/default";
 import { CardSearch } from "@/components/cardSearch";
 import { CardTypesProducts } from "@/components/cardTypesProducts";
-import { HandPlatter, ListFilter, XIcon } from "lucide-react";
-import { CardProduct } from "@/components/cardProduct";
+import {
+  ClosedCaption,
+  ClosedCaptionIcon,
+  HandPlatter,
+  ListFilter,
+  XIcon,
+} from "lucide-react";
+import CardProduct from "@/components/cardProduct.jsx";
 import { useMemo, useState } from "react";
 
 import useSWR from "swr";
@@ -12,20 +18,14 @@ import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function ServicePage() {
   const [listTypesProducts] = useState(listTypesProducts_);
   const [page, setPage] = useState("");
   const [clientID, setClientID] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-
-  const handleToggle = (title: string, isSelected: boolean) => {
-    setSelectedTypes((prev) =>
-      isSelected ? [...prev, title] : prev.filter((t) => t !== title)
-    );
-  };
+  const [selectedTypes, setSelectedTypes] = useState([]);
 
   const { data, error, isLoading } = useSWR(
     `https://api-7pecados.onrender.com/admin/stock/products/historic`,
@@ -33,29 +33,39 @@ export default function ServicePage() {
     { revalidateOnFocus: false }
   );
 
-  // const handleSearch = () => setSearch(search);
+  // pesquisa e filtro.
 
   const listProduct = data?.product || [];
   const totalProduct = data?.total || 0;
 
+  const handleToggle = (title, isSelected) => {
+    setSelectedTypes((prev) =>
+      isSelected ? [...prev, title] : prev.filter((t) => t !== title)
+    );
+  };
   const filteredProducts = useMemo(() => {
     let filtered = listProduct;
 
-    // Filtro de busca textual
     if (search.trim() !== "") {
       const searchLower = search.toLowerCase();
       filtered = filtered.filter(
-        (item: any) =>
+        (item) =>
           item.name.toLowerCase().includes(searchLower) ||
           item.description?.toLowerCase().includes(searchLower)
       );
     }
 
-    // Filtro por tipo (ex: Pizza, Açaí, etc)
-    if (selectedTypes.length > 0) {
-      filtered = filtered.filter((item: any) =>
-        selectedTypes.includes(item.category)
-      );
+    var continuar = false;
+    selectedTypes.map((item) => {
+      if (item === "Todos") return (continuar = true);
+    });
+
+    if (selectedTypes.length > 0 && !continuar) {
+      filtered = filtered.filter((item) => {
+        return selectedTypes.some((selectedType) =>
+          item.category.toLowerCase().includes(selectedType.toLowerCase())
+        );
+      });
     }
 
     return filtered;
@@ -109,7 +119,7 @@ export default function ServicePage() {
                 ({filteredProducts.length} resultados encontrados)
               </div>
             </div>
-            <div className="grid gap-8 grid-cols-[repeat(auto-fit,_minmax(250px,_1fr))]">
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
               {isLoading && <p>Carregando produtos...</p>}
               {error && <p>Erro ao carregar produtos.</p>}
 
@@ -117,22 +127,20 @@ export default function ServicePage() {
                 <p>Nenhum produto encontrado.</p>
               )}
 
-              {filteredProducts.map((element: any) => (
+              {filteredProducts.map((element) => (
                 <CardProduct
+                  // {...console.log(element)}
                   key={element.id}
                   id={element.id}
                   name={element.name}
                   description={element.description}
-                  value={element.value}
-                  size={element.size}
-                  flavor={element.flavor}
-                  border={element.border}
-                  follow_up={element.follow_up}
-                  fruit={element.fruit}
+                  value={element.price}
+                  ingredients={element.ingredients.id_ingredients}
                 />
               ))}
             </div>
           </div>
+
           <div className="bg-white fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
             {page === "" ? (
               <AccountClient
