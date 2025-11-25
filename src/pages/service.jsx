@@ -9,28 +9,36 @@ import {
   XIcon,
 } from "lucide-react";
 import CardProduct from "@/components/cardProduct.jsx";
-import { useMemo, useState } from "react";
-
-import useSWR from "swr";
+import { useEffect, useMemo, useState } from "react";
+import useSWR, { mutate } from "swr";
 
 // Lists
 import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
+import AddProductInAccount from "@/components/addProductInAccount";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function ServicePage() {
+  const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
   const [listTypesProducts] = useState(listTypesProducts_);
   const [page, setPage] = useState("");
   const [clientID, setClientID] = useState("");
+  const [clientName, setClientName] = useState("");
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
+
+  const [products, setProduct] = useState([]);
+
+  const addProductInAccount = (newProduct) => {
+    setProduct((prev) => [...prev, newProduct]);
+  };
 
   const { data, error, isLoading } = useSWR(
     `https://api-7pecados.onrender.com/admin/stock/products/historic`,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: true }
   );
 
   // pesquisa e filtro.
@@ -71,12 +79,74 @@ export default function ServicePage() {
     return filtered;
   }, [listProduct, search, selectedTypes]);
 
-  function onSelectClient(id) {
+  function onSelectClient(id, name) {
     if (id.trim() !== "") {
       setClientID(id);
+      setClientName(name);
       setPage("carrinho");
     }
   }
+
+  async function addPedidoInAccount(type) {
+    if (type === "cancelar") {
+      setProduct([]);
+      alert("Pedido cancelado!");
+    } else {
+      if (clientID.trim() === "") {
+        alert("Nenhum cliente selecionado!");
+        return;
+      }
+
+      const newOrder = {
+        clientID,
+        products,
+        statusOrder: "em produção",
+        isProduction: true,
+        isDelivery: false,
+      };
+
+      try {
+        await mutate(
+          `https://api-7pecados.onrender.com/sale/account_client/id/${clientID}`,
+          async (currentData) => {
+            const response = await fetch(
+              `https://api-7pecados.onrender.com/sale/order`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newOrder),
+              }
+            );
+
+            if (!response.ok) throw new Error("Erro ao criar pedido");
+
+            const fakeOrder = {
+              _id: Math.random().toString(36).slice(2),
+              ...newOrder,
+            };
+
+            return {
+              ...currentData,
+              orderClient: [...(currentData?.orderClient || []), fakeOrder],
+            };
+          },
+          { revalidate: true }
+        );
+
+        setProduct([]);
+      } catch (err) {
+        console.error("Erro ao criar pedido:", err);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (page === "") {
+      setClientID("");
+      setClientName("");
+      setProduct([]);
+    }
+  }, [page]);
 
   return (
     <DefaultLayout>
@@ -94,7 +164,6 @@ export default function ServicePage() {
                 />
               </div>
             </div>
-
             <div className="flex gap-6 ">
               {listTypesProducts.map((element) => (
                 <CardTypesProducts
@@ -105,7 +174,6 @@ export default function ServicePage() {
                 />
               ))}
             </div>
-
             <div className="flex gap-2 items-center justify-between my-4">
               <div>
                 <h2 className="text-lg font-bold">
@@ -130,8 +198,10 @@ export default function ServicePage() {
               {filteredProducts.map((element) => (
                 <CardProduct
                   // {...console.log(element)}
-                  key={element.id}
-                  id={element.id}
+                  clientID={clientID}
+                  key={element._id}
+                  onAdd={addProductInAccount}
+                  productID={element._id}
                   name={element.name}
                   description={element.description}
                   value={element.price}
@@ -139,6 +209,11 @@ export default function ServicePage() {
                 />
               ))}
             </div>
+
+            <pre>
+              {JSON.stringify(products, null, 2)}
+              {clientID}
+            </pre>
           </div>
 
           <div className="bg-white fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
@@ -149,7 +224,14 @@ export default function ServicePage() {
                 setPage={setPage}
               />
             ) : page === "carrinho" ? (
-              <AccountClientByID clientID={clientID} setPage={setPage} />
+              <AccountClientByID
+                products={products}
+                clientID={clientID}
+                clientName={clientName}
+                setPage={setPage}
+                setProduct={setProduct}
+                handleAdd={addPedidoInAccount}
+              />
             ) : page === "pagamento" ? (
               "PAGAMENTO"
             ) : (

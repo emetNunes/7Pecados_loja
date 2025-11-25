@@ -1,4 +1,4 @@
-import { HandPlatter, ListFilter, XIcon } from "lucide-react";
+import { HandPlatter, ListFilter, XIcon, X, CircleX } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddClientDialog from "@/components/AddClientDialog";
 import useSWR from "swr";
@@ -46,31 +46,20 @@ function AccountClient({ onSelectClient, setPage }) {
       </div>
     );
 
-  if (account.length <= 0)
+  if (account.length === 0)
     return (
       <div className="p-4 sm:p-6 max-w-sm mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <p className="font-bold text-2xl text-primary"></p>
-
-          <button
-            className="text-gray-400 hover:text-primary transition duration-150 p-1 rounded-full hover:bg-gray-100" // Botão de fechar mais suave
-            onClick={() => {
-              setPage("");
-            }}
-            aria-label="Fechar"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        <div className="flex justify-center flex-col text-center">
-          <CircleX className="mx-auto mb-6 text-primary w-32 h-32 sm:w-40 sm:h-40" />
-          <p className="font-semibold text-lg text-gray-700 mb-6">
-            Nenhuma conta encontrada!
-          </p>
-          <button className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary text-white font-semibold w-full text-lg py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
-            Cadastrar conta
-          </button>
-        </div>
+        <button
+          onClick={() => setAddClientDialog(true)}
+          className="bg-primary hover:bg-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary text-white font-semibold w-full text-lg py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+        >
+          Cadastrar conta
+        </button>
+        <AddClientDialog
+          isOpen={addClientDialogIsOpen}
+          refetchAccount={() => refetchAccount()}
+          handleClose={() => setAddClientDialog(false)}
+        />
       </div>
     );
 
@@ -99,7 +88,7 @@ function AccountClient({ onSelectClient, setPage }) {
             </div>
             <button
               onClick={() => {
-                onSelectClient(acc._id);
+                onSelectClient(acc._id, acc.name);
               }}
               className=" hover:text-white hover:outline-none hover:bg-primary outline-2 outline-offset-2 outline-solid w-35 text-primary font-bold rounded-md p-4"
             >
@@ -109,24 +98,18 @@ function AccountClient({ onSelectClient, setPage }) {
         ))}
       </ul>
 
-      <div className="mt-auto flex flex-col p-2">
-        <h1 className="font-bold text-primary border-t-1 text-xl py-2">
-          27 pedidos em andamento
-        </h1>
+      <div className="mt-auto flex flex-col p-2 border-t-1">
         <button
           onClick={() => setAddClientDialog(true)}
           className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
         >
-          Adicionar novo cliente
+          Adicionar cliente
         </button>
+
         <AddClientDialog
           isOpen={addClientDialogIsOpen}
-          getAccouts={() => {
-            getAccouts(refetchAccount);
-          }}
-          handleClose={() => {
-            setAddClientDialog(false);
-          }}
+          refetchAccount={() => refetchAccount()}
+          handleClose={() => setAddClientDialog(false)}
         />
       </div>
     </>

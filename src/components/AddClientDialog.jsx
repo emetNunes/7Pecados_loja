@@ -5,7 +5,7 @@ import ModelDefaultDialog from "./ModelDefaultDialog";
 import { useEffect, useState } from "react";
 import { mutate } from "swr";
 
-const AddClientDialog = ({ isOpen, handleClose, getAccouts }) => {
+const AddClientDialog = ({ isOpen, handleClose, refetchAccount }) => {
   const [clientName, setClientName] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -35,13 +35,18 @@ const AddClientDialog = ({ isOpen, handleClose, getAccouts }) => {
 
           const text = await response.text();
 
-          const newAccount = {
-            _id: Math.random().toString(),
-            name: clientName,
-          };
+          let createdAccount;
+          try {
+            createdAccount = JSON.parse(text);
+          } catch {
+            createdAccount = {
+              account: { _id: Math.random(), name: clientName },
+            };
+          }
+
           return {
             ...currentData,
-            account: [...(currentData?.account || []), newAccount],
+            account: [...(currentData?.account || []), createdAccount.account],
           };
         },
         { revalidate: true }
@@ -74,7 +79,7 @@ const AddClientDialog = ({ isOpen, handleClose, getAccouts }) => {
         <Button
           className="bg-base text-base rounded-xl border-1 border-default-200 w-full"
           onPress={handleClose}
-          disable={creating}
+          disabled={creating}
         >
           <span className="default">Cancelar</span>
         </Button>
