@@ -16,7 +16,7 @@ import useSWR, { mutate } from "swr";
 import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
-import AddProductInAccount from "@/components/addProductInAccount";
+import AddProductInAccount from "@/components/AddProductInAccount";
 import PaymentClientByID from "@/components/serviceComponents/PaymentById";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -234,7 +234,11 @@ export default function ServicePage() {
                 handleAdd={addPedidoInAccount}
               />
             ) : page === "pagamento" ? (
-              <PaymentClientByID clientID={clientID} setPage={setPage} />
+              <PaymentClientByID
+                clientID={clientID}
+                setPage={setPage}
+                getAccouts={getAccouts}
+              />
             ) : (
               (setClientID(""), setPage(""))
             )}
