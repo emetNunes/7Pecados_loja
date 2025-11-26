@@ -9,31 +9,26 @@ const RADIAN = Math.PI / 180;
 const COLORS = ["#591C27", "#A62940"];
 
 const renderCustomizedLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
+  cx = 0,
+  cy = 0,
+  midAngle = 0,
+  innerRadius = 0,
+  outerRadius = 0,
+  percent = 0,
 }: PieLabelRenderProps) => {
-  // @ts-expect-error type unknown https://github.com/recharts/recharts/issues/6380
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  // @ts-expect-error type unknown https://github.com/recharts/recharts/issues/6380
-  const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
-  // @ts-expect-error type unknown https://github.com/recharts/recharts/issues/6380
-  const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
     <text
       x={x}
       y={y}
       fill="white"
-      // @ts-expect-error type unknown https://github.com/recharts/recharts/issues/6380
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
     >
-      {/* @ts-expect-error type unknown https://github.com/recharts/recharts/issues/6380 */}
-      {`${((percent ?? 1) * 100).toFixed(0)}%`}
+      {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
 };
@@ -53,7 +48,6 @@ export const PieChartComponent = ({
           maxHeight: "320px",
           aspectRatio: 1,
         }}
-        responsive
       >
         <Pie
           data={data}
@@ -71,7 +65,7 @@ export const PieChartComponent = ({
           ))}
         </Pie>
         <Legend layout="vertical" align="right" verticalAlign="middle" />
-      </PieChart>{" "}
+      </PieChart>
     </div>
   );
 };
