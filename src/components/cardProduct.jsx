@@ -41,13 +41,13 @@ function CardProduct({
   return (
     <div key={productID}>
       <div className="flex flex-col  border-2 border-default-300 rounded-2xl bg-base">
-        <div className="bg-default-200 w-full h-[220px] rounded-2xl">
+        <div className="bg-default-200 w-full h-[220px] rounded-2xl ">
           <div className="flex justify-center items-center h-full text-base">
             <Image />
           </div>
         </div>
 
-        <div className="flex flex-col p-6 gap-4">
+        <div className="flex flex-col p-6 gap-4 ">
           <div>
             <div className="font-bold text-lg text-primary">{name}</div>
             <div className="text-default-600">{description}</div>

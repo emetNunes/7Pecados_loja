@@ -231,16 +231,16 @@ function AccountClientByID({
             </div>
           ) : (
             <>
-              <ShoppingCart className="mx-auto mb-6 w-25 h-25 p-2 bg-primary text-white  rounded-full" />
-              <p className="font-semibold text-lg text-left text-primary mb-6">
+              <XIcon className="mx-auto mb-6 w-25 h-25 p-2 bg-primary text-white  rounded-full" />
+              <p className="font-semibold text-lg text-center text-primary mb-6">
                 Nenhum pedido registrado nessa conta!
               </p>
             </>
           )}
         </div>
 
-        <div className="">
-          <div className="mt-auto flex flex-col p-2">
+        <div className="mt-auto">
+          <div className="flex flex-col p-2">
             <ul className="mt-4 p-2">
               <h1 className="font-bold text-3xl">Cliente da conta</h1>
               <li
@@ -259,26 +259,14 @@ function AccountClientByID({
               </li>
             </ul>
 
-            <div className="border-t-1 flex justify-between p-2">
-              <div className="my-3 font-bold text-2xl">Total do pedido</div>
-              <div className="my-3 font-bold text-3xl text-primary">
-                R${total.toFixed(2)}
-              </div>
-            </div>
+            <div className="border-t-1 flex justify-between p-2"></div>
             <div className="text-center p-2">
               <button
                 onClick={() => setPage("pagamento")}
                 className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 font-bold rounded-md p-6"
               >
-                Fechar conta do cliente
-              </button>
-
-              <a
-                href="#"
-                className="text-center text-primary hover:text-red-500 hover:border-b-2"
-              >
                 Cancelar conta
-              </a>
+              </button>
             </div>
           </div>
         </div>

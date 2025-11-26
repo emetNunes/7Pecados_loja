@@ -42,18 +42,18 @@ export function ItemProduct({ productID, sizes, ingredients, onAdd }) {
         </div>
 
         <div className="gap-2 flex py-4 border-t-1 border-dashed">
-          <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+          <div className="flex w-300 flex-wrap md:flex-nowrap gap-4">
             <Select
               onChange={(e) => {
                 setFruta(e.target.value);
               }}
-              className="max-w-xs"
+              className="max-w-lg"
               label="Frutas"
             >
               {ingredients
                 .filter((i) => i.category === "Fruta")
                 .map((f) => (
-                  <SelectItem key={f._id} value={f._id}>
+                  <SelectItem key={f._id} value={f._id} className=" min-w-300">
                     {f.name}
                   </SelectItem>
                 ))}
@@ -68,7 +68,7 @@ export function ItemProduct({ productID, sizes, ingredients, onAdd }) {
               {ingredients
                 .filter((i) => i.category === "Sabor")
                 .map((s) => (
-                  <SelectItem key={s._id} value={s._id}>
+                  <SelectItem key={s._id} value={s._id} className=" min-w-300">
                     {s.name}
                   </SelectItem>
                 ))}
@@ -79,7 +79,7 @@ export function ItemProduct({ productID, sizes, ingredients, onAdd }) {
         <div className="gap-2 flex justify-end py-4 border-t-1 border-dashed">
           <button
             className={
-              "outline outline-1 outline-primary rounded-lg p-2 px-4 text-primary transition hover:bg-primary/10"
+              " outline-1 outline-primary rounded-lg p-2 px-4 text-primary transition hover:bg-primary/10"
             }
           >
             cancelar

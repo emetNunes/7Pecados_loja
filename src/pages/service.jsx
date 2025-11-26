@@ -17,6 +17,7 @@ import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
 import AddProductInAccount from "@/components/addProductInAccount";
+import PaymentClientByID from "@/components/serviceComponents/PaymentById";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -187,7 +188,7 @@ export default function ServicePage() {
                 ({filteredProducts.length} resultados encontrados)
               </div>
             </div>
-            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))]">
               {isLoading && <p>Carregando produtos...</p>}
               {error && <p>Erro ao carregar produtos.</p>}
 
@@ -233,9 +234,9 @@ export default function ServicePage() {
                 handleAdd={addPedidoInAccount}
               />
             ) : page === "pagamento" ? (
-              "PAGAMENTO"
+              <PaymentClientByID clientID={clientID} setPage={setPage} />
             ) : (
-              "COMPROVANTE"
+              (setClientID(""), setPage(""))
             )}
           </div>
         </div>
