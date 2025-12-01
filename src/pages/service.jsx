@@ -30,6 +30,8 @@ export default function ServicePage() {
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
 
+  const [pedidoClient, setPedidoClient] = useState([]);
+
   const [products, setProduct] = useState([]);
 
   const addProductInAccount = (newProduct) => {
@@ -91,6 +93,7 @@ export default function ServicePage() {
   async function addPedidoInAccount(type) {
     if (type === "cancelar") {
       setProduct([]);
+
       alert("Pedido cancelado!");
     } else {
       if (clientID.trim() === "") {
@@ -146,6 +149,7 @@ export default function ServicePage() {
       setClientID("");
       setClientName("");
       setProduct([]);
+      setPedidoClient([]);
     }
   }, [page]);
 
@@ -210,11 +214,6 @@ export default function ServicePage() {
                 />
               ))}
             </div>
-
-            <pre>
-              {JSON.stringify(products, null, 2)}
-              {clientID}
-            </pre>
           </div>
 
           <div className="bg-white fixed top-20 right-0 h-9/10 rounded-l-xl shadow p-2 w-1/4 flex flex-col ">
@@ -227,6 +226,7 @@ export default function ServicePage() {
             ) : page === "carrinho" ? (
               <AccountClientByID
                 products={products}
+                setPedidoClient={setPedidoClient}
                 clientID={clientID}
                 clientName={clientName}
                 setPage={setPage}
@@ -237,7 +237,7 @@ export default function ServicePage() {
               <PaymentClientByID
                 clientID={clientID}
                 setPage={setPage}
-                getAccouts={getAccouts}
+                pedidoClient={pedidoClient}
               />
             ) : (
               (setClientID(""), setPage(""))

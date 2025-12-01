@@ -20,6 +20,7 @@ function AccountClientByID({
   setPage,
   clientName,
   setProduct,
+  setPedidoClient,
 }) {
   const {
     data: account,
@@ -36,10 +37,6 @@ function AccountClientByID({
 
   const name = clientName.trim() === "" ? "Cliente" : clientName;
   const total = pedidos.reduce((acc, p) => acc + (p.priceTotal || 0), 0);
-
-  console.log(
-    `https://api-7pecados.onrender.com/sale/account_client/id/${clientID}`
-  );
 
   const itemClasses = {
     base: "py-0 w-full",
@@ -76,6 +73,12 @@ function AccountClientByID({
       })
       .filter(Boolean);
   }, [products, productsDb]);
+
+  useEffect(() => {
+    if (!isLoading && pedidos.length > 0) {
+      setPedidoClient(pedidos);
+    }
+  }, [isLoading, pedidos]);
 
   if (isLoading)
     return (

@@ -1,11 +1,11 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { AnimatePresence } from "framer-motion";
 
 import IndexPage from "@/pages/index";
-import LoginPage from "./pages/login";
-import StockPage from "./pages/stock";
-import ProductionPage from "./pages/production";
+import LoginPage from "./pages/login.jsx";
+import StockPage from "./pages/stock.jsx";
+import ProductionPage from "./pages/production.jsx";
 import ServicePage from "./pages/service.jsx";
 
 function App() {
