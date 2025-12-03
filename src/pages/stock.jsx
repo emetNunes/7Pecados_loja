@@ -10,8 +10,9 @@ import { DrawerComponent } from "@/components/drawerComponent";
 import { CardFormPurchaseMerchandise } from "@/components/cardFormPurchaseMerchandise";
 import { useState } from "react";
 import { Button } from "@heroui/button";
-import AddMerchandiseDialog from "@/components/AddMerchandiseDialog";
-import AddIngredientDialog from "@/components/AddIngredientDialog";
+import AddMerchandiseDialog from "@/components/stockComponents/AddMerchandiseDialog";
+import AddIngredientDialog from "@/components/stockComponents/AddIngredientDialog";
+import AddProductDialog from "@/components/stockComponents/AddProductDialog";
 // Lista para cardHistory
 const database_list = [
   {
@@ -137,6 +138,7 @@ export default function StockPage() {
 
   const [addMerchandiseDialogIsOpen, setAddMerchandiseDialog] = useState(false);
   const [addIngredientDialogIsOpen, setAddIngredientDialog] = useState(false);
+  const [addProductDialogIsOpen, setAddProductDialog] = useState(false);
 
   return (
     <DefaultLayout>
@@ -219,12 +221,26 @@ export default function StockPage() {
           <CardAccess
             title="Quer cadastrar um novo produto?"
             description="Clique no botão abaixo para efetuar o cadastro de um novo produto para venda"
-          >
-            Cadastrar produto
-          </CardAccess>
+            clickbutton={
+              <Button
+                className="bg-primary text-base rounded-xl"
+                onPress={() => setAddProductDialog(true)}
+              >
+                <span className="default invert">Adicionar Produto</span>
+              </Button>
+            }
+          ></CardAccess>
+
+          <AddProductDialog
+            isOpen={addProductDialogIsOpen}
+            handleClose={() => {
+              setAddProductDialog(false);
+            }}
+          />
+
           <CardStatusOrders
             listInfo={listInfo_list}
-            title="Produtos mais vendidos"
+            title="Ingredients cadastrados"
             description="Últimos 5 pedidos"
           />
         </section>

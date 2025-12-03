@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
-import Input from "./Input";
+import Input from "../Input";
 import { Button } from "@heroui/react";
-import ModelDefaultDialog from "./ModelDefaultDialog";
+import ModelDefaultDialog from "../ModelDefaultDialog";
 import { useEffect, useState } from "react";
 
 const AddProductInAccount = ({ isOpen, handleClose, getAccouts }) => {

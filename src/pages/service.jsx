@@ -8,7 +8,7 @@ import {
   ListFilter,
   XIcon,
 } from "lucide-react";
-import CardProduct from "@/components/cardProduct.jsx";
+import CardProduct from "@/components/serviceComponents/cardProduct.jsx";
 import { useEffect, useMemo, useState } from "react";
 import useSWR, { mutate } from "swr";
 
@@ -16,7 +16,7 @@ import useSWR, { mutate } from "swr";
 import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
-import AddProductInAccount from "@/components/AddProductInAccount";
+import AddProductInAccount from "@/components/serviceComponents/AddProductInAccount";
 import PaymentClientByID from "@/components/serviceComponents/PaymentById";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

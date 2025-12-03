@@ -1,8 +1,8 @@
 import { HandPlatter, ListFilter, XIcon, X, CircleX } from "lucide-react";
 import { useEffect, useState } from "react";
-import AddClientDialog from "@/components/AddClientDialog";
+import AddClientDialog from "@/components/serviceComponents/AddClientDialog";
 import useSWR from "swr";
-import AddPaymentDialog from "../AddPaymentDialog";
+import AddPaymentDialog from "./AddPaymentDialog";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 

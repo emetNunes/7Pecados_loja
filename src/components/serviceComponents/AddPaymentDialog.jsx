@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
-import Input from "./Input";
+import Input from "../Input";
 import { Button } from "@heroui/react";
-import ModelDefaultDialog from "./ModelDefaultDialog";
+import ModelDefaultDialog from "../ModelDefaultDialog";
 import { useEffect, useState } from "react";
 import { mutate } from "swr";
 
@@ -13,7 +13,7 @@ const AddPaymentDialog = ({
   addPaymentsInAccount,
 }) => {
   const [payment, setPayment] = useState("");
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(0);
 
   const [incorretValue, setIncorretValue] = useState(false);
   if (!isOpen) return null;

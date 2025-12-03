@@ -7,7 +7,7 @@ import {
   CreditCard,
   QrCode,
 } from "lucide-react";
-import AddPaymentDialog from "../AddPaymentDialog";
+import AddPaymentDialog from "./AddPaymentDialog";
 
 function PaymentClientByID({ id, setPage, clientID, pedidoClient = [] }) {
   const [payments, setPayments] = useState([]);

@@ -1,7 +1,7 @@
 import { Image } from "lucide-react";
 import { Button } from "@heroui/button";
 import { useState } from "react";
-import { ItemProduct } from "./itemProduct.jsx";
+import { ItemProduct } from "@/components/serviceComponents/itemProduct";
 import useSWR from "swr";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 

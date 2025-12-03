@@ -15,7 +15,9 @@ export const CardAccess = ({
         ""
       ) : (
         <Button className="bg-primary text-base rounded-xl">
-          <span className="default invert">{children}</span>
+          <a href="/service" className="default invert">
+            {children}
+          </a>
         </Button>
       )}
     </div>
