@@ -1,80 +1,161 @@
 import { createPortal } from "react-dom";
-import Input from "../Input";
-import { Button } from "@heroui/react";
-import ModelDefaultDialog from "../ModelDefaultDialog";
-import UploadImageInput from "../UploadImageInput";
-import { Upload } from "lucide-react";
-import { useState } from "react";
-import { mutate } from "swr";
-import { Select, SelectItem } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
+import useSWR, { mutate } from "swr";
 
-const AddProductDialog = ({ isOpen, handleClose }) => {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [size, setSize] = useState([]);
-  const [price, setPrice] = useState(0);
+import Input from "../Input";
+import ModelDefaultDialog from "../ModelDefaultDialog";
+
+import {
+  Button,
+  Textarea,
+  Select,
+  SelectItem,
+  NumberInput,
+} from "@heroui/react";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const PRODUCT_SIZES = ["P", "M", "G"];
+const PRODUCT_CATEGORIES = ["taças", "doces", "tortas", "bebidas", "outros"];
+
+export default function AddProductDialog({ isOpen, handleClose }) {
+  /* ================================
+     STATE
+  ================================ */
+  const [step, setStep] = useState(0);
   const [creating, setCreating] = useState(false);
 
-  async function addIngredientInBD() {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState(null);
+  const [description, setDescription] = useState("");
+
+  const [sizes, setSizes] = useState([]);
+  const [prices, setPrices] = useState({});
+  const [ingredients, setIngredients] = useState([]);
+
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+
+  /* ================================
+     DATA
+  ================================ */
+  const { data } = useSWR(
+    "https://api-7pecados.onrender.com/admin/stock/ingredients/historic",
+    fetcher
+  );
+
+  const ingredientList = data?.ingredient ?? [];
+
+  /* ================================
+     RESET AO FECHAR
+  ================================ */
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(0);
+      setCreating(false);
+      setName("");
+      setCategory(null);
+      setDescription("");
+      setSizes([]);
+      setPrices({});
+      setIngredients([]);
+      setErrors({});
+      setFormError("");
+    }
+  }, [isOpen]);
+
+  /* ================================
+     DERIVADOS
+  ================================ */
+  const formattedPrices = useMemo(
+    () =>
+      sizes.map((s) => ({
+        size: s,
+        value: Number(prices[s] || 0),
+      })),
+    [sizes, prices]
+  );
+
+  /* ================================
+     VALIDATION
+  ================================ */
+  function validateStep1() {
+    const newErrors = {};
+
+    if (!name.trim()) newErrors.name = "Informe o nome do produto.";
+    if (!description.trim())
+      newErrors.description = "Informe a descrição do produto.";
+    if (!category) newErrors.category = "Selecione uma categoria.";
+    if (sizes.length === 0) newErrors.sizes = "Selecione ao menos um tamanho.";
+
+    sizes.forEach((s) => {
+      if (!prices[s] || Number(prices[s]) <= 0) {
+        newErrors[`price_${s}`] =
+          `Informe um preço válido para o tamanho ${s}.`;
+      }
+    });
+
+    setErrors(newErrors);
+    setFormError(
+      Object.keys(newErrors).length
+        ? "Preencha corretamente os campos antes de continuar."
+        : ""
+    );
+
+    return Object.keys(newErrors).length === 0;
+  }
+
+  function validateStep2() {
+    if (!ingredients.length) {
+      setFormError("Selecione ao menos um ingrediente.");
+      return false;
+    }
+
+    setFormError("");
+    return true;
+  }
+
+  /* ================================
+     SAVE
+  ================================ */
+  async function handleSave() {
+    if (!validateStep2()) return;
+
     setCreating(true);
 
-    const newProduct = {
-      name,
+    const payload = {
+      name: name.trim(),
       category,
       description,
-      size,
-      price,
-      priceCost,
+      prices: formattedPrices,
+      ingredient: ingredients,
+      priceCost: 0,
     };
 
     try {
       await mutate(
-        `https://api-7pecados.onrender.com/admin/stock/products/historic`,
-        async (currentData) => {
-          const response = await fetch(
-            `https://api-7pecados.onrender.com/admin/stock/product`,
+        "https://api-7pecados.onrender.com/admin/stock/products/historic",
+        async () => {
+          const res = await fetch(
+            "https://api-7pecados.onrender.com/admin/stock/product",
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newProduct),
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
             }
           );
 
-          if (!response.ok) throw new Error("Erro ao criar produto");
+          if (!res.ok) throw new Error("Erro ao criar produto");
 
-          const text = await response.text();
-
-          let createdAccount;
-          try {
-            createdAccount = JSON.parse(text);
-          } catch {
-            createdAccount = {
-              account: {
-                _id: Math.random(),
-                name,
-                category,
-                description,
-                size,
-                price,
-                priceCost,
-              },
-            };
-          }
-
-          return {
-            ...currentData,
-            data: [...(currentData?.product || []), createdAccount.product],
-          };
+          return res.json();
         },
         { revalidate: true }
       );
+
       handleClose();
-      setClientName("");
     } catch (err) {
-      console.error("Erro ao criar ingrediente:", err);
+      console.error("Erro ao criar produto:", err);
+      setFormError("Erro ao salvar produto. Tente novamente.");
     } finally {
       setCreating(false);
     }
@@ -84,103 +165,188 @@ const AddProductDialog = ({ isOpen, handleClose }) => {
 
   return createPortal(
     <ModelDefaultDialog
-      title_dialog="Adicionar Produto"
-      info_dialog="Insira as informações abaixo"
+      title_dialog="Novo produto"
+      info_dialog={
+        step === 0
+          ? "Informações básicas e preços"
+          : "Ingredientes utilizados no produto"
+      }
     >
-      <div className="flex gap-2 w-full">
-        <Input
-          id="ingredient"
-          value={name}
-          label="Título do produto"
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Insira o nome do produto"
-        />
-        <Input
-          id="value"
-          label="Preço"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Escolha seu valor"
-        />
-      </div>
+      <div className="flex flex-col gap-8">
+        {/* ALERTA GLOBAL */}
+        {formError && (
+          <div
+            className="
+              rounded-lg px-4 py-3 text-sm font-medium
+              bg-red-50 text-red-700
+              dark:bg-red-900/30 dark:text-red-300
+            "
+          >
+            {formError}
+          </div>
+        )}
 
-      <Input
-        id="description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        label="Descrição"
-        placeholder="Descrição do produto"
-      />
+        {/* STEPPER */}
+        <div className="flex items-center gap-2 text-sm text-default-500">
+          <span className={`font-semibold ${step === 0 ? "text-primary" : ""}`}>
+            1. Produto
+          </span>
+          <span>→</span>
+          <span className={`font-semibold ${step === 1 ? "text-primary" : ""}`}>
+            2. Ingredientes
+          </span>
+        </div>
 
-      <div className="flex gap-2 w-full">
-        <Select
-          name="categoria"
-          onChange={(e) => {
-            setCategory(e.target.value);
-          }}
-          className="max-w-lg"
-          label="Categoria"
-        >
-          {[1, 2, 3, 4, 5].map((f) => (
-            <SelectItem key={f} value={f} className=" min-w-300">
-              {f}
-            </SelectItem>
-          ))}
-        </Select>
+        {/* =========================
+            STEP 1
+        ========================= */}
+        {step === 0 && (
+          <div className="flex flex-col gap-6">
+            <Input
+              autoFocus
+              label="Nome do produto"
+              placeholder="Ex: Taça Inveja"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((p) => ({ ...p, name: null }));
+              }}
+              error={!!errors.name}
+              helperText={errors.name}
+            />
 
-        <Select
-          selectionMode="multiple"
-          label="Tamanho"
-          name="tamanho"
-          className="max-w-xs"
-          selectedKeys={size}
-          onSelectionChange={(keys) => setSize(Array.from(keys))}
-        >
-          {["P", "M", "G"].map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
-            </SelectItem>
-          ))}
-        </Select>
-      </div>
+            <Textarea
+              label="Descrição"
+              placeholder="Descreva o produto para o cliente"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setErrors((p) => ({ ...p, description: null }));
+              }}
+              error={!!errors.description}
+              helperText={errors.description}
+            />
 
-      <UploadImageInput
-        icon={<Upload />}
-        title={"Upload de imagem"}
-        description={
-          "Essa imagem ficará salva e poderá ser usada em outros ingredientes"
-        }
-      />
-      <div className="flex gap-3">
-        <Button
-          className="bg-base text-base rounded-xl border-1 border-default-200 w-full"
-          onPress={handleClose}
-        >
-          <span className="default">Cancelar</span>
-        </Button>
-        <Button
-          // onClick={() => {
-          //   if (
-          //     name.trim() == "" ||
-          //     category.trim() == "" ||
-          //     measurement.trim() == "" ||
-          //     currentStock < 0 ||
-          //     unitCost < 0
-          //   ) {
-          //     return console.log("erro ao adicionar o ingrediente!");
-          //   }
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Select
+                selectionMode="multiple"
+                label="Tamanhos disponíveis"
+                selectedKeys={sizes}
+                onSelectionChange={(keys) => {
+                  setSizes(Array.from(keys));
+                  setErrors((p) => ({ ...p, sizes: null }));
+                }}
+                isInvalid={!!errors.sizes}
+                errorMessage={errors.sizes}
+              >
+                {PRODUCT_SIZES.map((s) => (
+                  <SelectItem key={s}>{s}</SelectItem>
+                ))}
+              </Select>
 
-          //   addIngredientInBD();
-          // }}
-          className="bg-primary text-base rounded-xl w-full"
-        >
-          <span className="default invert">Salvar</span>
-        </Button>
+              <Select
+                label="Categoria"
+                selectedKeys={category ? [category] : []}
+                onSelectionChange={(keys) => {
+                  setCategory(Array.from(keys)[0]);
+                  setErrors((p) => ({ ...p, category: null }));
+                }}
+                isInvalid={!!errors.category}
+                errorMessage={errors.category}
+              >
+                {PRODUCT_CATEGORIES.map((c) => (
+                  <SelectItem key={c}>{c}</SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            {sizes.length > 0 && (
+              <div className="rounded-xl border border-dashed border-default-300 dark:border-zinc-700 p-4">
+                <p className="text-sm font-semibold text-primary mb-3">
+                  Preços por tamanho
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {sizes.map((s) => (
+                    <NumberInput
+                      key={s}
+                      label={`Preço (${s})`}
+                      minValue={0}
+                      step={0.5}
+                      value={prices[s] ?? ""}
+                      startContent={
+                        <span className="text-default-500">R$</span>
+                      }
+                      onValueChange={(value) => {
+                        setPrices((prev) => ({ ...prev, [s]: value }));
+                        setErrors((p) => ({ ...p, [`price_${s}`]: null }));
+                      }}
+                      isInvalid={!!errors[`price_${s}`]}
+                      errorMessage={errors[`price_${s}`]}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =========================
+            STEP 2
+        ========================= */}
+        {step === 1 && (
+          <Select
+            selectionMode="multiple"
+            label="Ingredientes"
+            placeholder="Selecione os ingredientes utilizados"
+            selectedKeys={ingredients.map((i) => i.id_ingredient)}
+            onSelectionChange={(keys) => {
+              setIngredients(
+                Array.from(keys).map((id) => ({
+                  id_ingredient: id,
+                  quantityUsed: 1,
+                }))
+              );
+              setFormError("");
+            }}
+          >
+            {ingredientList.map((i) => (
+              <SelectItem key={i._id}>{i.name}</SelectItem>
+            ))}
+          </Select>
+        )}
+
+        {/* ACTIONS */}
+        <div className="flex gap-3 pt-2">
+          <Button
+            variant="bordered"
+            onPress={() => (step === 0 ? handleClose() : setStep(0))}
+            className="
+              w-full rounded-xl
+              border-default-300 dark:border-zinc-700
+              hover:bg-default-100 dark:hover:bg-zinc-800
+            "
+          >
+            {step === 0 ? "Cancelar" : "Voltar"}
+          </Button>
+
+          <Button
+            onPress={() =>
+              step === 0 ? validateStep1() && setStep(1) : handleSave()
+            }
+            isLoading={creating}
+            className="
+              w-full rounded-xl
+              bg-primary text-primary-foreground
+              font-semibold
+              hover:bg-primary/90
+            "
+          >
+            {step === 0 ? "Continuar" : "Salvar produto"}
+          </Button>
+        </div>
       </div>
     </ModelDefaultDialog>,
     document.body
   );
-};
-
-export default AddProductDialog;
+}

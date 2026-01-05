@@ -1,77 +1,131 @@
 import { createPortal } from "react-dom";
-import Input from "../Input";
-import { Button } from "@heroui/react";
-import ModelDefaultDialog from "../ModelDefaultDialog";
-import UploadImageInput from "../UploadImageInput";
-import { Upload } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Button, Select, SelectItem } from "@heroui/react";
 import { mutate } from "swr";
 
-const AddIngredientDialog = ({ isOpen, handleClose }) => {
+import Input from "../Input";
+import ModelDefaultDialog from "../ModelDefaultDialog";
+
+/* ================================
+   ENUMS — BACKEND SAFE
+================================ */
+const CATEGORY_OPTIONS = ["Fruta", "Borda", "acompanhamento", "Sabor", "outro"];
+const MEASUREMENT_OPTIONS = ["unit", "kg", "g", "l", "ml"];
+
+export default function AddIngredientDialog({ isOpen, handleClose }) {
+  /* ================================
+     STATE
+  ================================ */
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [measurement, setMasurement] = useState("unit");
-  const [unitCost, setUnitCost] = useState(0);
-  const [currentStock, setCurrentStock] = useState(0);
+  const [category, setCategory] = useState("outro");
+  const [measurement, setMeasurement] = useState("unit");
+  const [unitCost, setUnitCost] = useState("");
+  const [currentStock, setCurrentStock] = useState("");
   const [creating, setCreating] = useState(false);
 
-  async function addIngredientInBD() {
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+
+  /* ================================
+     RESET AO FECHAR
+  ================================ */
+  useEffect(() => {
+    if (!isOpen) {
+      setName("");
+      setCategory("outro");
+      setMeasurement("unit");
+      setUnitCost("");
+      setCurrentStock("");
+      setErrors({});
+      setFormError("");
+      setCreating(false);
+    }
+  }, [isOpen]);
+
+  /* ================================
+     VALIDATION
+  ================================ */
+  function validateForm() {
+    const newErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Informe o nome do ingrediente.";
+    }
+
+    if (!CATEGORY_OPTIONS.includes(category)) {
+      newErrors.category = "Categoria inválida.";
+    }
+
+    if (!MEASUREMENT_OPTIONS.includes(measurement)) {
+      newErrors.measurement = "Unidade de medida inválida.";
+    }
+
+    if (unitCost !== "" && Number(unitCost) < 0) {
+      newErrors.unitCost = "O custo não pode ser negativo.";
+    }
+
+    if (currentStock !== "" && Number(currentStock) < 0) {
+      newErrors.currentStock = "O estoque não pode ser negativo.";
+    }
+
+    setErrors(newErrors);
+    setFormError(
+      Object.keys(newErrors).length
+        ? "Corrija os campos destacados antes de continuar."
+        : ""
+    );
+
+    return Object.keys(newErrors).length === 0;
+  }
+
+  /* ================================
+     SAVE
+  ================================ */
+  async function handleSave() {
+    if (!validateForm()) return;
+
     setCreating(true);
 
-    const newIngredient = {
-      name: name,
-      category: category,
-      measurement: measurement,
-      currentStock: currentStock,
-      unitCost: unitCost,
+    const payload = {
+      name: name.trim(),
+      category,
+      measurement,
+      unitCost: Number(unitCost) || 0,
+      currentStock: Number(currentStock) || 0,
     };
 
     try {
       await mutate(
-        `https://api-7pecados.onrender.com/admin/stock/ingredients/historic`,
+        "https://api-7pecados.onrender.com/admin/stock/ingredients/historic",
         async (currentData) => {
-          const response = await fetch(
-            `https://api-7pecados.onrender.com/admin/stock/ingredient`,
+          const res = await fetch(
+            "https://api-7pecados.onrender.com/admin/stock/ingredient",
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newIngredient),
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
             }
           );
 
-          if (!response.ok) throw new Error("Erro ao criar ingrediente");
+          if (!res.ok) throw new Error("Erro ao criar ingrediente");
 
-          const text = await response.text();
-
-          let createdAccount;
-          try {
-            createdAccount = JSON.parse(text);
-          } catch {
-            createdAccount = {
-              account: {
-                _id: Math.random(),
-                name: name,
-                category: category,
-                measurement: measurement,
-                currentStock: currentStock,
-                unitCost: unitCost,
-              },
-            };
-          }
+          const created = await res.json();
 
           return {
             ...currentData,
-            account: [...(currentData?.account || []), createdAccount.account],
+            ingredient: [
+              ...(currentData?.ingredient || []),
+              created.ingredient ?? created,
+            ],
           };
         },
         { revalidate: true }
       );
+
       handleClose();
-      setClientName("");
     } catch (err) {
       console.error("Erro ao criar ingrediente:", err);
+      setFormError("Ocorreu um erro ao salvar. Tente novamente.");
     } finally {
       setCreating(false);
     }
@@ -82,74 +136,134 @@ const AddIngredientDialog = ({ isOpen, handleClose }) => {
   return createPortal(
     <ModelDefaultDialog
       title_dialog="Adicionar ingrediente"
-      info_dialog="Insira as informações abaixo"
+      info_dialog="Cadastre um novo ingrediente para controle de estoque"
     >
-      <Input
-        id="ingredient"
-        value={name}
-        label="Título do ingrediente"
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Insira o nome do ingrediente"
-      />
-      <div className="flex gap-2 w-full">
-        <Input
-          id="value"
-          label="Valor"
-          value={unitCost}
-          onChange={(e) => setUnitCost(e.target.value)}
-          placeholder="Escolha seu valor"
-        />
-        <Input
-          id="unit_of_measurement"
-          value={measurement}
-          onChange={(e) => setMasurement(e.target.value)}
-          label="Unidade"
-          placeholder="Unit."
-        />
-      </div>
-      <Input
-        id="category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        label="Categoria"
-        placeholder="Escolha a sua categoria"
-      />
-      <UploadImageInput
-        icon={<Upload />}
-        title={"Upload de imagem"}
-        description={
-          "Essa imagem ficará salva e poderá ser usada em outros ingredientes"
-        }
-      />
-      <div className="flex gap-3">
-        <Button
-          className="bg-base text-base rounded-xl border-1 border-default-200 w-full"
-          onPress={handleClose}
-        >
-          <span className="default">Cancelar</span>
-        </Button>
-        <Button
-          onClick={() => {
-            if (
-              name.trim() == "" ||
-              category.trim() == "" ||
-              measurement.trim() == "" ||
-              currentStock < 0 ||
-              unitCost < 0
-            ) {
-              return console.log("erro ao adicionar o ingrediente!");
-            }
+      <div className="flex flex-col gap-6">
+        {/* ALERTA GLOBAL */}
+        {formError && (
+          <div
+            className="
+              rounded-lg px-4 py-3 text-sm font-medium
+              bg-red-50 text-red-700
+              dark:bg-red-900/30 dark:text-red-300
+            "
+          >
+            {formError}
+          </div>
+        )}
 
-            addIngredientInBD();
+        {/* NOME */}
+        <Input
+          autoFocus
+          label="Nome do ingrediente"
+          placeholder="Ex: Morango"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            setErrors((prev) => ({ ...prev, name: null }));
           }}
-          className="bg-primary text-base rounded-xl w-full"
-        >
-          <span className="default invert">Salvar</span>
-        </Button>
+          disabled={creating}
+          error={!!errors.name}
+          helperText={errors.name}
+        />
+
+        {/* CATEGORIA + MEDIDA */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Categoria"
+            selectedKeys={[category]}
+            onSelectionChange={(keys) => {
+              setCategory(Array.from(keys)[0]);
+              setErrors((prev) => ({ ...prev, category: null }));
+            }}
+            disabled={creating}
+          >
+            {CATEGORY_OPTIONS.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            label="Unidade de medida"
+            selectedKeys={[measurement]}
+            onSelectionChange={(keys) => {
+              setMeasurement(Array.from(keys)[0]);
+              setErrors((prev) => ({ ...prev, measurement: null }));
+            }}
+            disabled={creating}
+          >
+            {MEASUREMENT_OPTIONS.map((m) => (
+              <SelectItem key={m} value={m}>
+                {m}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        {/* VALORES */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Custo unitário"
+            placeholder="0,00"
+            inputMode="decimal"
+            value={unitCost}
+            onChange={(e) => {
+              setUnitCost(e.target.value.replace(",", "."));
+              setErrors((prev) => ({ ...prev, unitCost: null }));
+            }}
+            disabled={creating}
+            error={!!errors.unitCost}
+            helperText={errors.unitCost}
+          />
+
+          <Input
+            label="Estoque inicial"
+            placeholder="0"
+            inputMode="numeric"
+            value={currentStock}
+            onChange={(e) => {
+              setCurrentStock(e.target.value.replace(/\D/g, ""));
+              setErrors((prev) => ({ ...prev, currentStock: null }));
+            }}
+            disabled={creating}
+            error={!!errors.currentStock}
+            helperText={errors.currentStock}
+          />
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex gap-3 pt-2">
+          <Button
+            variant="bordered"
+            onPress={handleClose}
+            disabled={creating}
+            className="
+              w-full rounded-xl
+              border-default-300 dark:border-zinc-700
+              hover:bg-default-100 dark:hover:bg-zinc-800
+            "
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            onClick={handleSave}
+            isLoading={creating}
+            disabled={creating}
+            className="
+              w-full rounded-xl
+              bg-primary text-primary-foreground
+              font-semibold
+              hover:bg-primary/90
+            "
+          >
+            Salvar ingrediente
+          </Button>
+        </div>
       </div>
     </ModelDefaultDialog>,
     document.body
   );
-};
-
-export default AddIngredientDialog;
+}

@@ -1,15 +1,7 @@
-import { useEffect, useState } from "react";
-import { Accordion, AccordionItem, useSwitch } from "@heroui/react";
+import { useEffect, useMemo } from "react";
+import { Accordion, AccordionItem } from "@heroui/react";
 import useSWR from "swr";
-import { useMemo } from "react";
-import {
-  CircleX,
-  HandPlatter,
-  XIcon,
-  X,
-  ShoppingCart,
-  CirclePlus,
-} from "lucide-react";
+import { HandPlatter, X, CirclePlus, CircleX } from "lucide-react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -22,54 +14,35 @@ function AccountClientByID({
   setProduct,
   setPedidoClient,
 }) {
-  const {
-    data: account,
-    error,
-    isLoading,
-  } = useSWR(
+  const { data, error, isLoading } = useSWR(
     clientID
       ? `https://api-7pecados.onrender.com/sale/account_client/id/${clientID}`
       : null,
     fetcher
   );
 
-  const pedidos = Array.isArray(account) ? account : [];
+  const pedidos = Array.isArray(data) ? data : [];
+  const name = clientName?.trim() || "Cliente";
 
-  const name = clientName.trim() === "" ? "Cliente" : clientName;
   const total = pedidos.reduce((acc, p) => acc + (p.priceTotal || 0), 0);
 
-  const itemClasses = {
-    base: "py-0 w-full",
-    title: "font-bold text-medium   text-primary",
-    trigger: "px-2 py-0 data-[hover=true]: rounded-lg h-8 flex items-center",
-    indicator: "text-medium",
-    content: "text-small px-2",
-  };
-
-  const {
-    data: productsDb,
-    errorProduct,
-    isLoadingProduct,
-  } = useSWR(
-    `https://api-7pecados.onrender.com/admin/stock/products/historic`,
+  /* ================================
+     Produtos adicionados no carrinho
+  ================================ */
+  const { data: productsDb } = useSWR(
+    "https://api-7pecados.onrender.com/admin/stock/products/historic",
     fetcher
   );
 
   const filteredProduct = useMemo(() => {
     if (!products || !productsDb) return [];
-
-    const productDbArray = productsDb?.product ?? [];
+    const db = productsDb.product ?? [];
 
     return products
       .map((p) => {
-        const match = productDbArray.find((db) => db._id === p.productID);
+        const match = db.find((d) => d._id === p.productID);
         if (!match) return null;
-
-        return {
-          ...match,
-          size: p.size,
-          details: p.details,
-        };
+        return { ...match, ...p };
       })
       .filter(Boolean);
   }, [products, productsDb]);
@@ -78,285 +51,164 @@ function AccountClientByID({
     if (!isLoading && pedidos.length > 0) {
       setPedidoClient(pedidos);
     }
-  }, [isLoading, pedidos]);
+  }, [isLoading, pedidos, setPedidoClient]);
 
-  if (isLoading)
+  /* ================================
+     LOADING
+  ================================ */
+  if (isLoading) {
     return (
-      <div className="p-2 ">
-        <div className="font-bold text-2xl flex  justify-between">
-          <h1>Carregando pedidos...</h1>
-        </div>
+      <div className="p-4 text-foreground">
+        <h2 className="text-xl font-semibold">Carregando pedidos…</h2>
       </div>
     );
+  }
 
-  if (error)
+  /* ================================
+     ERROR
+  ================================ */
+  if (error) {
     return (
-      <div className="p-4 sm:p-6 max-w-sm mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <p className="font-bold text-2xl text-primary"></p>
+      <div className="p-6 text-center">
+        <CircleX className="mx-auto mb-4 text-primary" size={64} />
+        <p className="font-semibold text-lg text-foreground mb-4">
+          Erro ao carregar pedidos
+        </p>
+        <button
+          onClick={() => setPage("")}
+          className="text-primary font-semibold hover:underline"
+        >
+          Voltar
+        </button>
+      </div>
+    );
+  }
 
+  /* ================================
+     CARRINHO VAZIO
+  ================================ */
+  if (pedidos.length === 0) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-default-200 dark:border-zinc-800">
+          <h2 className="text-lg font-bold text-foreground">
+            Carrinho do cliente
+          </h2>
           <button
-            className="text-gray-400 hover:text-primary transition duration-150 p-1 rounded-full hover:bg-gray-100" // Botão de fechar mais suave
-            onClick={() => {
-              setPage("");
-            }}
-            aria-label="Fechar"
+            onClick={() => setPage("")}
+            className="text-muted-foreground hover:text-primary"
           >
-            <X className="w-6 h-6" />
+            <X />
           </button>
         </div>
-        <div className="flex justify-center flex-col text-center">
-          <CircleX className="mx-auto mb-6 text-primary w-32 h-32 sm:w-40 sm:h-40" />
-          <p className="font-semibold text-lg text-gray-700 mb-6">
-            Error ao procurar pedidos
-          </p>
-          <button className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary text-white font-semibold w-full text-lg py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
-            Voltar
-          </button>
-        </div>
-      </div>
-    );
 
-  if (pedidos.length === 0)
-    return (
-      <>
-        <div className="p-2 ">
-          <div className="font-bold text-2xl flex justify-between">
-            <h1>Carrinho do cliente</h1>
-            <div
-              className="text-2xl  hover:text-primary"
-              onClick={() => {
-                setPage("");
-              }}
-            >
-              <XIcon />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center flex-col text-center p-4">
-          {filteredProduct?.length > 0 ? (
-            <div>
-              <Accordion
-                defaultExpandedKeys={["1"]}
-                className="p-2 flex flex-col gap-1"
-                itemClasses={itemClasses}
-                showDivider={true}
-                motionProps={{
-                  variants: {
-                    enter: {
-                      y: 0,
-                      opacity: 1,
-                      height: "auto",
-                      overflowY: "unset",
-                      transition: {
-                        height: {
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                          duration: 1,
-                        },
-                        opacity: {
-                          easings: "ease",
-                          duration: 1,
-                        },
-                      },
-                    },
-                    exit: {
-                      y: -10,
-                      opacity: 0,
-                      height: 0,
-                      overflowY: "hidden",
-                      transition: {
-                        height: {
-                          easings: "ease",
-                          duration: 0.25,
-                        },
-                        opacity: {
-                          easings: "ease",
-                          duration: 0.3,
-                        },
-                      },
-                    },
-                  },
-                }}
+        {/* Conteúdo */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {filteredProduct.length > 0 ? (
+            <Accordion>
+              <AccordionItem
+                key="1"
+                title={`Produtos selecionados (${filteredProduct.length})`}
               >
-                <AccordionItem
-                  key="1"
-                  aria-label="Accordion 1"
-                  title={`Produtos selecionados(${filteredProduct.length})`}
-                >
-                  <ul>
-                    {filteredProduct.map((product) => (
-                      <li
-                        key={product._id}
-                        className="bg-base flex  justify-between border-dashed border-b-1 py-4  gap-2"
-                      >
-                        <div className="flex justify-start w-full">
-                          <HandPlatter className="bg-secondary mr-3 w-15 h-15 p-2 rounded-full text-base" />
-                          <div className="flex flex-col w-full">
-                            <div className="flex justify-between w-full ">
-                              <div className="font-bold text-xl text-left  text-black">
-                                {product.name}
-                              </div>
+                <ul className="space-y-3">
+                  {filteredProduct.map((product) => (
+                    <li
+                      key={product._id}
+                      className="flex gap-3 items-start border-b border-dashed pb-3"
+                    >
+                      <div className="p-2 rounded-full bg-secondary/20 text-secondary">
+                        <HandPlatter />
+                      </div>
 
-                              <div className="text-lg text-primary ">
-                                R${product.price}
-                              </div>
-                            </div>
-
-                            <div className=" text-left flex flex-col text-dark break-all w-5/6">
-                              <span className="">Fruta: Morango </span>
-                              <span>Sabor: Chocolate Branco</span>
-                            </div>
-                          </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <p className="font-semibold text-foreground">
+                            {product.name}
+                          </p>
+                          <span className="text-primary font-semibold">
+                            R$ {Number(product.price).toFixed(2)}
+                          </span>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionItem>
-              </Accordion>
 
-              <div className="gap-2 flex justify-start p-4  border-gray-300 border-b-1">
-                <button
-                  onClick={() => handleAdd("confirmar")}
-                  className="bg-primary text-white rounded-lg p-2 px-4 transition hover:bg-primary/80"
-                >
-                  Adicionar pedido
-                </button>
-                <button
-                  onClick={() => handleAdd("cancelar")}
-                  className="outline-1 outline-primary rounded-lg p-2 px-4 text-primary transition hover:bg-primary/10"
-                >
-                  cancelar
-                </button>
-              </div>
-            </div>
+                        <div className="text-sm text-muted-foreground">
+                          <p>Fruta: {product.details?.fruta}</p>
+                          <p>Sabor: {product.details?.sabor}</p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </AccordionItem>
+            </Accordion>
           ) : (
-            <>
-              <XIcon className="mx-auto mb-6 w-25 h-25 p-2 bg-primary text-white  rounded-full" />
-              <p className="font-semibold text-lg text-center text-primary mb-6">
-                Nenhum pedido registrado nessa conta!
-              </p>
-            </>
+            <p className="text-center text-muted-foreground">
+              Nenhum produto adicionado ainda.
+            </p>
           )}
         </div>
 
-        <div className="mt-auto">
-          <div className="flex flex-col p-2">
-            <ul className="mt-4 p-2">
-              <h1 className="font-bold text-3xl">Cliente da conta</h1>
-              <li
-                key={1}
-                className="bg-base flex  justify-between   py-4 items-center  gap-2"
-              >
-                <div className="flex w-full">
-                  <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
-                  <div>
-                    <p className="font-bold  text-xl text-primary">{name}</p>
-                    <p className="text-sm text-slate-600">
-                      {true ? "Cliente registrado" : "Cliente novo"}
-                    </p>
-                  </div>
-                </div>
-              </li>
-            </ul>
-
-            <div className="border-t-1 flex justify-between p-2"></div>
-            <div className="text-center p-2">
-              <button
-                onClick={() => setPage("pagamento")}
-                className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 font-bold rounded-md p-6"
-              >
-                Cancelar conta
-              </button>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-
-  return (
-    <>
-      <div className="p-2">
-        <div className="font-bold text-2xl flex justify-between">
-          <h1>Carrinho do cliente</h1>
-          <div
-            className="text-2xl  hover:text-primary"
-            onClick={() => {
-              setPage("");
-            }}
+        {/* Ações */}
+        <div className="p-4 border-t border-default-200 dark:border-zinc-800 flex gap-2">
+          <button
+            onClick={() => handleAdd("confirmar")}
+            className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl font-semibold hover:bg-primary/90"
           >
-            <XIcon />
-          </div>
+            Confirmar pedido
+          </button>
+          <button
+            onClick={() => handleAdd("cancelar")}
+            className="flex-1 border border-primary text-primary py-3 rounded-xl font-semibold hover:bg-primary/10"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
+    );
+  }
 
-      <Accordion
-        className="p-2 flex flex-col gap-1 "
-        itemClasses={itemClasses}
-        showDivider={true}
-        motionProps={{
-          variants: {
-            enter: {
-              y: 0,
-              opacity: 1,
-              height: "auto",
-              overflowY: "unset",
-              transition: {
-                height: {
-                  type: "spring",
-                  stiffness: 500,
-                  damping: 30,
-                  duration: 1,
-                },
-                opacity: {
-                  easings: "ease",
-                  duration: 1,
-                },
-              },
-            },
-            exit: {
-              y: -10,
-              opacity: 0,
-              height: 0,
-              overflowY: "hidden",
-              transition: {
-                height: {
-                  easings: "ease",
-                  duration: 0.25,
-                },
-                opacity: {
-                  easings: "ease",
-                  duration: 0.3,
-                },
-              },
-            },
-          },
-        }}
-      >
+  /* ================================
+     PEDIDOS EXISTENTES
+  ================================ */
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-default-200 dark:border-zinc-800">
+        <h2 className="text-lg font-bold text-foreground">
+          Carrinho do cliente
+        </h2>
+        <button
+          onClick={() => setPage("")}
+          className="text-muted-foreground hover:text-primary"
+        >
+          <X />
+        </button>
+      </div>
+
+      {/* Lista de pedidos */}
+      <Accordion className="flex-1 overflow-y-auto p-2">
         {pedidos.map((acc, index) => (
           <AccordionItem
             key={acc._id}
-            aria-label={`Accordion ${index}`}
-            title={`${index + 1}º Pedido - ${acc.statusOrder}`}
+            title={`${index + 1}º Pedido — ${acc.statusOrder}`}
           >
-            <ul className="">
-              {acc.products.map((product) => (
+            <ul className="space-y-3">
+              {acc.products.map((p) => (
                 <li
-                  key={product.productID._id}
-                  className="bg-base flex  justify-between border-dashed border-b-1 py-4 items-center  gap-2"
+                  key={p.productID._id}
+                  className="flex gap-3 items-center border-b border-dashed pb-3"
                 >
-                  <div className="flex w-full">
-                    <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
-                    <div>
-                      <p className="font-bold  text-xl text-black">
-                        {product.productID.name}
-                      </p>
-                      <p className="text-lg text-primary">
-                        R${product.productID.price}
-                      </p>
-                    </div>
+                  <div className="p-2 rounded-full bg-secondary/20 text-secondary">
+                    <HandPlatter />
+                  </div>
+
+                  <div className="flex justify-between w-full">
+                    <p className="font-semibold text-foreground">
+                      {p.productID.name}
+                    </p>
+                    <span className="text-primary font-semibold">
+                      R$ {Number(p.productID.price).toFixed(2)}
+                    </span>
                   </div>
                 </li>
               ))}
@@ -365,58 +217,28 @@ function AccountClientByID({
         ))}
       </Accordion>
 
-      <div className="p-4">
-        <a
-          href="#"
-          onClick={() => handleAdd("confirmar")}
-          className="text-primary  flex  transition hover:text-primary/80 font-bold  border-dashed border-t-1 pt-2"
+      {/* Footer */}
+      <div className="p-4 border-t border-default-200 dark:border-zinc-800 space-y-4">
+        <div className="flex justify-between font-bold text-lg">
+          <span>Total</span>
+          <span className="text-primary">R$ {total.toFixed(2)}</span>
+        </div>
+
+        <button
+          onClick={() => setPage("pagamento")}
+          className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold hover:bg-primary/90"
         >
-          <CirclePlus className="mr-2 font-bold" /> Adicionar pedido
-        </a>
+          Fechar conta do cliente
+        </button>
+
+        <button
+          onClick={() => handleAdd("cancelar")}
+          className="w-full text-sm text-muted-foreground hover:text-destructive"
+        >
+          Cancelar conta
+        </button>
       </div>
-
-      <div className="mt-auto flex flex-col p-2">
-        <ul className="mt-4 p-2">
-          <h1 className="font-bold text-3xl">Cliente da conta</h1>
-          <li
-            key={1}
-            className="bg-base flex  justify-between   py-4 items-center  gap-2"
-          >
-            <div className="flex w-full">
-              <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
-              <div>
-                <p className="font-bold  text-xl text-primary">{name}</p>
-                <p className="text-sm text-slate-600">
-                  {true ? "Cliente registrado" : "Cliente novo"}
-                </p>
-              </div>
-            </div>
-          </li>
-        </ul>
-
-        <div className="border-t-1 flex justify-between p-2">
-          <div className="my-3 font-bold text-2xl">Total do pedido</div>
-          <div className="my-3 font-bold text-3xl text-primary">
-            R${total.toFixed(2)}
-          </div>
-        </div>
-        <div className="text-center p-2">
-          <button
-            onClick={() => setPage("pagamento")}
-            className="bg-primary hover:bg-white text-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 font-bold rounded-md p-6"
-          >
-            Fechar conta do cliente
-          </button>
-
-          <a
-            href="#"
-            className="text-center text-primary hover:text-red-500 hover:border-b-2"
-          >
-            Cancelar conta
-          </a>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 

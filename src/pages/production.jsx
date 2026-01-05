@@ -1,228 +1,93 @@
+import useSWR from "swr";
 import DefaultLayout from "@/layouts/default";
 import { ColumnsProduction } from "@/components/columnsProduction";
-import { CardProduction } from "@/components/cardProduction";
-import { ItemCardProduction } from "@/components/itemCardProduction";
-import { CardSearch } from "@/components/cardSearch";
+import { CardProduction } from "@/components/cardProduction.jsx";
+import { ItemCardProduction } from "@/components/itemCardProduction.jsx";
 
-const list_productions = [
-  {
-    id: "1251",
-    place_to_buy: "Loja",
-    name_user: "Nathalia Gomes",
-    address: "Rua agostinho Gama - 42",
-    type_payment: "Pagamento no cartão",
-    total_value: "R$26,58",
-    status: "pending",
-    all_list_products: [
-      {
-        id_product: "0312",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-    ],
-  },
-  {
-    id: "1321",
-    place_to_buy: "Loja",
-    name_user: "Nathalia Gomes",
-    address: "Rua agostinho Gama - 42",
-    type_payment: "Pagamento no cartão",
-    total_value: "R$30,58",
-    status: "in_production",
-    all_list_products: [
-      {
-        id_product: "1312",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-    ],
-  },
-  {
-    id: "1344",
-    place_to_buy: "Entrega",
-    name_user: "Nathalia Gomes",
-    address: "Rua agostinho Gama - 42",
-    type_payment: "Pagamento no cartão",
-    total_value: "R$30,58",
-    status: "in_production",
-    all_list_products: [
-      {
-        id_product: "2312",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-    ],
-  },
-  {
-    id: "1322",
-    place_to_buy: "Entrega",
-    name_user: "Nathalia Gomes",
-    address: "Rua agostinho Gama - 42",
-    type_payment: "Pagamento no pix",
-    total_value: "R$50,58",
-    status: "ready",
-    all_list_products: [
-      {
-        id_product: "4312",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-      {
-        id_product: "8812",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-    ],
-  },
-  {
-    id: "1322",
-    place_to_buy: "Entrega",
-    name_user: "Nathalia Gomes",
-    address: "Rua agostinho Gama - 42",
-    type_payment: "Pagamento no pix",
-    total_value: "R$50,58",
-    status: "delivered",
-    completion_time: "15 minutos",
-    all_list_products: [
-      {
-        id_product: "4312",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-      {
-        id_product: "8812",
-        photo_product: "default",
-        title_product: "Taça do amor",
-        qtd_product: "1",
-        type_product: "Taça",
-        total_value_product: "R$26,58",
-      },
-    ],
-  },
-];
+function normalizeOrder(order) {
+  const statusMap = {
+    pendente: "pending",
+    em_producao: "in_production",
+    pronto: "ready",
+    entregue: "delivered",
+  };
+
+  return {
+    id: order.id,
+    place_to_buy: order.place_to_buy,
+    name_user: order.name_user,
+    address: order.address || "",
+    type_payment: order.type_payment,
+    total_value: order.total_value,
+    status: statusMap[order.status] ?? "pending",
+    completion_time: order.completion_time,
+    all_list_products: Array.isArray(order.all_list_products)
+      ? order.all_list_products
+      : [],
+  };
+}
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function ProductionPage() {
-  const pending_list_filter_production = list_productions.filter(
-    (production) => production.status === "pending"
+  const { data, isLoading, error, mutate } = useSWR(
+    "https://api-7pecados.onrender.com/sale/orders/historic",
+    fetcher
   );
-  const in_production_list_filter_production = list_productions.filter(
-    (production) => production.status === "in_production"
-  );
-  const ready_list_filter_production = list_productions.filter(
-    (production) => production.status === "ready"
-  );
-  const delivered_filter_production = list_productions.filter(
-    (production) => production.status === "delivered"
-  );
+
+  if (isLoading) {
+    return (
+      <DefaultLayout>
+        <div className="p-8 text-default-500">Carregando produção…</div>
+      </DefaultLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DefaultLayout>
+        <div className="p-8 text-red-500">Erro ao carregar pedidos.</div>
+      </DefaultLayout>
+    );
+  }
+
+  const orders = (data?.orders ?? []).map(normalizeOrder);
+
+  const byStatus = (status) =>
+    orders.filter((order) => order.status === status);
+
+  const columns = [
+    ["pending", "Pendente"],
+    ["in_production", "Em produção"],
+    ["ready", "Prontos"],
+    ["delivered", "Entregues"],
+  ];
 
   return (
     <DefaultLayout>
-      <main className="flex flex-col gap-6">
-        <div>
-          <CardSearch text_label={"Pesquisar cliente"} text_button={"Buscar"} />
-        </div>
-        <section className="grid grid-cols-4">
-          {/* Pendente */}
-          <ColumnsProduction
-            title={"Pendente"}
-            quantityOfItems={String(pending_list_filter_production.length)}
-            type_rounded={"rounded-tl-xl"}
-          >
-            {pending_list_filter_production.map((element) => (
-              <CardProduction
-                id={element.id}
-                place_to_buy={element.place_to_buy}
-                name_user={element.name_user}
-                address={element.address}
-                type_payment={element.type_payment}
-                total_value={element.total_value}
-                status={element.status}
+      <main className="flex flex-col gap-6 p-4">
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {columns.map(([status, title]) => {
+            const list = byStatus(status);
+
+            return (
+              <ColumnsProduction
+                key={status}
+                title={title}
+                quantityOfItems={String(list.length)}
               >
-                <ItemCardProduction list_items={element.all_list_products} />
-              </CardProduction>
-            ))}
-          </ColumnsProduction>
-          {/* Em produção */}
-          <ColumnsProduction
-            title={"Em produção"}
-            quantityOfItems={String(
-              in_production_list_filter_production.length
-            )}
-            type_rounded={"none"}
-          >
-            {in_production_list_filter_production.map((element) => (
-              <CardProduction
-                id={element.id}
-                place_to_buy={element.place_to_buy}
-                name_user={element.name_user}
-                address={element.address}
-                type_payment={element.type_payment}
-                total_value={element.total_value}
-                status={element.status}
-              >
-                <ItemCardProduction list_items={element.all_list_products} />
-              </CardProduction>
-            ))}
-          </ColumnsProduction>
-          {/* Prontos */}
-          <ColumnsProduction
-            title={"Prontos"}
-            quantityOfItems={String(ready_list_filter_production.length)}
-            type_rounded={"none"}
-          >
-            {ready_list_filter_production.map((element) => (
-              <CardProduction
-                id={element.id}
-                place_to_buy={element.place_to_buy}
-                name_user={element.name_user}
-                address={element.address}
-                type_payment={element.type_payment}
-                total_value={element.total_value}
-                status={element.status}
-              >
-                <ItemCardProduction list_items={element.all_list_products} />
-              </CardProduction>
-            ))}
-          </ColumnsProduction>
-          {/* Entregues */}
-          <ColumnsProduction
-            title={"Entregues"}
-            quantityOfItems={String(delivered_filter_production.length)}
-            type_rounded={"rounded-tr-xl"}
-          >
-            {delivered_filter_production.map((element) => (
-              <CardProduction
-                id={element.id}
-                place_to_buy={element.place_to_buy}
-                name_user={element.name_user}
-                address={element.address}
-                type_payment={element.type_payment}
-                total_value={element.total_value}
-                status={element.status}
-                completion_time={element.completion_time}
-              >
-                <ItemCardProduction list_items={element.all_list_products} />
-              </CardProduction>
-            ))}
-          </ColumnsProduction>
+                {list.map((order) => (
+                  <CardProduction
+                    key={order.id}
+                    {...order}
+                    onStatusChange={() => mutate()}
+                  >
+                    <ItemCardProduction list_items={order.all_list_products} />
+                  </CardProduction>
+                ))}
+              </ColumnsProduction>
+            );
+          })}
         </section>
       </main>
     </DefaultLayout>

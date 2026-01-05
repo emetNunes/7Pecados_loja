@@ -44,7 +44,7 @@ export const ItemCardHistory = ({
   return (
     <div className="flex items-center gap-4">
       {setIconDiv}
-      <div className="grid grid-rows-2">
+      <div className="grid grid-rows-1">
         <div className="font-bold">{children}</div>
         <div className="text-[0.8rem] text-default-500">{description_item}</div>
       </div>

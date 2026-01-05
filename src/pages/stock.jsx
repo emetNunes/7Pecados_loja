@@ -1,250 +1,148 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import { CardHistory } from "@/components/cardHistory";
-import { Wallet, BanknoteArrowUp, Lollipop, IceCreamBowl } from "lucide-react";
+import { CardHistory } from "@/components/stockComponents/cardHistory";
+import { Wallet, BanknoteArrowUp } from "lucide-react";
 import { PieChartComponent } from "@/components/charts/pieChartComponent";
-import { CardStatusOrders } from "@/components/cardStatusOrders";
-import { CardMakePurchase } from "@/components/cardMakePurchase";
-import { DrawerComponent } from "@/components/drawerComponent";
-import { CardFormPurchaseMerchandise } from "@/components/cardFormPurchaseMerchandise";
-import { useState } from "react";
-import { Button } from "@heroui/button";
+import { CardStatusOrders } from "@/components/stockComponents/cardIngredients";
+
 import AddMerchandiseDialog from "@/components/stockComponents/AddMerchandiseDialog";
 import AddIngredientDialog from "@/components/stockComponents/AddIngredientDialog";
 import AddProductDialog from "@/components/stockComponents/AddProductDialog";
-// Lista para cardHistory
-const database_list = [
-  {
-    key: "1",
-    description: "Categoria - Fruta",
-    info: "20 unidades",
-    value: "R$ 6,00",
-    title: "Morango",
-    type_movement: "buy",
-  },
-  {
-    key: "2",
-    description: "Categoria - Perecível",
-    info: "1 unidade",
-    value: "R$ 12,00",
-    title: "Nutella",
-    type_movement: "buy",
-  },
-  {
-    key: "3",
-    description: "Categoria - Fruta",
-    info: "20 unidades",
-    value: "R$ 6,00",
-    title: "Morango",
-    type_movement: "buy",
-  },
-  {
-    key: "4",
-    description: "Categoria - Perecível",
-    info: "1 unidade",
-    value: "R$ 12,00",
-    title: "Nutella",
-    type_movement: "buy",
-  },
-  {
-    key: "5",
-    description: "Categoria - Fruta",
-    info: "20 unidades",
-    value: "R$ 6,00",
-    title: "Morango",
-    type_movement: "buy",
-  },
-  {
-    key: "6",
-    description: "Categoria - Perecível",
-    info: "1 unidade",
-    value: "R$ 12,00",
-    title: "Nutella",
-    type_movement: "buy",
-  },
-  {
-    key: "7",
-    description: "Categoria - Fruta",
-    info: "20 unidades",
-    value: "R$ 6,00",
-    title: "Morango",
-    type_movement: "buy",
-  },
-];
 
+import { useState } from "react";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+/* ================================
+   Configuração da tabela
+================================ */
 const columns_list = [
-  {
-    key: "description",
-    label: "Produto",
-  },
-  {
-    key: "info",
-    label: "Quantidade",
-  },
-  {
-    key: "value",
-    label: "Preço",
-  },
-];
-
-// Lista para o componente cardStatusOrders
-const listInfo_list = [
-  {
-    id: "1",
-    icon: <IceCreamBowl />,
-    title: "Taça do amor",
-    description: "Categoria - Taça",
-    status: "",
-    info: "20/Mês",
-  },
-  {
-    id: "2",
-    icon: <IceCreamBowl />,
-    title: "Taça da perdi.",
-    description: "Categoria - Taça",
-    status: "",
-    info: "15/Mês",
-  },
-  {
-    id: "3",
-    icon: <Lollipop />,
-    title: "Bolo de Brownwin",
-    description: "Categoria - Docess",
-    status: "",
-    info: "10/Mês",
-  },
-  {
-    id: "4",
-    icon: <IceCreamBowl />,
-    title: "Taça do amor",
-    description: "Categoria - Taça",
-    status: "",
-    info: "10/Mês",
-  },
-  {
-    id: "5",
-    icon: <IceCreamBowl />,
-    title: "Taça do amor",
-    description: "Categoria - Taça",
-    status: "",
-    info: "10/Mês",
-  },
+  { key: "description", label: "Produto" },
+  { key: "prices", label: "Preços" },
 ];
 
 export default function StockPage() {
-  let icon_size = 48;
-  let icon_stroke = 2;
+  const [addMerchandiseOpen, setAddMerchandiseOpen] = useState(false);
+  const [addIngredientOpen, setAddIngredientOpen] = useState(false);
+  const [addProductOpen, setAddProductOpen] = useState(false);
 
-  const [addMerchandiseDialogIsOpen, setAddMerchandiseDialog] = useState(false);
-  const [addIngredientDialogIsOpen, setAddIngredientDialog] = useState(false);
-  const [addProductDialogIsOpen, setAddProductDialog] = useState(false);
+  const { data: productsData, isLoading } = useSWR(
+    "https://api-7pecados.onrender.com/admin/stock/products/historic",
+    fetcher
+  );
+
+  const products = productsData?.product ?? [];
+  const totalProducts = productsData?.total ?? 0;
+
+  const iconSize = 44;
+  const iconStroke = 2;
 
   return (
     <DefaultLayout>
-      <main className="w-full grid grid-cols-[auto_380px] gap-8">
-        <section className="flex flex-col gap-12 max-w-[1380px]">
-          <div className="flex gap-6">
-            <CardDefaultValue
-              icon={<Wallet size={icon_size} strokeWidth={icon_stroke} />}
-              description={"Total de produtos"}
-              type_color={"primary"}
-            >
-              123 produtos
-            </CardDefaultValue>
-            <CardDefaultValue
-              icon={
-                <BanknoteArrowUp size={icon_size} strokeWidth={icon_stroke} />
-              }
-              description={"Total de vendas"}
-              type_color={"secondary"}
-            >
-              +100 vendas
-            </CardDefaultValue>
-            <div className="flex w-full">
-              <CardAccess
-                title="Adicione mercadoria em seu estoque"
-                description="Clique no botão abaixo para cadastrar mercadoria"
-                clickbutton={
-                  <Button
-                    className="bg-primary text-base rounded-xl"
-                    onPress={() => setAddMerchandiseDialog(true)}
-                  >
-                    <span className="default invert">Adicionar mercadoria</span>
-                  </Button>
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8">
+          {/* ======================
+              CONTEÚDO PRINCIPAL
+          ====================== */}
+          <section className="flex flex-col gap-12">
+            {/* MÉTRICAS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <CardDefaultValue
+                icon={<Wallet size={iconSize} strokeWidth={iconStroke} />}
+                description="Total de produtos"
+                type_color="primary"
+              >
+                {totalProducts} produtos
+              </CardDefaultValue>
+
+              <CardDefaultValue
+                icon={
+                  <BanknoteArrowUp size={iconSize} strokeWidth={iconStroke} />
                 }
-              ></CardAccess>
-              <AddMerchandiseDialog
-                isOpen={addMerchandiseDialogIsOpen}
-                handleClose={() => {
-                  setAddMerchandiseDialog(false);
-                }}
+                description="Total de vendas"
+                type_color="secondary"
+              >
+                +100 vendas
+              </CardDefaultValue>
+
+              <CardAccess
+                title="Adicionar mercadoria"
+                description="Cadastre novas entradas no estoque"
+                action={() => setAddMerchandiseOpen(true)}
+                actionLabel="Adicionar mercadoria"
               />
             </div>
-          </div>
-          <div>
-            <label className="text-2xl font-bold">Informação do estoque</label>
-            <div className="flex flex-row gap-6 mt-4">
-              <PieChartComponent />
-              <div className="flex flex-col justify-between gap-6">
+
+            {/* ESTOQUE */}
+            <section className="flex flex-col gap-6">
+              <h2 className="text-2xl font-bold text-default-800 dark:text-default-100">
+                Informações do estoque
+              </h2>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[580px_1fr] gap-6 items-start">
+                <PieChartComponent />
+
                 <CardAccess
-                  title="Adicione ingrediente"
-                  description="Clique no botão abaixo para cadastrar um ingrediente"
-                  clickbutton={
-                    <Button
-                      className="bg-primary text-base rounded-xl"
-                      onPress={() => setAddIngredientDialog(true)}
-                    >
-                      <span className="default invert">
-                        Adicionar ingredientes
-                      </span>
-                    </Button>
-                  }
-                ></CardAccess>
-                <AddIngredientDialog
-                  isOpen={addIngredientDialogIsOpen}
-                  handleClose={() => {
-                    setAddIngredientDialog(false);
-                  }}
+                  title="Adicionar ingrediente"
+                  description="Cadastre novos ingredientes no estoque"
+                  action={() => setAddIngredientOpen(true)}
+                  actionLabel="Adicionar ingrediente"
                 />
               </div>
-            </div>
-          </div>
-          <div>
-            <label className="text-2xl font-bold">
-              Inventário de mercadoria
-            </label>
-            <CardHistory database={database_list} columns={columns_list} />
-          </div>
-        </section>
-        <section className="flex flex-col gap-6">
-          <CardAccess
-            title="Quer cadastrar um novo produto?"
-            description="Clique no botão abaixo para efetuar o cadastro de um novo produto para venda"
-            clickbutton={
-              <Button
-                className="bg-primary text-base rounded-xl"
-                onPress={() => setAddProductDialog(true)}
-              >
-                <span className="default invert">Adicionar Produto</span>
-              </Button>
-            }
-          ></CardAccess>
+            </section>
 
-          <AddProductDialog
-            isOpen={addProductDialogIsOpen}
-            handleClose={() => {
-              setAddProductDialog(false);
-            }}
-          />
+            {/* PRODUTOS */}
+            <section className="flex flex-col gap-4">
+              <h2 className="text-2xl font-bold text-default-800 dark:text-default-100">
+                Produtos cadastrados
+              </h2>
 
-          <CardStatusOrders
-            listInfo={listInfo_list}
-            title="Ingredients cadastrados"
-            description="Últimos 5 pedidos"
-          />
-        </section>
+              <CardHistory
+                database={products}
+                columns={columns_list}
+                isLoading={isLoading}
+              />
+            </section>
+          </section>
+
+          {/* ======================
+              SIDEBAR
+          ====================== */}
+          <aside className="flex flex-col gap-6">
+            <CardAccess
+              title="Cadastrar produto"
+              description="Crie novos produtos para venda"
+              action={() => setAddProductOpen(true)}
+              actionLabel="Adicionar produto"
+            />
+
+            <CardStatusOrders
+              title="Ingredientes cadastrados"
+              description="Últimos ingredientes adicionados"
+            />
+          </aside>
+        </div>
       </main>
+
+      {/* ======================
+          DIALOGS
+      ====================== */}
+      <AddMerchandiseDialog
+        isOpen={addMerchandiseOpen}
+        handleClose={() => setAddMerchandiseOpen(false)}
+      />
+
+      <AddIngredientDialog
+        isOpen={addIngredientOpen}
+        handleClose={() => setAddIngredientOpen(false)}
+      />
+
+      <AddProductDialog
+        isOpen={addProductOpen}
+        handleClose={() => setAddProductOpen(false)}
+      />
     </DefaultLayout>
   );
 }

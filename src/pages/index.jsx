@@ -1,189 +1,202 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import { CardHistory } from "@/components/cardHistory";
-import { Wallet, BanknoteArrowUp, BanknoteArrowDown, User } from "lucide-react";
-import { BarChartComponent } from "@/components/charts/barChartComponent";
-import { CardStatusOrders } from "@/components/cardStatusOrders";
+import { CardHistory } from "@/components/stockComponents/cardHistory";
+import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
+import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
+import { Navigate } from "react-router-dom";
+import useSWR from "swr";
+import { useMemo } from "react";
 
-// Lista para cardHistory
-const database_list = [
-  {
-    key: "1",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "entrance",
-  },
-  {
-    key: "2",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "exit",
-  },
-  {
-    key: "3",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "exit",
-  },
-  {
-    key: "4",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "exit",
-  },
-  {
-    key: "5",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "entrance",
-  },
-  {
-    key: "6",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "entrance",
-  },
-  {
-    key: "7",
-    description: "Rua tal, nº 100",
-    info: "22/08/2025",
-    value: "R$ 80,96",
-    title: "Feita na loja",
-    type_movement: "entrance",
-  },
-];
+/* ================================
+   Helpers
+================================ */
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
+const formatMoney = (value = 0) =>
+  `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
+
+/* ================================
+   Normalização do retorno da API
+================================ */
+const normalizeInventoryTransactions = (apiResponse) => {
+  if (!apiResponse?.transactions) return [];
+
+  return apiResponse.transactions.map((transaction, index) => {
+    const ingredients =
+      transaction.ingredients || transaction.ingredientes || [];
+
+    const firstIngredient =
+      ingredients[0]?.id_ingredient || ingredients[0]?.id_ingrediente || {};
+
+    const title =
+      firstIngredient.name || firstIngredient.nome || "Movimentação de estoque";
+
+    const rawDate =
+      transaction.date ||
+      transaction.data ||
+      transaction.createdAt ||
+      transaction.criadoEm;
+
+    const formattedDate = rawDate
+      ? new Date(rawDate).toLocaleDateString("pt-BR")
+      : "";
+
+    const value = transaction.totalValue || transaction.valorTotal || 0;
+
+    return {
+      key: transaction._id || String(index),
+      description: transaction.location || "Estoque",
+      info: formattedDate,
+      value: formatMoney(value),
+      title,
+      type_movement:
+        transaction.financialTransactionID?.type === "entrace"
+          ? "entrance"
+          : transaction.financialTransactionID?.type || "exit",
+    };
+  });
+};
+
+/* ================================
+   Gráfico — Saldo diário
+================================ */
+const buildDailyBalanceChartData = (database_list) => {
+  const dailyMap = {};
+
+  database_list.forEach((item) => {
+    const date = item.info;
+
+    const numericValue = Number(
+      item.value.replace("R$", "").replace(".", "").replace(",", ".")
+    );
+
+    if (!dailyMap[date]) dailyMap[date] = 0;
+
+    dailyMap[date] +=
+      item.type_movement === "entrance" ? numericValue : -numericValue;
+  });
+
+  return Object.entries(dailyMap).map(([date, saldo]) => ({
+    date,
+    saldo: Number(saldo.toFixed(2)),
+  }));
+};
+
+/* ================================
+   Tabela
+================================ */
 const columns_list = [
-  {
-    key: "description",
-    label: "Resumo",
-  },
-  {
-    key: "info",
-    label: "Data",
-  },
-  {
-    key: "value",
-    label: "Valor",
-  },
-];
-
-// Lista para o componente cardStatusOrders
-const listInfo_list = [
-  {
-    id: "1",
-    icon: <User />,
-    title: "Maria Jose",
-    description: "Rua das Jacas, n°160",
-    status: "Finalizado em 15min",
-    info: "R$245,90",
-  },
-  {
-    id: "2",
-    icon: <User />,
-    title: "Maria Jose",
-    description: "Rua das Jacas, n°160",
-    status: "Finalizado em 15min",
-    info: "R$245,90",
-  },
-  {
-    id: "3",
-    icon: <User />,
-    title: "Maria Jose",
-    description: "Rua das Jacas, n°160",
-    status: "Finalizado em 15min",
-    info: "R$245,90",
-  },
-  {
-    id: "4",
-    icon: <User />,
-    title: "Maria Jose",
-    description: "Rua das Jacas, n°160",
-    status: "Finalizado em 15min",
-    info: "R$245,90",
-  },
-  {
-    id: "5",
-    icon: <User />,
-    title: "Maria Jose",
-    description: "Rua das Jacas, n°160",
-    status: "Finalizado em 15min",
-    info: "R$245,90",
-  },
+  { key: "description2", label: "Resumo" },
+  { key: "type", label: "Tipo" },
+  { key: "info", label: "Data" },
+  { key: "value", label: "Valor" },
 ];
 
 export default function IndexPage() {
-  let icon_size = 48;
-  let icon_stroke = 2;
+  const { data: finance } = useSWR(
+    "https://api-7pecados.onrender.com/admin/finance/historic/filter",
+    fetcher
+  );
+
+  const {
+    data: inventory,
+    isLoading,
+    error,
+  } = useSWR(
+    "https://api-7pecados.onrender.com/admin/stock/inventory/historic",
+    fetcher
+  );
+
+  const database = useMemo(
+    () => normalizeInventoryTransactions(inventory),
+    [inventory]
+  );
+
+  const chartData = useMemo(
+    () => buildDailyBalanceChartData(database),
+    [database]
+  );
+
+  if (isLoading) {
+    return (
+      <DefaultLayout>
+        <div className="flex items-center justify-center h-[60vh] text-default-500">
+          Carregando dashboard financeiro…
+        </div>
+      </DefaultLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DefaultLayout>
+        <div className="flex items-center justify-center h-[60vh] text-red-500">
+          Erro ao carregar dados financeiros.
+        </div>
+      </DefaultLayout>
+    );
+  }
 
   return (
     <DefaultLayout>
-      <main className="w-full grid grid-cols-[auto_380px] gap-8">
-        <section className="flex flex-col gap-12 max-w-[1380px]">
-          <div className="flex gap-6">
+      <main className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-10">
+        {/* =========================
+            CONTEÚDO PRINCIPAL
+        ========================= */}
+        <section className="flex flex-col gap-12">
+          {/* MÉTRICAS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CardDefaultValue
-              icon={<Wallet size={icon_size} strokeWidth={icon_stroke} />}
-              description={"Saldo Total"}
-              type_color={"primary"}
+              icon={<Wallet size={40} />}
+              description="Saldo total"
+              type_color="primary"
             >
-              R$720,00
+              {formatMoney(finance?.balance)}
             </CardDefaultValue>
+
             <CardDefaultValue
-              icon={
-                <BanknoteArrowUp size={icon_size} strokeWidth={icon_stroke} />
-              }
-              description={"Entradas"}
-              type_color={"secondary"}
+              icon={<BanknoteArrowUp size={40} />}
+              description="Entradas"
+              type_color="secondary"
             >
-              R$1.400,00
+              {formatMoney(finance?.totalEntrances)}
             </CardDefaultValue>
+
             <CardDefaultValue
-              icon={
-                <BanknoteArrowDown size={icon_size} strokeWidth={icon_stroke} />
-              }
-              description={"Saídas"}
-              type_color={"tertiary"}
+              icon={<BanknoteArrowDown size={40} />}
+              description="Saídas"
+              type_color="tertiary"
             >
-              R$452,00
+              {formatMoney(finance?.totalExits)}
             </CardDefaultValue>
           </div>
-          <div>
-            <label className="text-2xl font-bold">Extrato recente</label>
-            <div>
-              <BarChartComponent />
-            </div>
+
+          {/* GRÁFICO */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-2xl font-bold">Evolução do saldo</h2>
+            <BarChartComponent data={chartData} />
           </div>
-          <div>
-            <label className="text-2xl font-bold">Histórico de conta</label>
-            <CardHistory database={database_list} columns={columns_list} />
+
+          {/* TABELA */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-2xl font-bold">Histórico financeiro</h2>
+            <CardHistory database={database} columns={columns_list} />
           </div>
         </section>
-        <section className="flex flex-col gap-6">
+
+        {/* =========================
+            SIDEBAR / CTA
+        ========================= */}
+        <aside className="flex flex-col gap-6">
           <CardAccess
-            title="Vai efetuar uma venda em sua loja?"
-            description="Clique no botão abaixo para iniciar o modo atendimento"
+            title="Modo atendimento"
+            description="Inicie uma nova venda ou atendimento ao cliente"
+            clickbutton={() => <Navigate to="/service" replace />}
           >
-            Modo atendimento
+            Iniciar atendimento
           </CardAccess>
-          {/* <CardStatusOrders
-            listInfo={listInfo_list}
-            title="Pedidos finalizados"
-            description="Últimos 5 pedidos"
-          /> */}
-        </section>
+        </aside>
       </main>
     </DefaultLayout>
   );

@@ -1,105 +1,80 @@
-import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/react";
 import { useState } from "react";
-import { Alert } from "@heroui/alert";
 
-export function ItemProduct({ productID, sizes, ingredients, onAdd }) {
-  const [size, setSize] = useState("");
-  const [frutaSelect, setFruta] = useState("");
-  const [saborSelect, setSabor] = useState("");
+export function ItemProduct({ productID, size, price, ingredients, onAdd }) {
+  const [fruta, setFruta] = useState("");
+  const [sabor, setSabor] = useState("");
 
   const handleAdd = () => {
     onAdd({
-      productID: productID,
-      size: size.toLowerCase(),
-      details: [frutaSelect, saborSelect],
+      productID,
+      size,
+      price,
+      details: { fruta, sabor },
     });
   };
 
   return (
-    <div>
-      <div className="flex border-t-1 border-dashed flex-col">
-        <div className=" flex flex-row justify-between w-full  py-4">
-          <div>tamanho</div>
-          <div className="flex gap-2">
-            {sizes.map((s) => {
-              const isSelected = size === s;
-              return (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={
-                    isSelected
-                      ? "bg-primary text-white rounded-large px-1 font-semibold text-xl"
-                      : "border-2 border-primary text-primary rounded-large px-1 font-semibold text-xl"
-                  }
-                >
-                  <div className="p-2">{s}</div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+    <div className="mt-4 pt-4 border-t border-dashed flex flex-col gap-4">
+      {/* Resumo */}
+      <div className="flex justify-between text-sm font-medium text-default-700">
+        <span>
+          Tamanho:{" "}
+          <strong className="text-default-900">{size || "Único"}</strong>
+        </span>
+        <span>R$ {Number(price).toFixed(2).replace(".", ",")}</span>
+      </div>
 
-        <div className="gap-2 flex py-4 border-t-1 border-dashed">
-          <div className="flex w-300 flex-wrap md:flex-nowrap gap-4">
-            <Select
-              onChange={(e) => {
-                setFruta(e.target.value);
-              }}
-              className="max-w-lg"
-              label="Frutas"
-            >
-              {ingredients
-                .filter((i) => i.category === "Fruta")
-                .map((f) => (
-                  <SelectItem key={f._id} value={f._id} className=" min-w-300">
-                    {f.name}
-                  </SelectItem>
-                ))}
-            </Select>
-            <Select
-              onChange={(e) => {
-                setSabor(e.target.value);
-              }}
-              className="max-w-xs"
-              label="Sabor"
-            >
-              {ingredients
-                .filter((i) => i.category === "Sabor")
-                .map((s) => (
-                  <SelectItem key={s._id} value={s._id} className=" min-w-300">
-                    {s.name}
-                  </SelectItem>
-                ))}
-            </Select>
-          </div>
-        </div>
+      {/* Fruta */}
+      <Select
+        label="Fruta"
+        className="max-w-full"
+        onChange={(e) => setFruta(e.target.value)}
+      >
+        {ingredients
+          .filter((i) => i.category === "Fruta")
+          .map((f) => (
+            <SelectItem key={f._id}>{f.name}</SelectItem>
+          ))}
+      </Select>
 
-        <div className="gap-2 flex justify-end py-4 border-t-1 border-dashed">
-          <button
-            className={
-              " outline-1 outline-primary rounded-lg p-2 px-4 text-primary transition hover:bg-primary/10"
+      {/* Sabor */}
+      <Select
+        label="Sabor"
+        className="max-w-full"
+        onChange={(e) => setSabor(e.target.value)}
+      >
+        {ingredients
+          .filter((i) => i.category === "Sabor")
+          .map((s) => (
+            <SelectItem key={s._id}>{s.name}</SelectItem>
+          ))}
+      </Select>
+
+      {/* Ações */}
+      <div className="flex justify-end gap-3 pt-2">
+        <button
+          className="px-4 py-2 rounded-lg text-primary border border-primary/30 hover:bg-primary/10 transition"
+          onClick={() => {
+            setFruta("");
+            setSabor("");
+          }}
+        >
+          Cancelar
+        </button>
+
+        <button
+          className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/80 transition"
+          onClick={() => {
+            if (!fruta || !sabor) {
+              alert("Selecione fruta e sabor");
+              return;
             }
-          >
-            cancelar
-          </button>
-
-          <button
-            onClick={() => {
-              if (!size || !frutaSelect || !saborSelect) {
-                return alert("Fruta, sabor ou tamanho vazios");
-              }
-
-              handleAdd();
-            }}
-            className={
-              "bg-primary text-white rounded-lg p-2 px-4 transition hover:bg-primary/80"
-            }
-          >
-            Adicionar
-          </button>
-        </div>
+            handleAdd();
+          }}
+        >
+          Adicionar
+        </button>
       </div>
     </div>
   );

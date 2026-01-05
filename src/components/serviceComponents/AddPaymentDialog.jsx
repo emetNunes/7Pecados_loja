@@ -1,89 +1,130 @@
 import { createPortal } from "react-dom";
-import Input from "../Input";
+import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
 import ModelDefaultDialog from "../ModelDefaultDialog";
-import { useEffect, useState } from "react";
-import { mutate } from "swr";
+import Input from "../Input";
 
 const AddPaymentDialog = ({
   type,
   isOpen,
   handleClose,
-  valor,
+  valor, // [totalPedido, totalPago]
   addPaymentsInAccount,
 }) => {
   const [payment, setPayment] = useState("");
-  const [value, setValue] = useState(0);
 
-  const [incorretValue, setIncorretValue] = useState(false);
+  /* ================================
+     RESET AO ABRIR
+  ================================ */
+  useEffect(() => {
+    if (isOpen) {
+      setPayment("");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const totalPedido = Number(valor?.[0] || 0);
+  const totalPago = Number(valor?.[1] || 0);
+  const restante = Math.max(totalPedido - totalPago, 0);
+
+  const handleSave = () => {
+    if (!payment) return;
+
+    addPaymentsInAccount({
+      method: type,
+      amount: Number(payment),
+    });
+
+    handleClose();
+    setPayment("");
+  };
 
   return createPortal(
     <ModelDefaultDialog
       title_dialog="Confirmar pagamento"
-      info_dialog="Informe os dados necessários para registrar o pagamento."
+      info_dialog="Informe o valor pago para registrar o pagamento."
     >
-      <div className="space-y-1 text-left mb-4">
-        <p className="text-sm text-gray-500 font-bold">
-          Total do pedido R$ {Number(valor[0]).toFixed(2)}
-        </p>
-        <p className="text-sm text-gray-500">
-          Total pago: R$ {Number(valor[1]).toFixed(2)}
-        </p>
-
-        <p className="text-lg font-semibold text-primary">
-          Valor a pagar: R${" "}
-          {parseFloat(
-            Number(valor[0]).toFixed(2) - Number(valor[1]).toFixed(2)
-          ).toFixed(2)}
-        </p>
-      </div>
-      <Input
-        id="payment_value"
-        value={payment}
-        label="Adicionar pagamento"
-        placeholder="Ex: 26.50"
-        inputMode="decimal"
-        onChange={(e) => {
-          const raw = e.target.value.replace(/\D/g, "");
-
-          if (!raw) {
-            setPayment("");
-            return;
-          }
-          const formatted = (parseFloat(raw, 10) / 100).toFixed(2);
-
-          setPayment(formatted);
-        }}
-        className="text-lg"
-      />
-
-      <div className="flex gap-3">
-        <Button
-          className="w-full rounded-xl border border-default-300 bg-white text-default-700 hover:bg-default-100 transition-colors"
-          onPress={handleClose}
+      <div className="flex flex-col gap-6">
+        {/* Resumo financeiro */}
+        <div
+          className="
+            rounded-xl p-4
+            bg-default-50 dark:bg-zinc-900
+            border border-default-200 dark:border-zinc-800
+            space-y-1
+          "
         >
-          Cancelar
-        </Button>
+          <p className="text-sm text-muted-foreground font-medium">
+            Total do pedido
+            <span className="float-right font-semibold">
+              R$ {totalPedido.toFixed(2).replace(".", ",")}
+            </span>
+          </p>
 
-        <Button
-          onClick={() => {
-            if (!payment || payment.length === 0) {
-              console.warn("O pagamento está vazio!");
+          <p className="text-sm text-muted-foreground">
+            Total pago
+            <span className="float-right">
+              R$ {totalPago.toFixed(2).replace(".", ",")}
+            </span>
+          </p>
+
+          <div className="pt-2 border-t border-dashed border-default-300 dark:border-zinc-700">
+            <p className="text-base font-bold text-primary flex justify-between">
+              <span>Valor a pagar</span>
+              <span>R$ {restante.toFixed(2).replace(".", ",")}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Input valor */}
+        <Input
+          id="payment_value"
+          label="Valor pago"
+          placeholder="Ex: 26,50"
+          inputMode="decimal"
+          value={payment}
+          className="text-lg"
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\D/g, "");
+            if (!raw) {
+              setPayment("");
               return;
             }
-
-            addPaymentsInAccount({
-              method: type,
-              amount: parseFloat(payment),
-            });
-            handleClose();
-            setPayment("");
+            setPayment((Number(raw) / 100).toFixed(2));
           }}
-          className="w-full rounded-xl bg-primary text-white hover:opacity-90 transition-opacity"
-        >
-          Salvar
-        </Button>
+        />
+
+        {/* Ações */}
+        <div className="flex gap-3 pt-2">
+          <Button
+            variant="bordered"
+            onPress={handleClose}
+            className="
+              w-full rounded-xl
+              border-default-300 dark:border-zinc-700
+              text-foreground
+              hover:bg-default-100 dark:hover:bg-zinc-800
+              transition
+            "
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            onClick={handleSave}
+            disabled={!payment || Number(payment) <= 0}
+            className="
+              w-full rounded-xl
+              bg-primary text-primary-foreground
+              font-semibold
+              hover:bg-primary/90
+              transition
+            "
+          >
+            Salvar pagamento
+          </Button>
+        </div>
       </div>
     </ModelDefaultDialog>,
     document.body

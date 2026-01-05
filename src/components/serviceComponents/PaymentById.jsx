@@ -1,68 +1,67 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { mutate } from "swr";
-import {
-  XIcon,
-  PrinterCheckIcon,
-  Coins,
-  CreditCard,
-  QrCode,
-} from "lucide-react";
+import { X, PrinterCheck, Coins, CreditCard, QrCode } from "lucide-react";
+
 import AddPaymentDialog from "./AddPaymentDialog";
 
-function PaymentClientByID({ id, setPage, clientID, pedidoClient = [] }) {
+/* =====================================================
+   COMPONENT
+===================================================== */
+function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
+  /* ================================
+     STATES
+  ================================ */
   const [payments, setPayments] = useState([]);
-  const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
-  const [paymentFormatSet, setPaymentFormat] = useState("");
+  const [addPaymentDialogOpen, setAddPaymentDialog] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [creating, setCreating] = useState(false);
   const [isDebit, setIsDebit] = useState(false);
   const [subTotal, setSubTotal] = useState(0);
-  // ----------------------------------------------------
-  // CALCULAR TOTAL COM SEGURANÇA
-  // ----------------------------------------------------
+
+  /* ================================
+     TOTAL
+  ================================ */
   const total = useMemo(() => {
-    return pedidoClient.reduce((acc, item) => acc + item.priceTotal, 0);
+    return pedidoClient.reduce((acc, item) => acc + (item.priceTotal || 0), 0);
   }, [pedidoClient]);
 
-  // ----------------------------------------------------
-  // ADICIONAR PAGAMENTO
-  // ----------------------------------------------------
+  /* ================================
+     ADD PAYMENT
+  ================================ */
   const addPaymentsInAccount = (newPayment) => {
     const totalPagamentos = payments.reduce((acc, p) => acc + p.amount, 0);
+
     const novoSubTotal = totalPagamentos + newPayment.amount;
-    if (novoSubTotal == Number(parseFloat(total).toFixed(2))) {
-      console.log("teste");
+
+    if (novoSubTotal >= Number(total.toFixed(2))) {
       setIsDebit(true);
     }
 
-    if (novoSubTotal > total) {
-      console.warn("Pagamento ultrapassa o total da conta.");
-      return;
-    }
+    if (novoSubTotal > total) return;
 
     setSubTotal(novoSubTotal);
     setPayments((prev) => [...prev, newPayment]);
   };
 
-  // ----------------------------------------------------
-  // FINALIZAR PAGAMENTO
-  // ----------------------------------------------------
+  /* ================================
+     FINALIZAR PAGAMENTO
+  ================================ */
   const createPaymentInAccount = async () => {
     setCreating(true);
 
     const newPayment = {
       type: "entrance",
       payments,
-      userID: JSON.parse(localStorage.getItem("user")).id,
+      userID: JSON.parse(localStorage.getItem("user"))?.id,
       orderID: clientID,
     };
 
     try {
       await mutate(
-        `https://api-7pecados.onrender.com/admin/finance/historic/filter/?type=entrace&details=true`,
+        "https://api-7pecados.onrender.com/admin/finance/historic/filter/?type=entrace&details=true",
         async (currentData) => {
-          // 1 — Criar pagamento
           const response = await fetch(
-            `https://api-7pecados.onrender.com/admin/finance/transaction`,
+            "https://api-7pecados.onrender.com/admin/finance/transaction",
             {
               method: "POST",
               headers: {
@@ -76,13 +75,11 @@ function PaymentClientByID({ id, setPage, clientID, pedidoClient = [] }) {
           if (!response.ok) throw new Error("Erro ao finalizar conta");
 
           const payment = await response.json();
-
           const paymentID =
             payment?._id || payment?.finances?._id || payment?.id;
 
-          if (!paymentID) throw new Error("API não retornou o ID do pagamento");
+          if (!paymentID) throw new Error("Pagamento sem ID");
 
-          // 2 — Atualizar conta do cliente
           const updateRes = await fetch(
             `https://api-7pecados.onrender.com/sale/account_client/payment/${clientID}`,
             {
@@ -95,109 +92,86 @@ function PaymentClientByID({ id, setPage, clientID, pedidoClient = [] }) {
             }
           );
 
-          if (!updateRes.ok)
-            throw new Error("Erro ao atualizar conta do cliente");
+          if (!updateRes.ok) throw new Error("Erro ao atualizar conta");
 
-          await updateRes.json();
-
-          // Fecha página
           setPage("");
-
-          return {
-            ...currentData,
-          };
+          return currentData;
         },
         { revalidate: true }
       );
     } catch (err) {
-      console.error("Erro ao finalizar conta:", err);
+      console.error("Erro ao finalizar pagamento:", err);
     } finally {
       setCreating(false);
     }
   };
 
-  // ----------------------------------------------------
-  // BOTÃO PAGAMENTOS PENDENTES
-  // ----------------------------------------------------
+  /* ================================
+     FINALIZAR
+  ================================ */
   const handleFinish = () => {
-    let pendentes = pedidoClient.filter(
-      (pc) => pc.statusOrder === "pendente" || pc.statusOrder === "em produção"
+    const pendentes = pedidoClient.filter(
+      (p) => p.statusOrder === "pendente" || p.statusOrder === "em produção"
     );
 
-    if (pendentes.length > 0) {
-      console.log("Não é possível finalizar: produtos pendentes.");
-      return;
-    }
-
+    if (pendentes.length > 0) return;
     createPaymentInAccount();
   };
 
+  /* ================================
+     UI
+  ================================ */
   return (
-    <>
-      <div className="p-2">
-        <div className="font-bold text-2xl flex justify-between">
-          <h1>Comprovante fiscal</h1>
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <header className="flex justify-between items-center p-4 border-b border-default-200 dark:border-zinc-800">
+        <h2 className="text-xl font-bold text-foreground">
+          Comprovante fiscal
+        </h2>
+        <button
+          onClick={() => setPage("carrinho")}
+          className="text-muted-foreground hover:text-primary"
+        >
+          <X />
+        </button>
+      </header>
 
-          <div
-            className="text-2xl hover:text-primary cursor-pointer"
-            onClick={() => setPage("carrinho")}
-          >
-            <XIcon />
-          </div>
+      {/* Comprovante */}
+      <section
+        className="
+        flex-1 overflow-y-auto p-6
+        bg-background dark:bg-zinc-900
+        rounded-xl shadow-sm
+        max-w-md mx-auto
+      "
+      >
+        <div className="text-center mb-6">
+          <PrinterCheck
+            className="mx-auto text-primary bg-primary/10 rounded-full p-4"
+            size={64}
+          />
         </div>
-      </div>
 
-      <div className="h-2/4 overflow-y-auto w-full max-w-md mx-auto bg-white p-6 rounded-xl shadow-md text-sm">
-        {/* Ícone */}
-        <div className="flex justify-center flex-col text-center p-4">
-          <PrinterCheckIcon className="mx-auto mb-6 w-24 h-24 p-2 bg-primary text-white rounded-full" />
-        </div>
-
-        <div className="text-left mb-6 leading-tight">
-          <h1 className="font-bold text-lg">Loja</h1>
-          <p className="font-semibold mt-1">
-            COMPROVANTE FISCAL — 7Pecados S.A (Loja Principal)
+        <div className="text-sm space-y-2">
+          <p className="font-bold text-lg">7 Pecados — Loja Principal</p>
+          <p className="text-muted-foreground">
+            Rua Joel Rua Velha, nº 45 — RJ
           </p>
-          <p>Rua Joel Rua Velha, nº 45 — Rio de Janeiro/RJ</p>
-          <p>CNPJ: 11.111.111/1111-12 | IE: 1112123 | IM: 112123456</p>
         </div>
-
-        {/* Cabeçalho */}
-        {pedidoClient.length > 0 && (
-          <div className="text-left leading-tight">
-            <h1 className="font-bold text-lg">Cliente</h1>
-            <p>
-              Nome: {pedidoClient[0].clientID.name} —{" "}
-              <span className="font-semibold">
-                #{pedidoClient[0].clientID._id}
-              </span>
-            </p>
-          </div>
-        )}
 
         {/* Itens */}
         <div className="mt-6">
-          <h2 className="font-bold  mb-2">Itens</h2>
+          <h3 className="font-semibold mb-2">Itens</h3>
 
-          <div className="grid grid-cols-4 text-left font-semibold border-b pb-1">
-            <span>Item</span>
-            <span className="text-center">Qtd.</span>
-            <span className="text-center">Unit.</span>
-            <span className="text-right">Subtotal</span>
-          </div>
-
-          <div className="divide-y">
+          <div className="divide-y divide-default-200 dark:divide-zinc-800">
             {pedidoClient.map((item) =>
               item.products.map((prod) => (
-                <div key={prod._id} className="grid grid-cols-4 py-2">
+                <div
+                  key={prod._id}
+                  className="flex justify-between py-2 text-sm"
+                >
                   <span>{prod.productID.name}</span>
-                  <span className="text-center">1</span>
-                  <span className="text-center">
-                    {Number(prod.productID.price).toFixed(2)}
-                  </span>
-                  <span className="text-right">
-                    {Number(prod.productID.price).toFixed(2)}
-                  </span>
+                  <span>R$ {Number(prod.productID.price).toFixed(2)}</span>
                 </div>
               ))
             )}
@@ -205,95 +179,79 @@ function PaymentClientByID({ id, setPage, clientID, pedidoClient = [] }) {
         </div>
 
         {/* Resumo */}
-        <div className="mt-6">
-          <h2 className="font-bold  mb-2">Resumo do pedido</h2>
-
-          <div className="flex justify-between py-1">
+        <div className="mt-6 border-t pt-4 space-y-2">
+          <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="font-semibold">{total.toFixed(2)}</span>
+            <span>{total.toFixed(2)}</span>
           </div>
 
-          <div className="flex justify-between py-1 text-primary">
-            <span>Desconto</span>
-            <span className="font-semibold">0.00</span>
-          </div>
-
-          <div className="flex justify-between py-2 border-t mt-2 text-lg font-bold">
+          <div className="flex justify-between font-bold text-lg text-primary">
             <span>Total</span>
             <span>{total.toFixed(2)}</span>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Pagamento */}
-      <div className="mt-auto flex flex-col p-2 w-full">
-        <h1 className="font-bold text-2xl">Registrar pagamento</h1>
-
-        <div className="space-y-1 text-left mb-4 mt-2">
-          <p className="text-sm text-gray-500 font-bold">
-            Total do pedido R$ {parseFloat(total).toFixed(2)}
-          </p>
-
-          {payments.map((pay) => (
-            <p className="text-sm text-gray-500">
-              Total pago: R$ {parseFloat(pay.amount).toFixed(2)} -
-              {pay.method == "cash"
-                ? "Dinheiro"
-                : pay.method == "card"
-                  ? "Cartão"
-                  : "PIX"}
-            </p>
-          ))}
-
-          <p className="text-lg font-semibold text-primary">
-            Valor a pagar: R$ {parseFloat(total - subTotal).toFixed(2)}
+      <footer className="p-4 border-t border-default-200 dark:border-zinc-800">
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground">Total do pedido</p>
+          <p className="text-xl font-bold text-primary">
+            R$ {total.toFixed(2)}
           </p>
         </div>
 
-        <div className="flex gap-4 mx-auto py-4 items-center">
+        <div className="flex justify-center gap-4 mb-4">
           {[
             { label: "Dinheiro", type: "cash", icon: Coins },
             { label: "Cartão", type: "card", icon: CreditCard },
-            { label: "Pix", type: "pix", icon: QrCode },
+            { label: "PIX", type: "pix", icon: QrCode },
           ].map(({ label, type, icon: Icon }) => (
             <button
               key={type}
               disabled={isDebit}
               onClick={() => {
-                setPaymentFormat(type);
-                setAddClientDialog(true);
+                setPaymentMethod(type);
+                setAddPaymentDialog(true);
               }}
               className={`
-        flex flex-col items-center p-4 px-6 rounded-2xl border-2 border-secondary 
-        transition-all duration-200
-        ${isDebit ? "opacity-40 cursor-not-allowed" : "hover:bg-secondary/10"}
-      `}
+                flex flex-col items-center px-6 py-4 rounded-xl border
+                border-secondary transition
+                ${
+                  isDebit
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-secondary/10"
+                }
+              `}
             >
-              <Icon className="w-10 h-10 text-secondary mb-1" />
-              <p className="text-secondary font-medium">{label}</p>
+              <Icon className="mb-1 text-secondary" />
+              <span className="text-sm font-medium">{label}</span>
             </button>
           ))}
         </div>
 
         <AddPaymentDialog
-          isOpen={addClientDialogIsOpen}
-          handleClose={() => setAddClientDialog(false)}
+          isOpen={addPaymentDialogOpen}
+          handleClose={() => setAddPaymentDialog(false)}
           addPaymentsInAccount={addPaymentsInAccount}
-          type={paymentFormatSet}
+          type={paymentMethod}
           valor={[total, subTotal]}
         />
 
-        <div className="text-center p-2">
-          <button
-            disabled={creating}
-            onClick={handleFinish}
-            className="bg-primary hover:bg-[#b95265] text-white  w-full text-2xl my-4 font-bold rounded-md p-6"
-          >
-            {creating ? "Salvando..." : "Finalizar compra"}
-          </button>
-        </div>
-      </div>
-    </>
+        <button
+          disabled={creating}
+          onClick={handleFinish}
+          className="
+            w-full mt-4 py-4 rounded-xl
+            bg-primary text-primary-foreground
+            font-bold text-lg
+            hover:bg-primary/90
+          "
+        >
+          {creating ? "Salvando..." : "Finalizar compra"}
+        </button>
+      </footer>
+    </div>
   );
 }
 

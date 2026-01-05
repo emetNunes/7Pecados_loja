@@ -1,16 +1,16 @@
-import { HandPlatter, ListFilter, XIcon, X, CircleX } from "lucide-react";
-import { useEffect, useState } from "react";
-import AddClientDialog from "@/components/serviceComponents/AddClientDialog";
+import { HandPlatter, X } from "lucide-react";
+import { useState } from "react";
 import useSWR from "swr";
-import AddPaymentDialog from "./AddPaymentDialog";
+
+import AddClientDialog from "@/components/serviceComponents/AddClientDialog";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 function AccountClient({ onSelectClient, setPage }) {
-  // const [account, setAccount] = useState([]);
   const [addClientDialogIsOpen, setAddClientDialog] = useState(false);
 
-  const API_URL = `https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true`;
+  const API_URL =
+    "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
 
   const {
     data,
@@ -19,101 +19,144 @@ function AccountClient({ onSelectClient, setPage }) {
     mutate: refetchAccount,
   } = useSWR(API_URL, fetcher);
 
-  const account = data?.account || [];
+  const accounts = data?.account ?? [];
 
-  if (isLoading)
+  /* ================================
+     LOADING
+  ================================ */
+  if (isLoading) {
     return (
-      <div className="p-2 ">
-        <div className="font-bold text-2xl flex  justify-between">
-          <h1>Carregando contas...</h1>
-        </div>
+      <div className="p-4">
+        <h2 className="text-xl font-semibold text-foreground">
+          Carregando contas…
+        </h2>
       </div>
     );
+  }
 
-  if (error)
+  /* ================================
+     ERROR
+  ================================ */
+  if (error) {
     return (
-      <div className="p-2 ">
-        <div className="font-bold text-2xl flex justify-between">
-          <h1>Erro ao carregar contas.</h1>
-          <div
-            className="text-2xl  hover:text-primary"
-            onClick={() => {
-              setPage("");
-            }}
-          >
-            <XIcon />
-          </div>
-        </div>
+      <div className="p-4 flex items-center justify-between">
+        <span className="text-destructive font-semibold">
+          Erro ao carregar contas
+        </span>
+        <button
+          onClick={() => setPage("")}
+          className="text-muted-foreground hover:text-primary transition"
+        >
+          <X size={22} />
+        </button>
       </div>
     );
+  }
 
-  if (account.length === 0)
+  /* ================================
+     EMPTY STATE
+  ================================ */
+  if (accounts.length === 0) {
     return (
-      <div className="p-4 sm:p-6 max-w-sm mx-auto">
+      <div className="p-6 flex flex-col gap-4">
+        <p className="text-muted-foreground text-center">
+          Nenhuma conta aberta no momento.
+        </p>
+
         <button
           onClick={() => setAddClientDialog(true)}
-          className="bg-primary hover:bg-white  hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary text-white font-semibold w-full text-lg py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+          className="
+            w-full py-3 rounded-xl font-semibold
+            bg-primary text-primary-foreground
+            hover:bg-primary/90 transition
+          "
         >
-          Cadastrar conta
+          Cadastrar cliente
         </button>
+
         <AddClientDialog
           isOpen={addClientDialogIsOpen}
-          refetchAccount={() => refetchAccount()}
+          refetchAccount={refetchAccount}
           handleClose={() => setAddClientDialog(false)}
         />
       </div>
     );
+  }
 
+  /* ================================
+     DEFAULT
+  ================================ */
   return (
-    <>
-      <div className="p-2 ">
-        <div className="font-bold text-2xl flex justify-between">
-          Registro de clientes - Hoje
-        </div>
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-default-200 dark:border-zinc-800">
+        <h2 className="text-lg font-bold text-foreground">
+          Clientes ativos hoje
+        </h2>
+
+        <button
+          onClick={() => setPage("")}
+          className="text-muted-foreground hover:text-primary transition"
+        >
+          <X size={22} />
+        </button>
       </div>
 
-      <p className="font-bold text-primary p-2">Pedidos em andamento</p>
-
-      <ul className="p-2 h-2/4 overflow-y-auto overscroll-contain scroll-smooth [WebkitOverflowScrolling:touch]">
-        {account.map((acc) => (
+      {/* Lista */}
+      <ul className="flex-1 overflow-y-auto px-4 divide-y divide-default-200 dark:divide-zinc-800">
+        {accounts.map((acc) => (
           <li
             key={acc._id}
-            className="bg-base flex justify-between border-dashed border-b-1 py-4 items-center  gap-2"
+            className="py-4 flex items-center justify-between gap-3"
           >
-            <div className="flex w-full">
-              <HandPlatter className="bg-secondary mr-3 w-15 h-15 rounded-full p-2 text-base" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-secondary/20 text-secondary">
+                <HandPlatter size={22} />
+              </div>
+
               <div>
-                <p className="font-bold  text-xl text-black">{acc.name}</p>
-                <p className="text-sm text-primary">Client cadastrado</p>
+                <p className="font-semibold text-foreground">{acc.name}</p>
+                <span className="text-xs text-muted-foreground">
+                  Conta em aberto
+                </span>
               </div>
             </div>
+
             <button
-              onClick={() => {
-                onSelectClient(acc._id, acc.name);
-              }}
-              className=" hover:text-white hover:outline-none hover:bg-primary outline-2 outline-offset-2 outline-solid w-35 text-primary font-bold rounded-md p-4"
+              onClick={() => onSelectClient(acc._id, acc.name)}
+              className="
+                px-4 py-2 rounded-lg font-semibold text-sm
+                border border-primary text-primary
+                hover:bg-primary hover:text-primary-foreground
+                transition
+              "
             >
-              Abrir conta
+              Abrir
             </button>
           </li>
         ))}
       </ul>
 
-      <div className="mt-auto flex flex-col p-2 border-t-1">
+      {/* Footer */}
+      <div className="p-4 border-t border-default-200 dark:border-zinc-800">
         <button
           onClick={() => setAddClientDialog(true)}
-          className="bg-primary hover:bg-white hover:outline-2 hover:outline-offset-2 hover:outline-solid hover:text-primary w-full text-2xl my-4 text-white font-bold rounded-md p-6"
+          className="
+            w-full py-3 rounded-xl font-semibold
+            bg-primary text-primary-foreground
+            hover:bg-primary/90 transition
+          "
         >
           Adicionar cliente
         </button>
 
         <AddClientDialog
           isOpen={addClientDialogIsOpen}
-          refetchAccount={() => refetchAccount()}
+          refetchAccount={refetchAccount}
           handleClose={() => setAddClientDialog(false)}
         />
       </div>
-    </>
+    </div>
   );
 }
 
