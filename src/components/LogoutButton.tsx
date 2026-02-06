@@ -13,7 +13,7 @@ type LogoutButtonProps = {
 };
 
 export const LogoutButton = ({ children }: LogoutButtonProps) => {
-  const { toast } = useToast(); // ✅ CORREÇÃO PRINCIPAL
+  const { info } = useToast();
 
   const handleLogout = async () => {
     try {
@@ -38,7 +38,7 @@ export const LogoutButton = ({ children }: LogoutButtonProps) => {
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
 
-      toast.info("Você foi desconectado", "Logout realizado");
+      info("Você foi desconectado", "Logout realizado");
 
       setTimeout(() => {
         window.location.href = "/login";
