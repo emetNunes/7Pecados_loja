@@ -2,81 +2,105 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
 import { mutate } from "swr";
+import { Loader2 } from "lucide-react";
 
 import Input from "../Input";
 import ModelDefaultDialog from "../ModelDefaultDialog";
+import { useToast } from "@/contexts/ToastContext";
+
+const API_LIST =
+  "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
+
+const API_CREATE = "https://api-7pecados.onrender.com/sale/account_client";
 
 const AddClientDialog = ({ isOpen, handleClose }) => {
   const [clientName, setClientName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
 
   /* ================================
-     RESET AO ABRIR
+     RESET AO ABRIR / FECHAR
   ================================ */
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
       setClientName("");
+      setCreating(false);
+      setError("");
     }
   }, [isOpen]);
 
   /* ================================
-     CRIAR CLIENTE
+     CRIAR CLIENTE (ROBUSTO)
   ================================ */
-  const createAccountClient = async () => {
+  async function createAccountClient() {
     if (!clientName.trim() || creating) return;
 
     setCreating(true);
-
-    const newClient = { name: clientName.trim() };
+    setError("");
 
     try {
       await mutate(
-        "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true",
+        API_LIST,
         async (currentData) => {
-          const response = await fetch(
-            "https://api-7pecados.onrender.com/sale/account_client",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(newClient),
-            }
-          );
+          const response = await fetch(API_CREATE, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: clientName.trim() }),
+          });
 
           if (!response.ok) {
-            throw new Error("Erro ao criar conta do cliente");
+            throw new Error("Erro ao criar conta");
           }
 
-          const createdAccount = await response.json();
+          // 🔒 DEFENSIVO: pode não ser JSON
+          const text = await response.text();
+          let createdAccount = null;
+
+          try {
+            const parsed = JSON.parse(text);
+            createdAccount = parsed.account ?? parsed;
+          } catch {
+            // Backend respondeu string → cria fallback
+            createdAccount = {
+              _id: Math.random().toString(36).slice(2),
+              name: clientName.trim(),
+              isOpen: true,
+            };
+          }
 
           return {
             ...currentData,
-            account: [
-              ...(currentData?.account || []),
-              createdAccount.account ?? createdAccount,
-            ],
+            account: [...(currentData?.account || []), createdAccount],
           };
         },
         { revalidate: true }
       );
 
+      // ✅ FECHA SEMPRE NO SUCESSO
+      toast.success(
+        `Conta criada para ${clientName.trim()}`,
+        "Cliente cadastrado com sucesso!"
+      );
       handleClose();
     } catch (err) {
       console.error("Erro ao criar cliente:", err);
+      const errorMessage = "Não foi possível criar a conta. Tente novamente.";
+      setError(errorMessage);
+      toast.error(errorMessage, "Erro ao cadastrar cliente");
     } finally {
       setCreating(false);
     }
-  };
+  }
 
   if (!isOpen) return null;
 
   return createPortal(
     <ModelDefaultDialog
       title_dialog="Cadastrar cliente"
-      info_dialog="Informe o nome do cliente para abrir a conta"
+      info_dialog="Informe o nome do cliente para abrir uma nova conta."
     >
-      {/* Conteúdo */}
-      <div className="flex flex-col gap-6">
-        {/* Input */}
+      <div className="flex flex-col gap-5">
+        {/* INPUT */}
         <Input
           id="client_name"
           autoFocus
@@ -87,20 +111,18 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
           disabled={creating}
         />
 
-        {/* Ações */}
-        <div className="flex gap-3">
+        {/* ERROR */}
+        {error && (
+          <p className="text-sm text-destructive font-medium">{error}</p>
+        )}
+
+        {/* ACTIONS */}
+        <div className="flex gap-3 pt-2">
           <Button
             variant="bordered"
             onPress={handleClose}
             disabled={creating}
-            className="
-              w-full rounded-xl
-              border-default-300 dark:border-zinc-700
-              text-foreground
-              bg-background
-              hover:bg-default-100 dark:hover:bg-zinc-800
-              transition
-            "
+            className="w-full rounded-xl"
           >
             Cancelar
           </Button>
@@ -112,12 +134,19 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
               w-full rounded-xl
               bg-primary text-primary-foreground
               font-semibold
-              shadow-sm
               hover:bg-primary/90
+              disabled:opacity-70 disabled:cursor-not-allowed
               transition
             "
           >
-            {creating ? "Salvando..." : "Salvar"}
+            {creating ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Criando...
+              </span>
+            ) : (
+              "Criar conta"
+            )}
           </Button>
         </div>
       </div>

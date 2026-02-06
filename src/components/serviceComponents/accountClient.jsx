@@ -1,5 +1,5 @@
-import { HandPlatter, X } from "lucide-react";
-import { useState } from "react";
+import { HandPlatter, X, Users } from "lucide-react";
+import { useState, useMemo } from "react";
 import useSWR from "swr";
 
 import AddClientDialog from "@/components/serviceComponents/AddClientDialog";
@@ -12,24 +12,22 @@ function AccountClient({ onSelectClient, setPage }) {
   const API_URL =
     "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
 
-  const {
-    data,
-    error,
-    isLoading,
-    mutate: refetchAccount,
-  } = useSWR(API_URL, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(API_URL, fetcher);
 
   const accounts = data?.account ?? [];
+
+  const handleCloseDialogClient = () => {
+    setAddClientDialog(false);
+    mutate();
+  };
 
   /* ================================
      LOADING
   ================================ */
   if (isLoading) {
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-foreground">
-          Carregando contas…
-        </h2>
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        Carregando contas abertas…
       </div>
     );
   }
@@ -39,15 +37,15 @@ function AccountClient({ onSelectClient, setPage }) {
   ================================ */
   if (error) {
     return (
-      <div className="p-4 flex items-center justify-between">
-        <span className="text-destructive font-semibold">
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <p className="font-semibold text-destructive">
           Erro ao carregar contas
-        </span>
+        </p>
         <button
           onClick={() => setPage("")}
-          className="text-muted-foreground hover:text-primary transition"
+          className="text-primary font-semibold hover:underline"
         >
-          <X size={22} />
+          Voltar
         </button>
       </div>
     );
@@ -58,10 +56,17 @@ function AccountClient({ onSelectClient, setPage }) {
   ================================ */
   if (accounts.length === 0) {
     return (
-      <div className="p-6 flex flex-col gap-4">
-        <p className="text-muted-foreground text-center">
-          Nenhuma conta aberta no momento.
-        </p>
+      <div className="flex flex-col items-center justify-center h-full gap-6 p-6">
+        <div className="w-14 h-14 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
+          <Users />
+        </div>
+
+        <div className="text-center">
+          <h3 className="font-semibold text-lg">Nenhuma conta aberta hoje</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Cadastre um cliente para iniciar um atendimento.
+          </p>
+        </div>
 
         <button
           onClick={() => setAddClientDialog(true)}
@@ -76,8 +81,8 @@ function AccountClient({ onSelectClient, setPage }) {
 
         <AddClientDialog
           isOpen={addClientDialogIsOpen}
-          refetchAccount={refetchAccount}
-          handleClose={() => setAddClientDialog(false)}
+          refetchAccount={mutate}
+          handleClose={handleCloseDialogClient}
         />
       </div>
     );
@@ -88,11 +93,14 @@ function AccountClient({ onSelectClient, setPage }) {
   ================================ */
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-default-200 dark:border-zinc-800">
-        <h2 className="text-lg font-bold text-foreground">
-          Clientes ativos hoje
-        </h2>
+      {/* HEADER */}
+      <header className="flex items-center justify-between px-4 py-4 border-b">
+        <div>
+          <h2 className="text-lg font-bold">Clientes ativos</h2>
+          <span className="text-xs text-muted-foreground">
+            Contas abertas hoje
+          </span>
+        </div>
 
         <button
           onClick={() => setPage("")}
@@ -100,45 +108,41 @@ function AccountClient({ onSelectClient, setPage }) {
         >
           <X size={22} />
         </button>
-      </div>
+      </header>
 
-      {/* Lista */}
-      <ul className="flex-1 overflow-y-auto px-4 divide-y divide-default-200 dark:divide-zinc-800">
+      {/* LISTA */}
+      <ul className="flex-1 overflow-y-auto divide-y">
         {accounts.map((acc) => (
           <li
             key={acc._id}
-            className="py-4 flex items-center justify-between gap-3"
+            className="
+              px-4 py-4
+              flex items-center justify-between
+              hover:bg-default-100 dark:hover:bg-zinc-800
+              transition cursor-pointer
+            "
+            onClick={() => onSelectClient(acc._id, acc.name)}
           >
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-full bg-secondary/20 text-secondary">
-                <HandPlatter size={22} />
+                <HandPlatter size={20} />
               </div>
 
               <div>
-                <p className="font-semibold text-foreground">{acc.name}</p>
+                <p className="font-semibold">{acc.name}</p>
                 <span className="text-xs text-muted-foreground">
                   Conta em aberto
                 </span>
               </div>
             </div>
 
-            <button
-              onClick={() => onSelectClient(acc._id, acc.name)}
-              className="
-                px-4 py-2 rounded-lg font-semibold text-sm
-                border border-primary text-primary
-                hover:bg-primary hover:text-primary-foreground
-                transition
-              "
-            >
-              Abrir
-            </button>
+            <span className="text-sm font-semibold text-primary">Abrir →</span>
           </li>
         ))}
       </ul>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-default-200 dark:border-zinc-800">
+      {/* FOOTER */}
+      <footer className="p-4 border-t">
         <button
           onClick={() => setAddClientDialog(true)}
           className="
@@ -152,10 +156,10 @@ function AccountClient({ onSelectClient, setPage }) {
 
         <AddClientDialog
           isOpen={addClientDialogIsOpen}
-          refetchAccount={refetchAccount}
-          handleClose={() => setAddClientDialog(false)}
+          refetchAccount={mutate}
+          handleClose={handleCloseDialogClient}
         />
-      </div>
+      </footer>
     </div>
   );
 }

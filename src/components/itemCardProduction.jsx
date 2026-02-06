@@ -4,7 +4,7 @@ import { Image as ImageIcon } from "lucide-react";
 export const ItemCardProduction = ({ list_items = [] }) => {
   if (!list_items.length) {
     return (
-      <div className="text-xs text-default-500">Nenhum item neste pedido.</div>
+      <p className="text-xs text-muted-foreground">Nenhum item neste pedido.</p>
     );
   }
 
@@ -15,24 +15,30 @@ export const ItemCardProduction = ({ list_items = [] }) => {
           key={item.id_product}
           title={
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-lg bg-default-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
-                <ImageIcon size={20} />
+              <div
+                className="
+                  h-10 w-10 rounded-lg
+                  bg-default-200 dark:bg-zinc-800
+                  flex items-center justify-center
+                "
+              >
+                <ImageIcon size={18} />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-semibold">{item.title_product}</span>
-                <div className="text-xs text-default-500 flex gap-2">
-                  <span>x{item.qtd_product}</span>
-                  <span>•</span>
-                  <span>{item.type_product}</span>
-                </div>
+                <span className="font-semibold text-sm">
+                  {item.title_product}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  x{item.qtd_product} • {item.type_product}
+                </span>
               </div>
             </div>
           }
         >
-          <div className="text-sm text-default-600 dark:text-default-400">
+          <p className="text-sm text-muted-foreground">
             Produto incluído no pedido.
-          </div>
+          </p>
         </AccordionItem>
       ))}
     </Accordion>

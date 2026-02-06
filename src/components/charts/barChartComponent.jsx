@@ -39,7 +39,7 @@ export const BarChartComponent = ({ data = [] }) => {
   const maxAbsValue = Math.max(...data.map((d) => Math.abs(d.saldo || 0)), 10);
 
   return (
-    <div className="w-full h-[420px] bg-base px-8 pt-8 pb-6 rounded-xl shadow-2xs">
+    <div className="w-full h-[350px] bg-base px-8 pt-8 pb-6 rounded-xl shadow-2xs">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-default-500 uppercase tracking-wide">
@@ -50,8 +50,8 @@ export const BarChartComponent = ({ data = [] }) => {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          barCategoryGap={6} // 🔥 MENOS ESPAÇO ENTRE CATEGORIAS
-          barGap={2} // 🔥 MENOS ESPAÇO ENTRE BARRAS
+          barCategoryGap={10} // 🔥 MENOS ESPAÇO ENTRE CATEGORIAS
+          barGap={1} // 🔥 MENOS ESPAÇO ENTRE BARRAS
           margin={{
             top: 10,
             right: 10,

@@ -5,6 +5,7 @@ import useSWR from "swr";
 import Input from "../Input";
 import ModelDefaultDialog from "../ModelDefaultDialog";
 import { Button, Select, SelectItem } from "@heroui/react";
+import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -19,6 +20,7 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
 
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
+  const toast = useToast();
 
   /* ================================
      DATA
@@ -114,10 +116,16 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
 
       if (!res.ok) throw new Error("Erro ao salvar mercadoria");
 
+      toast.success(
+        `Entrada de ${items.length} ingrediente(s) registrada com sucesso`,
+        `Total: R$ ${totalValue.toFixed(2).replace(".", ",")}`
+      );
       handleClose();
     } catch (err) {
       console.error(err);
-      setFormError("Erro ao salvar mercadoria. Tente novamente.");
+      const errorMessage = "Erro ao salvar mercadoria. Tente novamente.";
+      setFormError(errorMessage);
+      toast.error(errorMessage, "Erro ao registrar entrada");
     } finally {
       setSaving(false);
     }

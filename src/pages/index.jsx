@@ -4,7 +4,7 @@ import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/stockComponents/cardHistory";
 import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
 import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { useMemo } from "react";
 
@@ -94,6 +94,8 @@ const columns_list = [
 ];
 
 export default function IndexPage() {
+  const navigate = useNavigate();
+
   const { data: finance } = useSWR(
     "https://api-7pecados.onrender.com/admin/finance/historic/filter",
     fetcher
@@ -122,7 +124,7 @@ export default function IndexPage() {
     return (
       <DefaultLayout>
         <div className="flex items-center justify-center h-[60vh] text-default-500">
-          Carregando dashboard financeiro…
+          Carregando dashboard…
         </div>
       </DefaultLayout>
     );
@@ -132,7 +134,7 @@ export default function IndexPage() {
     return (
       <DefaultLayout>
         <div className="flex items-center justify-center h-[60vh] text-red-500">
-          Erro ao carregar dados financeiros.
+          Erro ao carregar dados da dashboard.
         </div>
       </DefaultLayout>
     );
@@ -179,8 +181,8 @@ export default function IndexPage() {
           </div>
 
           {/* TABELA */}
-          <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold">Histórico financeiro</h2>
+          <div className="flex flex-col">
+            <h2 className="text-2xl font-bold">Histórico de transações</h2>
             <CardHistory database={database} columns={columns_list} />
           </div>
         </section>
@@ -192,10 +194,9 @@ export default function IndexPage() {
           <CardAccess
             title="Modo atendimento"
             description="Inicie uma nova venda ou atendimento ao cliente"
-            clickbutton={() => <Navigate to="/service" replace />}
-          >
-            Iniciar atendimento
-          </CardAccess>
+            action={() => navigate("/service", { replace: true })}
+            actionLabel="Iniciar atendimento"
+          />
         </aside>
       </main>
     </DefaultLayout>

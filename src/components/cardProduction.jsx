@@ -1,6 +1,7 @@
 import { Button } from "@heroui/button";
-import { Hash, CircleCheck, Loader2 } from "lucide-react";
+import { Hash, CircleCheck, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/contexts/ToastContext";
 
 /* ================================
    LABELS
@@ -34,33 +35,9 @@ export const CardProduction = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(status);
+  const toast = useToast();
 
   const isDelivered = currentStatus === "delivered";
-
-  async function handleRestoreOrder() {
-    try {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api-7pecados.onrender.com/sale/order_client/status/${id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "em_producao" }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Erro ao restaurar pedido");
-
-      setCurrentStatus("in_production");
-      onStatusChange?.();
-    } catch (err) {
-      console.error(err);
-      alert("Não foi possível restaurar o pedido.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function mapApiStatusToFront(apiStatus) {
     switch (apiStatus) {
@@ -76,7 +53,7 @@ export const CardProduction = ({
   }
 
   /* ================================
-     HANDLE STATUS CHANGE
+     AVANÇAR STATUS
   ================================ */
   async function handleChangeStatus() {
     const nextStatusApi = NEXT_STATUS_API[currentStatus];
@@ -94,54 +71,105 @@ export const CardProduction = ({
         }
       );
 
-      if (!res.ok) throw new Error("Erro ao atualizar status");
+      if (!res.ok) throw new Error();
 
-      // 🔥 Atualiza o status local corretamente
+      const statusLabels = {
+        em_producao: "Em produção",
+        pronto: "Pronto",
+        entregue: "Entregue",
+      };
+
       setCurrentStatus(mapApiStatusToFront(nextStatusApi));
-
-      // 🔥 Atualiza a lista (SWR)
+      toast.success(
+        `Pedido #${id.slice(-6)} atualizado para "${statusLabels[nextStatusApi]}"`,
+        "Status atualizado"
+      );
       onStatusChange?.();
     } catch (err) {
       console.error(err);
-      alert("Não foi possível atualizar o status do pedido.");
+      toast.error(
+        "Não foi possível atualizar o status do pedido",
+        "Erro ao atualizar"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ================================
+     RESTAURAR PEDIDO (ENTREGUE → PRODUÇÃO)
+  ================================ */
+  async function handleRestoreOrder() {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api-7pecados.onrender.com/sale/order_client/status/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "em_producao" }),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      setCurrentStatus("in_production");
+      toast.success(
+        `Pedido #${id.slice(-6)} restaurado para produção`,
+        "Pedido restaurado"
+      );
+      onStatusChange?.();
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        "Não foi possível restaurar o pedido",
+        "Erro ao restaurar"
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div
+    <article
       className={`
-        flex flex-col gap-5
-        rounded-2xl px-6 py-5 my-4
-        shadow-2xs transition-all
-        ${isDelivered ? "bg-primary text-white" : "bg-base dark:bg-zinc-900"}
+        rounded-2xl
+        border
+        px-5 py-4
+        shadow-sm
+        transition
+        ${
+          isDelivered
+            ? "bg-primary text-white border-primary/40"
+            : "bg-background dark:bg-zinc-900 border-default-200 dark:border-zinc-800"
+        }
       `}
     >
       {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2 text-xs font-semibold">
           {isDelivered ? (
-            <CircleCheck className="opacity-90" />
+            <CircleCheck size={16} />
           ) : (
             <>
               <Hash size={14} />
-              <span>{id}</span>
+              <span>#{id.slice(-6)}</span>
             </>
           )}
         </div>
 
         <span
           className={`
-            text-[11px] font-semibold px-3 py-1 rounded-full
+            px-2 py-0.5 rounded-full text-[11px] font-semibold
             ${
               isDelivered
-                ? "bg-white/20 text-white"
+                ? "bg-white/20"
                 : "bg-secondary text-secondary-foreground"
             }
           `}
         >
-          {place_to_buy}
+          #{id.slice(-6)}
         </span>
       </div>
 
@@ -149,74 +177,59 @@ export const CardProduction = ({
       {!isDelivered && (
         <>
           {/* CLIENT */}
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-sm">{name_user}</span>
+          <div className="mb-3">
+            <p className="font-semibold">{name_user}</p>
             {address && (
-              <span className="text-xs text-default-500 leading-tight">
-                {address}
-              </span>
+              <p className="text-xs text-muted-foreground">{address}</p>
             )}
           </div>
 
           {/* PRODUCTS */}
-          <div className="pt-2">{children}</div>
+          <div className="mb-3">{children}</div>
 
           {/* FOOTER INFO */}
-          <div className="pt-3 mt-2 border-t border-dashed border-default-200 dark:border-zinc-800 flex items-center justify-between text-sm">
-            <span className="text-default-500">{type_payment}</span>
-            <span className="font-semibold">{total_value}</span>
+          <div className="flex justify-between text-sm border-t pt-3">
+            <span className="text-muted-foreground">{type_payment}</span>
+            <strong>R$ {total_value.toFixed(2)}</strong>
           </div>
         </>
       )}
 
-      {/* DELIVERED */}
       {/* DELIVERED STATE */}
       {isDelivered && (
-        <div>
-          {/* Title */}
-          <div className="flex flex-col items-center gap-1 text-center">
-            <span className="text-sm uppercase tracking-wide text-white/70">
-              Pedido de
-            </span>
+        <div className="text-center space-y-2">
+          <p className="text-sm uppercase tracking-wide text-white/70">
+            Pedido entregue
+          </p>
+          <p className="text-lg font-semibold">{name_user}</p>
+          {completion_time && (
+            <p className="text-xs text-white/60">
+              Concluído em {completion_time}
+            </p>
+          )}
 
-            <span className="text-lg font-semibold tracking-tight">
-              {name_user}
-            </span>
-
-            <span className="text-sm text-white/80">Entregue com sucesso</span>
-
-            {completion_time && (
-              <span className="text-xs text-white/60 mt-1">
-                Concluído em {completion_time}
-              </span>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="w-full h-px bg-white/20 my-3" />
-
-          {/* Restore action */}
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs text-white/70">
-              Pedido finalizado por engano?
-            </span>
-
+          {/* RESTORE */}
+          <div className="pt-3">
             <Button
               variant="bordered"
+              onClick={handleRestoreOrder}
               disabled={loading}
               className="
-          border-white/40 text-white
-          hover:bg-white/10
-          rounded-xl
-          text-sm font-medium
-          px-4
-        "
-              onClick={handleRestoreOrder}
+                border-white/40 text-white
+                hover:bg-white/10
+                rounded-xl
+                text-sm font-medium
+                flex items-center gap-2
+                mx-auto
+              "
             >
               {loading ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : (
-                "Restaurar pedido"
+                <>
+                  <RotateCcw size={14} />
+                  Restaurar pedido
+                </>
               )}
             </Button>
           </div>
@@ -229,9 +242,10 @@ export const CardProduction = ({
           onClick={handleChangeStatus}
           disabled={loading}
           className="
-            mt-2 w-full rounded-xl
-            bg-primary text-white
-            font-semibold tracking-wide
+            mt-4 w-full rounded-xl
+            bg-primary text-primary-foreground
+            font-semibold
+            hover:bg-primary/90
             flex items-center justify-center gap-2
           "
         >
@@ -239,6 +253,6 @@ export const CardProduction = ({
           {ACTION_LABEL[currentStatus]}
         </Button>
       )}
-    </div>
+    </article>
   );
 };

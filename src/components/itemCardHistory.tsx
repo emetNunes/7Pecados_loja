@@ -21,14 +21,14 @@ export const ItemCardHistory = ({
   //   : )
   if (type_movement_to_icon == "entrance") {
     setIconDiv = (
-      <div className="p-2 rounded-lg text-base bg-secondary">
+      <div className="p-2 rounded-lg text-base dark:text-dark bg-primary dark:bg-primary">
         <BanknoteArrowUp size={size_icon} />
       </div>
     );
   }
   if (type_movement_to_icon == "exit") {
     setIconDiv = (
-      <div className="p-2 rounded-lg text-base bg-primary">
+      <div className="p-2 rounded-lg text-primary dark:text-primary border-2 border-primary">
         <BanknoteArrowDown size={size_icon} />
       </div>
     );

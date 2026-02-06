@@ -1,48 +1,81 @@
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Header } from "@/components/header";
 import { NavbarVertical } from "@/components/navbarVertical";
-import { motion } from "framer-motion";
+
+const HEADER_HEIGHT = 72;
+const SIDEBAR_WIDTH = 80;
+
 export default function DefaultLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="relative flex flex-col w-full h-screen bg-background">
-      <main className="mx-auto max-[1980px] flex-grow w-full">
-        <section className="grid grid-cols-[auto_1fr]">
-          <div className="grid col h-dvh bg-base rounded-e-xl sticky top-0 z-40">
-            <NavbarVertical />
-          </div>
-          <div className="grid grid-rows-[auto_1fr]">
-            <div className="sticky top-0 z-30">
-              <Header />
-            </div>
-            <main className="py-6 px-10">
-              <motion.div
-                initial={{ opacity: 0.6 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }} // Duração da animação
-              >
-                <div className="mt-4">{children}</div>
-              </motion.div>
-            </main>
-          </div>
-        </section>
-      </main>
+  const [menuOpen, setMenuOpen] = useState(false);
 
-      {/* Pensar no footer depois */}
-      {/* <footer className="w-full flex items-center justify-center py-3">
-        <Link
-          isExternal
-          className="flex items-center gap-1 text-current"
-          href="https://flowcode.com.br/"
-          title="CodeFlow Página"
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* HEADER */}
+      <Header onToggleMenu={() => setMenuOpen(true)} />
+
+      <div className="flex pt-[72px] min-h-screen">
+        {/* SIDEBAR DESKTOP */}
+        <aside
+          className="
+            hidden md:flex
+            w-20
+            bg-base
+            border-r border-border
+            sticky top-[72px]
+            h-[calc(100dvh-72px)]
+            z-40
+          "
         >
-          <span className="text-default-600">Criado por</span>
-          <p className="text-primary">CodeFlow</p>
-        </Link>
-      </footer> */}
+          <NavbarVertical />
+        </aside>
+
+        {/* DRAWER MOBILE (MESMO VISUAL DO DESKTOP) */}
+        <AnimatePresence>
+          {menuOpen && (
+            <>
+              <motion.aside
+                initial={{ x: -SIDEBAR_WIDTH }}
+                animate={{ x: 0 }}
+                exit={{ x: -SIDEBAR_WIDTH }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="
+                  fixed
+                  left-0
+                  top-[72px]
+                  z-50
+                  w-20
+                  h-[calc(100dvh-72px)]
+                  bg-base
+                  border-r border-border
+                  md:hidden
+                "
+              >
+                <NavbarVertical />
+              </motion.aside>
+
+              {/* OVERLAY */}
+              <div
+                onClick={() => setMenuOpen(false)}
+                className="
+                  fixed inset-0
+                  top-[72px]
+                  bg-black/40
+                  z-40
+                  md:hidden
+                "
+              />
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* MAIN */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6">{children}</main>
+      </div>
     </div>
   );
 }

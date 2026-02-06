@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchApi } from "../services/api";
 import { Loader2, Lock } from "lucide-react";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -39,9 +40,18 @@ export default function LoginPage() {
         })();
 
       localStorage.setItem("user", JSON.stringify(userToStore));
+      
+      const userName = userToStore?.name || usuario;
+      toast.success(
+        `Bem-vindo, ${userName}!`,
+        "Login realizado com sucesso"
+      );
+      
       navigate("/", { replace: true });
     } catch (err) {
-      setError(err?.message || "Não foi possível acessar sua conta.");
+      const errorMessage = err?.message || "Não foi possível acessar sua conta.";
+      setError(errorMessage);
+      toast.error(errorMessage, "Erro ao fazer login");
     } finally {
       setIsLoading(false);
     }

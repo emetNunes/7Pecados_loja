@@ -5,6 +5,7 @@ import { mutate } from "swr";
 
 import Input from "../Input";
 import ModelDefaultDialog from "../ModelDefaultDialog";
+import { useToast } from "@/contexts/ToastContext";
 
 /* ================================
    ENUMS — BACKEND SAFE
@@ -25,6 +26,7 @@ export default function AddIngredientDialog({ isOpen, handleClose }) {
 
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
+  const toast = useToast();
 
   /* ================================
      RESET AO FECHAR
@@ -122,10 +124,16 @@ export default function AddIngredientDialog({ isOpen, handleClose }) {
         { revalidate: true }
       );
 
+      toast.success(
+        `${name.trim()} cadastrado com sucesso`,
+        "Ingrediente adicionado ao estoque"
+      );
       handleClose();
     } catch (err) {
       console.error("Erro ao criar ingrediente:", err);
-      setFormError("Ocorreu um erro ao salvar. Tente novamente.");
+      const errorMessage = "Ocorreu um erro ao salvar. Tente novamente.";
+      setFormError(errorMessage);
+      toast.error(errorMessage, "Erro ao cadastrar ingrediente");
     } finally {
       setCreating(false);
     }

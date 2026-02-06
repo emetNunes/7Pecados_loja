@@ -1,5 +1,6 @@
 import { Button } from "@heroui/react";
 import { ReactNode } from "react";
+import { useToast } from "@/contexts/ToastContext";
 
 const API_URL = "https://api-7pecados.onrender.com";
 
@@ -44,7 +45,11 @@ export const LogoutButton = ({ children }: LogoutButtonProps) => {
     } finally {
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      toast.info("Você foi desconectado", "Logout realizado");
+      // Pequeno delay para mostrar a notificação antes de redirecionar
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
     }
   };
 

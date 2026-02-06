@@ -1,78 +1,72 @@
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Image, Badge, User } from "@heroui/react";
-import { Bell, UserCog, UserIcon } from "lucide-react";
+import { Image, User } from "@heroui/react";
+import { Menu, UserCog, UserIcon } from "lucide-react";
 import icon_7pecados_name from "@/icons/7pecados_name.png";
 import { useLocation } from "react-router-dom";
-import "../styles/header.css";
 
-export const Header = () => {
-  const userString = localStorage.getItem("user");
-  let user_save = null;
-  if (userString) {
-    try {
-      user_save = JSON.parse(userString);
-    } catch (e) {
-      console.error("Erro ao fazer parse do usuário:", e);
-      localStorage.removeItem("user");
-    }
-  }
+interface HeaderProps {
+  onToggleMenu: () => void;
+}
 
-  let currentPage = "";
-  switch (useLocation().pathname) {
-    case "/":
-      currentPage = "Dashboard";
-      break;
-    case "/stock":
-      currentPage = "Gerenciamento de produtos";
-      break;
-    case "/production":
-      currentPage = "Área de produção";
-      break;
-    case "/service":
-      currentPage = "Ponto de Atendimento";
-      break;
-  }
+export const Header = ({ onToggleMenu }: HeaderProps) => {
+  const pathname = useLocation().pathname;
+
+  const titles: Record<string, string> = {
+    "/": "Dashboard",
+    "/stock": "Produtos",
+    "/production": "Produção",
+    "/service": "Atendimento",
+  };
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
-    <header className=" flex justify-between items-center py-2 px-10 grass_efect">
-      <section>
-        <div className="text-2xl font-bold">{currentPage}</div>
+    <header
+      className="
+        fixed top-0 left-0 right-0
+        h-[72px]
+        z-50
+        flex items-center justify-between
+        px-4 sm:px-6
+        bg-background/90
+        backdrop-blur
+        border-b border-border
+      "
+    >
+      {/* ESQUERDA */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onToggleMenu}
+          className="
+            md:hidden
+            h-10 w-10
+            flex items-center justify-center
+            rounded-lg
+            hover:bg-primary/10
+          "
+        >
+          <Menu size={24} />
+        </button>
+
         <div>
-          <Image
-            alt="icon 7pecados"
-            src={icon_7pecados_name}
-            height={"1.4rem"}
-          />
+          <div className="text-lg font-semibold leading-tight">
+            {titles[pathname] ?? ""}
+          </div>
+          <Image src={icon_7pecados_name} height={18} />
         </div>
-      </section>
-      <section className="flex gap-4 items-center">
+      </div>
+
+      {/* DIREITA */}
+      <div className="flex items-center gap-4">
         <ThemeSwitch />
-        <div className="flex flex-row gap-6 items-center">
-          <div className="cursor-pointer hidden">
-            <Badge size="sm" color="danger" content="99+" shape="circle">
-              <Bell className="text-primary" size={24} strokeWidth={2.4} />
-            </Badge>
-          </div>
-          <div className="flex flex-col items-center">
-            <User
-              avatarProps={{
-                icon:
-                  user_save.permission === "admin" ? (
-                    <UserCog />
-                  ) : (
-                    <UserIcon size={24} />
-                  ),
-              }}
-              description={user_save.permission}
-              name={user_save.name}
-              classNames={{
-                name: "font-bold",
-                description: "text-sm text-default-500",
-              }}
-            />
-          </div>
-        </div>
-      </section>
+        <User
+          name={user?.name}
+          description={user?.permission}
+          avatarProps={{
+            icon: user?.permission === "admin" ? <UserCog /> : <UserIcon />,
+          }}
+        />
+      </div>
     </header>
   );
 };

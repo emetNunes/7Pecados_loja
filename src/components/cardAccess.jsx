@@ -42,7 +42,6 @@ export const CardAccess = ({
             bg-primary
             text-white
             rounded-xl
-            text-base
             font-medium
             hover:opacity-90
             transition
@@ -59,7 +58,6 @@ export const CardAccess = ({
             bg-primary
             text-white
             rounded-xl
-            text-base
             font-medium
             hover:opacity-90
             transition

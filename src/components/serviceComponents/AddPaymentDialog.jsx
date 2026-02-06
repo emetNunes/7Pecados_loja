@@ -53,6 +53,7 @@ const AddPaymentDialog = ({
             bg-default-50 dark:bg-zinc-900
             border border-default-200 dark:border-zinc-800
             space-y-1
+             text-left
           "
         >
           <p className="text-sm text-muted-foreground font-medium">
@@ -70,7 +71,7 @@ const AddPaymentDialog = ({
           </p>
 
           <div className="pt-2 border-t border-dashed border-default-300 dark:border-zinc-700">
-            <p className="text-base font-bold text-primary flex justify-between">
+            <p className="text-primary font-bold  flex justify-between">
               <span>Valor a pagar</span>
               <span>R$ {restante.toFixed(2).replace(".", ",")}</span>
             </p>
@@ -81,10 +82,10 @@ const AddPaymentDialog = ({
         <Input
           id="payment_value"
           label="Valor pago"
-          placeholder="Ex: 26,50"
+          placeholder="Ex: R$ 26.50"
           inputMode="decimal"
           value={payment}
-          className="text-lg"
+          className="text-lg dark:text-black"
           onChange={(e) => {
             const raw = e.target.value.replace(/\D/g, "");
             if (!raw) {
@@ -103,7 +104,7 @@ const AddPaymentDialog = ({
             className="
               w-full rounded-xl
               border-default-300 dark:border-zinc-700
-              text-foreground
+              text-foreground dark:text-black dark:hover:text-white
               hover:bg-default-100 dark:hover:bg-zinc-800
               transition
             "

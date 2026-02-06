@@ -33,13 +33,13 @@ const movementLabelPT = (type) => {
 };
 
 const movementTitlePT = (type) => {
-  if (type === "entrance") return "Compra de mercadoria";
-  if (type === "exit") return "Venda na loja";
+  if (type === "exit") return "Compra de mercadoria";
+  if (type === "entrance") return "Venda na loja";
   return "";
 };
 
 const movementColor = (type) => {
-  if (type === "entrance") return "text-secondary";
+  if (type === "entrance") return "text-primary";
   if (type === "exit") return "text-primary";
   return "text-default-600";
 };
@@ -111,7 +111,7 @@ export const CardHistory = ({
           description_item={item.description || item.location || "Estoque"}
         >
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-default-900 dark:text-default-100">
+            <span className="text-sm font-semibold text-default-900 dark:text-white">
               {movementTitlePT(movementType)}
             </span>
 

@@ -1,22 +1,60 @@
 import { Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-export function ItemProduct({ productID, size, price, ingredients, onAdd }) {
+export function ItemProduct({
+  productID,
+  size,
+  price,
+  ingredients,
+  onAdd,
+  setIsDetailsOpen,
+}) {
   const [fruta, setFruta] = useState("");
   const [sabor, setSabor] = useState("");
 
+  /* ================================
+     INGREDIENTES POR CATEGORIA
+  ================================ */
+  const frutas = useMemo(
+    () => ingredients.filter((i) => i.category === "Fruta"),
+    [ingredients]
+  );
+
+  const sabores = useMemo(
+    () => ingredients.filter((i) => i.category === "Sabor"),
+    [ingredients]
+  );
+
+  /* ================================
+     ADD
+  ================================ */
+
   const handleAdd = () => {
+    const details = [
+      ...(frutas.length > 0 && fruta ? [fruta] : []),
+      ...(sabores.length > 0 && sabor ? [sabor] : []),
+    ];
+
+    const sizeOption = [size];
+
     onAdd({
       productID,
-      size,
-      price,
-      details: { fruta, sabor },
+      sizeOption,
+      details, // 👈 agora é ARRAY DE IDS
     });
+
+    setIsDetailsOpen(false);
   };
+
+  /* ================================
+     VALIDATION
+  ================================ */
+  const isValid =
+    (frutas.length === 0 || fruta) && (sabores.length === 0 || sabor);
 
   return (
     <div className="mt-4 pt-4 border-t border-dashed flex flex-col gap-4">
-      {/* Resumo */}
+      {/* RESUMO */}
       <div className="flex justify-between text-sm font-medium text-default-700">
         <span>
           Tamanho:{" "}
@@ -25,53 +63,69 @@ export function ItemProduct({ productID, size, price, ingredients, onAdd }) {
         <span>R$ {Number(price).toFixed(2).replace(".", ",")}</span>
       </div>
 
-      {/* Fruta */}
-      <Select
-        label="Fruta"
-        className="max-w-full"
-        onChange={(e) => setFruta(e.target.value)}
-      >
-        {ingredients
-          .filter((i) => i.category === "Fruta")
-          .map((f) => (
-            <SelectItem key={f._id}>{f.name}</SelectItem>
+      {/* FRUTA */}
+      {frutas.length > 0 && (
+        <Select
+          label="Fruta"
+          className="max-w-full"
+          selectedKeys={fruta ? [fruta] : []}
+          onChange={(e) => setFruta(e.target.value)}
+        >
+          {frutas.map((f) => (
+            <SelectItem key={f._id} value={f._id}>
+              {f.name}
+            </SelectItem>
           ))}
-      </Select>
+        </Select>
+      )}
 
-      {/* Sabor */}
-      <Select
-        label="Sabor"
-        className="max-w-full"
-        onChange={(e) => setSabor(e.target.value)}
-      >
-        {ingredients
-          .filter((i) => i.category === "Sabor")
-          .map((s) => (
-            <SelectItem key={s._id}>{s.name}</SelectItem>
+      {/* SABOR */}
+      {sabores.length > 0 && (
+        <Select
+          label="Sabor"
+          className="max-w-full"
+          selectedKeys={sabor ? [sabor] : []}
+          onChange={(e) => setSabor(e.target.value)}
+        >
+          {sabores.map((s) => (
+            <SelectItem key={s._id} value={s._id}>
+              {s.name}
+            </SelectItem>
           ))}
-      </Select>
+        </Select>
+      )}
 
-      {/* Ações */}
+      {/* AÇÕES */}
       <div className="flex justify-end gap-3 pt-2">
         <button
-          className="px-4 py-2 rounded-lg text-primary border border-primary/30 hover:bg-primary/10 transition"
+          className="
+            px-4 py-2 rounded-lg
+            text-primary
+            border border-primary/30
+            hover:bg-primary/10
+            transition
+          "
           onClick={() => {
             setFruta("");
             setSabor("");
+            setIsDetailsOpen(false);
           }}
         >
           Cancelar
         </button>
 
         <button
-          className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/80 transition"
-          onClick={() => {
-            if (!fruta || !sabor) {
-              alert("Selecione fruta e sabor");
-              return;
+          disabled={!isValid}
+          className={`
+            px-4 py-2 rounded-lg
+            font-semibold transition
+            ${
+              isValid
+                ? "bg-primary text-white hover:bg-primary/80"
+                : "bg-default-300 text-default-500 cursor-not-allowed"
             }
-            handleAdd();
-          }}
+          `}
+          onClick={handleAdd}
         >
           Adicionar
         </button>

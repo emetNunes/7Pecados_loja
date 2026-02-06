@@ -1,7 +1,6 @@
 import { Divider } from "@heroui/divider";
 import { CustomNavLink } from "./customNavLink";
 import { Image, Tooltip } from "@heroui/react";
-import icon_nabar_7pecados from "@/icons/icon_nabar_7pecados.png";
 import {
   House,
   PackageSearch,
@@ -9,72 +8,68 @@ import {
   ShoppingCart,
   LogOut,
 } from "lucide-react";
+import icon_nabar_7pecados from "@/icons/icon_nabar_7pecados.png";
 import { LogoutButton } from "../components/LogoutButton";
 
-let icon_size = 32;
-let icon_stroke = 2.4;
+const ICON_SIZE = 26;
+const ICON_STROKE = 2.3;
 
-let navbarList = [
-  {
-    router: "/",
-    icon: <House size={icon_size} strokeWidth={icon_stroke} />,
-    namePage: "Dashboard",
-  },
-  {
-    router: "/stock",
-    icon: <PackageSearch size={icon_size} strokeWidth={icon_stroke} />,
-    namePage: "Gerenciamento de produtos",
-  },
-  {
-    router: "/production",
-    icon: <SquareKanban size={icon_size} strokeWidth={icon_stroke} />,
-    namePage: "Área de produção",
-  },
-  {
-    router: "/service",
-    icon: <ShoppingCart size={icon_size} strokeWidth={icon_stroke} />,
-    namePage: "Ponto de atendimento",
-  },
+const navItems = [
+  { to: "/", label: "Dashboard", icon: House },
+  { to: "/stock", label: "Produtos", icon: PackageSearch },
+  { to: "/production", label: "Produção", icon: SquareKanban },
+  { to: "/service", label: "Atendimento", icon: ShoppingCart },
 ];
 
 export const NavbarVertical = () => {
   return (
-    <div className="col-span-3 lg:col-span-2">
-      <section className="flex flex-col w-full h-full justify-between items-center py-4">
-        <div>
-          <Image
-            alt="icon 7pecados"
-            src={icon_nabar_7pecados}
-            height={icon_size}
-          />
-        </div>
-        <Divider className="my-4" />
-        <nav className="flex flex-col items-center h-full gap-6">
-          {navbarList.flatMap((element, index) => {
-            const items = [
-              <CustomNavLink key={element.namePage} to={`${element.router}`}>
-                <Tooltip
-                  content={`${element.namePage}`}
-                  showArrow={true}
-                  placement="right"
-                >
-                  {element.icon}
-                </Tooltip>
-              </CustomNavLink>,
-            ];
-            if (index === 1) {
-              items.push(<Divider key="divider-1" />);
-            }
-            return items;
-          })}
-        </nav>
-        <Divider className="my-4" />
-        <div className="text-primary">
-          <LogoutButton>
-            <LogOut size={24} />
-          </LogoutButton>
-        </div>
-      </section>
-    </div>
+    <nav className="h-full w-full flex flex-col items-center py-5">
+      {/* LOGO */}
+      <div className="mb-5">
+        <Image src={icon_nabar_7pecados} height={32} />
+      </div>
+
+      <Divider className="w-10 mb-4" />
+
+      {/* MENU */}
+      <ul className="flex flex-1 flex-col items-center gap-3">
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <CustomNavLink key={to} to={to}>
+            <Tooltip content={label} placement="right" showArrow>
+              <div
+                className="
+                  w-12 h-12
+                  flex items-center justify-center
+                  rounded-xl
+                  transition
+                  hover:bg-primary/10
+                "
+              >
+                <Icon size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+              </div>
+            </Tooltip>
+          </CustomNavLink>
+        ))}
+      </ul>
+
+      <Divider className="w-10 my-4" />
+
+      {/* LOGOUT */}
+      <LogoutButton>
+        <Tooltip content="Sair" placement="right" showArrow>
+          <div
+            className="
+              w-12 h-12
+              flex items-center justify-center
+              rounded-xl
+              text-primary
+              hover:bg-danger/10
+            "
+          >
+            <LogOut size={24} strokeWidth={2.3} />
+          </div>
+        </Tooltip>
+      </LogoutButton>
+    </nav>
   );
 };

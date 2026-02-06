@@ -12,6 +12,7 @@ import {
   SelectItem,
   NumberInput,
 } from "@heroui/react";
+import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -35,6 +36,7 @@ export default function AddProductDialog({ isOpen, handleClose }) {
 
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
+  const toast = useToast();
 
   /* ================================
      DATA
@@ -45,6 +47,14 @@ export default function AddProductDialog({ isOpen, handleClose }) {
   );
 
   const ingredientList = data?.ingredient ?? [];
+
+  const ingredientMap = useMemo(() => {
+    const map = {};
+    ingredientList.forEach((i) => {
+      map[i._id] = i;
+    });
+    return map;
+  }, [ingredientList]);
 
   /* ================================
      RESET AO FECHAR
@@ -128,7 +138,7 @@ export default function AddProductDialog({ isOpen, handleClose }) {
       category,
       description,
       prices: formattedPrices,
-      ingredient: ingredients,
+      ingredients,
       priceCost: 0,
     };
 
@@ -152,10 +162,16 @@ export default function AddProductDialog({ isOpen, handleClose }) {
         { revalidate: true }
       );
 
+      toast.success(
+        `${name.trim()} cadastrado com sucesso`,
+        "Produto adicionado ao catálogo"
+      );
       handleClose();
     } catch (err) {
       console.error("Erro ao criar produto:", err);
-      setFormError("Erro ao salvar produto. Tente novamente.");
+      const errorMessage = "Erro ao salvar produto. Tente novamente.";
+      setFormError(errorMessage);
+      toast.error(errorMessage, "Erro ao cadastrar produto");
     } finally {
       setCreating(false);
     }
@@ -295,25 +311,114 @@ export default function AddProductDialog({ isOpen, handleClose }) {
             STEP 2
         ========================= */}
         {step === 1 && (
-          <Select
-            selectionMode="multiple"
-            label="Ingredientes"
-            placeholder="Selecione os ingredientes utilizados"
-            selectedKeys={ingredients.map((i) => i.id_ingredient)}
-            onSelectionChange={(keys) => {
-              setIngredients(
-                Array.from(keys).map((id) => ({
-                  id_ingredient: id,
-                  quantityUsed: 1,
-                }))
-              );
-              setFormError("");
-            }}
-          >
-            {ingredientList.map((i) => (
-              <SelectItem key={i._id}>{i.name}</SelectItem>
-            ))}
-          </Select>
+          <div className="flex flex-col gap-6">
+            {/* SELECT INGREDIENTES */}
+            <Select
+              selectionMode="multiple"
+              label="Ingredientes utilizados"
+              placeholder="Selecione os ingredientes"
+              selectedKeys={ingredients.map((i) => i.id_ingredient)}
+              onSelectionChange={(keys) => {
+                const ids = Array.from(keys);
+
+                setIngredients((prev) => {
+                  return ids.map((id) => {
+                    const existing = prev.find((p) => p.id_ingredient === id);
+                    return (
+                      existing || {
+                        id_ingredient: id,
+                        quantityUsed: 1,
+                      }
+                    );
+                  });
+                });
+
+                setFormError("");
+              }}
+            >
+              {ingredientList.map((i) => (
+                <SelectItem key={i._id}>
+                  {i.name} • {i.category}
+                </SelectItem>
+              ))}
+            </Select>
+
+            {/* TABELA DE INGREDIENTES */}
+            {ingredients.length > 0 && (
+              <div className="rounded-xl border border-default-200 dark:border-zinc-700 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-default-100 dark:bg-zinc-800">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-semibold">
+                        Ingrediente
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold">
+                        Categoria
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold">
+                        Quantidade
+                      </th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-default-200 dark:divide-zinc-700">
+                    {ingredients.map((item) => {
+                      const ingredient = ingredientMap[item.id_ingredient];
+                      if (!ingredient) return null;
+
+                      return (
+                        <tr key={item.id_ingredient}>
+                          <td className="px-4 py-3 font-medium">
+                            {ingredient.name}
+                          </td>
+
+                          <td className="px-4 py-3 text-default-500">
+                            {ingredient.category}
+                          </td>
+
+                          <td className="px-4 py-3 w-[140px]">
+                            <NumberInput
+                              minValue={0}
+                              step={1}
+                              value={item.quantityUsed}
+                              onValueChange={(value) => {
+                                setIngredients((prev) =>
+                                  prev.map((p) =>
+                                    p.id_ingredient === item.id_ingredient
+                                      ? { ...p, quantityUsed: value }
+                                      : p
+                                  )
+                                );
+                              }}
+                            />
+                          </td>
+
+                          <td className="px-4 py-3 text-right">
+                            <Button
+                              size="sm"
+                              variant="light"
+                              color="danger"
+                              onPress={() =>
+                                setIngredients((prev) =>
+                                  prev.filter(
+                                    (p) =>
+                                      p.id_ingredient !== item.id_ingredient
+                                  )
+                                )
+                              }
+                            >
+                              Remover
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
 
         {/* ACTIONS */}
