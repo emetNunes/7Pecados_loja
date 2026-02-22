@@ -40,16 +40,14 @@ export default function LoginPage() {
         })();
 
       localStorage.setItem("user", JSON.stringify(userToStore));
-      
+
       const userName = userToStore?.name || usuario;
-      toast.success(
-        `Bem-vindo, ${userName}!`,
-        "Login realizado com sucesso"
-      );
-      
+      toast.success(`Bem-vindo, ${userName}!`, "Login realizado com sucesso");
+
       navigate("/", { replace: true });
     } catch (err) {
-      const errorMessage = err?.message || "Não foi possível acessar sua conta.";
+      const errorMessage =
+        err?.message || "Não foi possível acessar sua conta.";
       setError(errorMessage);
       toast.error(errorMessage, "Erro ao fazer login");
     } finally {

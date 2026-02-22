@@ -80,33 +80,31 @@ export default function ServicePage() {
   ===================================================== */
   const addProductInAccount = (newProduct) => {
     if (!newProduct?.productID) return;
-    
+
     // Encontrar o nome do produto para a notificação
     const productData = listProduct.find((p) => p._id === newProduct.productID);
     const productName = productData?.name || "Produto";
     const productPrice = productData?.prices?.[0]?.value || 0;
-    
+
     setProducts((prev) => [...prev, newProduct]);
-    
+
     // Feedback visual com informações do produto
     toast.success(
       `${productName} adicionado ao carrinho`,
-      `R$ ${Number(productPrice).toFixed(2).replace(".", ",")}`
+      `R$ ${Number(productPrice).toFixed(2).replace(".", ",")}`,
     );
   };
 
   const removeProductFromAccount = (index) => {
     const productToRemove = productsWithDetails[index];
     const productName = productToRemove?.name || "Produto";
-    
+
     setProducts((prev) => prev.filter((_, i) => i !== index));
-    
+
     // Feedback visual
     toast.info(`${productName} removido do carrinho`, "Produto removido");
   };
 
-  // 🔴 FLUXO CORRIGIDO:
-  // SEMPRE entra primeiro nos pedidos realizados
   function onSelectClient(id, name) {
     if (!id) return;
     setClientID(id);
@@ -130,13 +128,19 @@ export default function ServicePage() {
       const itemCount = products.length;
       setProducts([]);
       setPage("produtos");
-      toast.warning(`${itemCount} item(ns) removido(s) do carrinho`, "Pedido cancelado");
+      toast.warning(
+        `${itemCount} item(ns) removido(s) do carrinho`,
+        "Pedido cancelado",
+      );
       return;
     }
 
     if (action === "confirmar") {
       if (!products.length) {
-        toast.warning("Adicione produtos ao carrinho antes de confirmar", "Carrinho vazio");
+        toast.warning(
+          "Adicione produtos ao carrinho antes de confirmar",
+          "Carrinho vazio",
+        );
         return;
       }
 
@@ -172,16 +176,16 @@ export default function ServicePage() {
         const itemCount = products.length;
         setProducts([]);
         setPage("");
-        
+
         toast.success(
           `Pedido confirmado com ${itemCount} item(ns) para ${clientName}`,
-          "Pedido criado com sucesso!"
+          "Pedido criado com sucesso!",
         );
       } catch (err) {
         console.error("Erro ao confirmar pedido:", err);
         toast.error(
           "Não foi possível criar o pedido. Tente novamente.",
-          "Erro ao confirmar pedido"
+          "Erro ao confirmar pedido",
         );
       } finally {
         setIsSubmittingOrder(false);
@@ -238,11 +242,14 @@ export default function ServicePage() {
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           {/* ===== ÁREA PRINCIPAL (PRODUTOS) ===== */}
           {/* Mobile: Full width | Desktop: 3/4 width */}
-          <div className="w-full lg:w-3/4 xl:w-4/5">
+          <div className="w-full  lg:w-3/4 xl:w-4/5">
             {/* Página de seleção de cliente (mobile) */}
             {!isDesktop && page === "" && (
               <div className="p-4 sm:p-6">
-                <AccountClient onSelectClient={onSelectClient} setPage={setPage} />
+                <AccountClient
+                  onSelectClient={onSelectClient}
+                  setPage={setPage}
+                />
               </div>
             )}
 
@@ -267,7 +274,8 @@ export default function ServicePage() {
 
             {/* Página de produtos */}
             {/* Mobile: só mostra quando page === "produtos" | Desktop: sempre mostra exceto quando page === "pagamento" */}
-            {((!isDesktop && page === "produtos") || (isDesktop && page !== "pagamento")) && (
+            {((!isDesktop && page === "produtos") ||
+              (isDesktop && page !== "pagamento")) && (
               <section className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <CardSearch
                   value={search}
@@ -322,7 +330,7 @@ export default function ServicePage() {
           {/* ===== SIDEBAR (DESKTOP) / BOTTOM BAR (MOBILE) ===== */}
           {/* Desktop: Sidebar fixo à direita */}
           {isDesktop && (
-            <aside className="w-full lg:w-1/4 xl:w-1/5 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
+            <aside className="w-full lg:w-1/3 xl:w-1/3 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
               <div className="p-4 lg:p-6 border rounded-xl bg-background/50 backdrop-blur-sm">
                 {page === "" && (
                   <AccountClient
@@ -361,7 +369,9 @@ export default function ServicePage() {
                 {/* Header do bottom bar */}
                 <div className="flex justify-between items-center gap-2">
                   <div className="min-w-0 flex-1">
-                    <span className="text-xs text-muted-foreground block">Cliente</span>
+                    <span className="text-xs text-muted-foreground block">
+                      Cliente
+                    </span>
                     <p className="text-sm font-semibold truncate">
                       {clientName}
                     </p>
@@ -384,7 +394,9 @@ export default function ServicePage() {
                           key={index}
                           className="flex justify-between items-center gap-2 text-sm border-b border-dashed border-border pb-2"
                         >
-                          <span className="truncate flex-1 text-left">{p.name}</span>
+                          <span className="truncate flex-1 text-left">
+                            {p.name}
+                          </span>
                           <button
                             onClick={() => removeProductFromAccount(index)}
                             className="text-destructive hover:text-destructive/80 flex-shrink-0 p-1"

@@ -5,6 +5,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, AlertCircle, Info, X } from "lucide-react";
 
@@ -73,8 +74,7 @@ const Toast = ({ toast, onRemove }: ToastProps) => {
       "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200",
     warning:
       "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200",
-    info:
-      "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
+    info: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
   };
 
   const iconColors = {
@@ -153,25 +153,25 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   const success = useCallback(
     (message: string, title = "Sucesso") =>
       showToast({ type: "success", message, title }),
-    [showToast]
+    [showToast],
   );
 
   const error = useCallback(
     (message: string, title = "Erro") =>
       showToast({ type: "error", message, title }),
-    [showToast]
+    [showToast],
   );
 
   const warning = useCallback(
     (message: string, title = "Atenção") =>
       showToast({ type: "warning", message, title }),
-    [showToast]
+    [showToast],
   );
 
   const info = useCallback(
     (message: string, title = "Informação") =>
       showToast({ type: "info", message, title }),
-    [showToast]
+    [showToast],
   );
 
   return (
