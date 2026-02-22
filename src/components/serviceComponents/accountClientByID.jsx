@@ -1,7 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { Accordion, AccordionItem, Card } from "@heroui/react";
 import useSWR from "swr";
-import { HandPlatter, X, CircleX, Lock, Plus, ShoppingCart } from "lucide-react";
+import {
+  HandPlatter,
+  X,
+  CircleX,
+  Lock,
+  Plus,
+  ShoppingCart,
+} from "lucide-react";
 import { ConfirmNewOrderCard } from "./ConfirmNewOrderCard";
 import { CancelAccountDialog } from "./CancelAccountDialog";
 
@@ -11,6 +18,7 @@ function AccountClientByID({
   products,
   clientID,
   setPage,
+  isDesktop,
   clientName,
   setPedidoClient,
   handleSubmitOrder,
@@ -29,14 +37,14 @@ function AccountClientByID({
     clientID
       ? `https://api-7pecados.onrender.com/sale/account_client/id/${clientID}`
       : null,
-    fetcher
+    fetcher,
   );
 
   const pedidos = Array.isArray(data) ? data : [];
 
   const { data: productsDb } = useSWR(
     "https://api-7pecados.onrender.com/admin/stock/products/historic",
-    fetcher
+    fetcher,
   );
 
   /* ================================
@@ -54,7 +62,7 @@ function AccountClientByID({
 
   const totalCarrinho = filteredProduct.reduce(
     (acc, p) => acc + (p.prices?.[0]?.value || 0),
-    0
+    0,
   );
 
   const hasOrders = pedidos.length > 0;
@@ -94,6 +102,8 @@ function AccountClientByID({
     );
   }
 
+  let a = 1;
+
   /* ================================
      UI
   ================================ */
@@ -120,7 +130,6 @@ function AccountClientByID({
 
       {/* CONTENT */}
       <main className="flex-1 overflow-y-auto p-4 space-y-5">
-        {/* PEDIDOS EXISTENTES */}
         {/* PEDIDOS EXISTENTES */}
         {hasOrders && (
           <Card className="p-5 border border-default-200 dark:border-zinc-800">
@@ -237,8 +246,7 @@ function AccountClientByID({
               )}
             </div>
           </div>
-
-          {filteredProduct.length === 0 ? (
+          {filteredProduct.length === 0 && !isDesktop ? (
             <div className="flex flex-col items-center justify-center py-6 gap-4">
               <div className="flex flex-col items-center gap-2 text-center">
                 <div

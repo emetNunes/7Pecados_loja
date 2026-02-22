@@ -11,7 +11,7 @@ export function useMediaQuery(query: string): boolean {
     if (typeof window === "undefined") return;
 
     const mediaQuery = window.matchMedia(query);
-    
+
     // Define o valor inicial
     setMatches(mediaQuery.matches);
 
@@ -45,7 +45,7 @@ export function useMediaQuery(query: string): boolean {
  * Hook simplificado para detectar se é desktop (>= 1024px)
  */
 export function useIsDesktop(): boolean {
-  return useMediaQuery("(min-width: 1024px)");
+  return useMediaQuery("(min-width: 1082px)");
 }
 
 /**

@@ -127,7 +127,11 @@ export default function ServicePage() {
     if (action === "cancelar") {
       const itemCount = products.length;
       setProducts([]);
-      setPage("produtos");
+      if (!isDesktop) {
+        setPage("carrinho");
+      } else {
+        setPage("produto");
+      }
       toast.warning(
         `${itemCount} item(ns) removido(s) do carrinho`,
         "Pedido cancelado",
@@ -175,7 +179,7 @@ export default function ServicePage() {
 
         const itemCount = products.length;
         setProducts([]);
-        setPage("");
+        setPage("carrinho");
 
         toast.success(
           `Pedido confirmado com ${itemCount} item(ns) para ${clientName}`,
@@ -239,11 +243,13 @@ export default function ServicePage() {
       <div className="w-full min-h-screen">
         {/* ================= LAYOUT MOBILE-FIRST ================= */}
         {/* Mobile: Stack vertical | Desktop: Side-by-side */}
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+        <div className="flex flex-col justify-between lg:flex-row gap-4 lg:gap-2 mx-4">
           {/* ===== ÁREA PRINCIPAL (PRODUTOS) ===== */}
-          {/* Mobile: Full width | Desktop: 3/4 width */}
-          <div className="w-full  lg:w-3/4 xl:w-4/5">
+
+          {/* Mobile: Full width | Desktop: 3/4 width  */}
+          <div className="w-full">
             {/* Página de seleção de cliente (mobile) */}
+
             {!isDesktop && page === "" && (
               <div className="p-4 sm:p-6">
                 <AccountClient
@@ -253,12 +259,23 @@ export default function ServicePage() {
               </div>
             )}
 
+            {/* Página de pagamento (mobile) */}
+            {!isDesktop && page === "pagamento" && (
+              <div className="p-4 sm:p-6">
+                <PaymentClientByID
+                  clientID={clientID}
+                  pedidoClient={pedidoClient}
+                  setPage={setPage}
+                />
+              </div>
+            )}
             {/* Página de carrinho (mobile) */}
             {!isDesktop && page === "carrinho" && (
               <div className="p-4 sm:p-6">
                 <AccountClientByID
                   products={products}
                   clientID={clientID}
+                  isDesktop={isDesktop}
                   clientName={clientName}
                   setPedidoClient={setPedidoClient}
                   setPage={setPage}
@@ -271,11 +288,10 @@ export default function ServicePage() {
                 />
               </div>
             )}
-
             {/* Página de produtos */}
             {/* Mobile: só mostra quando page === "produtos" | Desktop: sempre mostra exceto quando page === "pagamento" */}
             {((!isDesktop && page === "produtos") ||
-              (isDesktop && page !== "pagamento")) && (
+              isDesktop) /*&& page !== "pagamento")*/ && (
               <section className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <CardSearch
                   value={search}
@@ -314,24 +330,14 @@ export default function ServicePage() {
                 </div>
               </section>
             )}
-
-            {/* Página de pagamento (mobile) */}
-            {!isDesktop && page === "pagamento" && (
-              <div className="p-4 sm:p-6">
-                <PaymentClientByID
-                  clientID={clientID}
-                  pedidoClient={pedidoClient}
-                  setPage={setPage}
-                />
-              </div>
-            )}
           </div>
 
           {/* ===== SIDEBAR (DESKTOP) / BOTTOM BAR (MOBILE) ===== */}
           {/* Desktop: Sidebar fixo à direita */}
+
           {isDesktop && (
-            <aside className="w-full lg:w-1/3 xl:w-1/3 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] lg:overflow-y-auto">
-              <div className="p-4 lg:p-6 border rounded-xl bg-background/50 backdrop-blur-sm">
+            <div className="w-1/3 lg:overflow-y-auto ">
+              <div className="w-1/4 h-[80%] fixed p-4 lg:p-6 border rounded-xl bg-background/50 backdrop-blur-sm">
                 {page === "" && (
                   <AccountClient
                     onSelectClient={onSelectClient}
@@ -342,6 +348,7 @@ export default function ServicePage() {
                 {page === "carrinho" && (
                   <AccountClientByID
                     products={products}
+                    isDesktop={isDesktop}
                     clientID={clientID}
                     clientName={clientName}
                     setPedidoClient={setPedidoClient}
@@ -359,7 +366,7 @@ export default function ServicePage() {
                   />
                 )}
               </div>
-            </aside>
+            </div>
           )}
 
           {/* Mobile: Bottom bar fixo (apenas na página de produtos) */}

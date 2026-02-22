@@ -33,12 +33,12 @@ export function ConfirmNewOrderCard({
         </div>
 
         <div className="flex-1">
-          <h3 className="font-semibold text-base text-foreground">
-            Novo pedido para {clientName}
+          <h3 className="font-semibold">
+            Novo pedido para <span className="text-primary">{clientName}</span>
           </h3>
           <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
             Deseja confirmar{" "}
-            <strong className="text-primary">{productName}</strong> ou cancelar
+            <strong className="font-semibold">{productName}</strong> ou cancelar
             os itens adicionados?
           </p>
         </div>
@@ -54,7 +54,7 @@ export function ConfirmNewOrderCard({
           px-4 py-3
         "
       >
-        <span className="text-sm text-muted-foreground">{productName}</span>
+        <span className="text-sm text-muted-foreground">Total:</span>
         <span className="font-semibold text-primary text-lg">
           R$ {total.toFixed(2)}
         </span>
