@@ -15,9 +15,6 @@ import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-/* ================================
-   Configuração da tabela
-================================ */
 const columns_list = [
   { key: "description", label: "Produto" },
   { key: "prices", label: "Preços" },

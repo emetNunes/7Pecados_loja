@@ -1,8 +1,7 @@
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Input, Button } from "@heroui/react";
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchApi } from "../services/api";
+import { fetchApi } from "../services/api.jsx";
 import { Loader2, Lock } from "lucide-react";
 import { useToast } from "@/contexts/ToastContext";
 
@@ -14,20 +13,19 @@ export default function LoginPage() {
     if (token) navigate("/", { replace: true });
   }, [navigate]);
 
+  const onHandleButton = false;
+
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const toast = useToast();
 
-  function onHandleButton() {}
-
   async function handleLogin(event) {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    console.log("");
     try {
       if (usuario === "" || password === "") {
         throw new Error("Preencha os campos informados");

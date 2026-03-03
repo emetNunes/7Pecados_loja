@@ -1,27 +1,30 @@
-// ServicePage.jsx
 import DefaultLayout from "@/layouts/default";
 import { CardSearch } from "@/components/cardSearch";
 import { CardTypesProducts } from "@/components/cardTypesProducts";
 import CardProduct from "@/components/serviceComponents/cardProduct";
-
-import { useEffect, useMemo, useState } from "react";
-import useSWR, { mutate } from "swr";
-
-import { listTypesProducts_ } from "../assets/constants/listTypesProducts";
 import AccountClient from "@/components/serviceComponents/accountClient";
 import AccountClientByID from "@/components/serviceComponents/accountClientByID";
 import PaymentClientByID from "@/components/serviceComponents/PaymentById";
+import useSWR, { mutate } from "swr";
 
-import { X, ArrowLeft, ShoppingBag } from "lucide-react";
+import {
+  X,
+  ArrowLeft,
+  ShoppingBag,
+  Utensils,
+  IceCreamBowl,
+  Candy,
+  Dessert,
+  Beer,
+  Lollipop,
+} from "lucide-react";
+
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function ServicePage() {
-  /* =====================================================
-     ESTADOS
-  ===================================================== */
   const [page, setPage] = useState(""); // "", "produtos", "carrinho", "pagamento"
   const [clientID, setClientID] = useState("");
   const [clientName, setClientName] = useState("");
@@ -35,6 +38,17 @@ export default function ServicePage() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  const size_default = 26;
+
+  const listTypesProducts_ = [
+    { name: "Todos", icon: <Utensils size={size_default} /> },
+    { name: "Taças", icon: <IceCreamBowl size={size_default} /> },
+    { name: "Doces", icon: <Candy size={size_default} /> },
+    { name: "Tortas", icon: <Dessert size={size_default} /> },
+    { name: "Bebidas", icon: <Beer size={size_default} /> },
+    { name: "Outros", icon: <Lollipop size={size_default} /> },
+  ];
 
   /* =====================================================
      RESPONSIVO (REATIVO)

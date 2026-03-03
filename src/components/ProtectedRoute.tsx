@@ -1,13 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../auth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const isAuth = isAuthenticated();
+  const isAuth = localStorage.getItem("authToken");
 
   if (!isAuth) {
     return <Navigate to="/login" replace />;

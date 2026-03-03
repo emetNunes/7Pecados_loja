@@ -138,11 +138,11 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
 
     setToasts((prev) => [...prev, newToast]);
 
-    // if (newToast.duration > 0) {
-    //   setTimeout(() => {
-    //     setToasts((prev) => prev.filter((t) => t.id !== id));
-    //   }, newToast.duration);
-    // }
+     if (newToast.duration > 0) {
+      setTimeout(() => {
+         setToasts((prev) => prev.filter((t) => t.id !== id));
+     }, newToast.duration);
+    }
 
     return id;
   }, []);

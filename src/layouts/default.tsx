@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { Header } from "@/components/header";
 import { NavbarVertical } from "@/components/navbarVertical";
 
-// const HEADER_HEIGHT = 72;
 const SIDEBAR_WIDTH = 80;
 
 export default function DefaultLayout({

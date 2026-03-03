@@ -103,13 +103,6 @@ export default function IndexPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  useEffect(() => {
-    toast.success("olá Matheus Nunes", "Login bem sucedido!");
-    toast.error("olá");
-    toast.warning("olá");
-    toast.info("olá");
-  }, []);
-
   const { data: finance } = useSWR(
     "https://api-7pecados.onrender.com/admin/finance/historic/filter",
     fetcher,
