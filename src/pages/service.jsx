@@ -240,10 +240,10 @@ export default function ServicePage() {
   ===================================================== */
   return (
     <DefaultLayout>
-      <div className="w-full min-h-screen">
+      <main className="w-full min-h-screen">
         {/* ================= LAYOUT MOBILE-FIRST ================= */}
         {/* Mobile: Stack vertical | Desktop: Side-by-side */}
-        <div className="flex flex-col justify-between lg:flex-row gap-4 lg:gap-2 mx-4">
+        <div className="flex flex-col justify-between lg:flex-row gap-4 lg:gap-2 mr-4">
           {/* ===== ÁREA PRINCIPAL (PRODUTOS) ===== */}
 
           {/* Mobile: Full width | Desktop: 3/4 width  */}
@@ -292,7 +292,7 @@ export default function ServicePage() {
             {/* Mobile: só mostra quando page === "produtos" | Desktop: sempre mostra exceto quando page === "pagamento" */}
             {((!isDesktop && page === "produtos") ||
               isDesktop) /*&& page !== "pagamento")*/ && (
-              <section className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <section className=" space-y-4 sm:space-y-6">
                 <CardSearch
                   value={search}
                   text_label="Pesquisar produto"
@@ -453,7 +453,7 @@ export default function ServicePage() {
         {!isDesktop && clientID && page === "produtos" && (
           <div className="h-48" />
         )}
-      </div>
+      </main>
     </DefaultLayout>
   );
 }

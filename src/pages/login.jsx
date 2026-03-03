@@ -18,13 +18,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const toast = useToast();
+
+  function onHandleButton() {}
 
   async function handleLogin(event) {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
 
+    console.log("");
     try {
+      if (usuario === "" || password === "") {
+        throw new Error("Preencha os campos informados");
+      }
+
       const data = await fetchApi("/user/login/", {
         method: "POST",
         body: { login: usuario, password },
@@ -46,9 +54,7 @@ export default function LoginPage() {
 
       navigate("/", { replace: true });
     } catch (err) {
-      const errorMessage =
-        err?.message || "Não foi possível acessar sua conta.";
-      setError(errorMessage);
+      setError(err?.message || "Não foi possível acessar sua conta.");
       toast.error(errorMessage, "Erro ao fazer login");
     } finally {
       setIsLoading(false);
@@ -140,15 +146,14 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                disabled={isLoading || !usuario || !password}
-                className="
-                  mt-2 h-[44px]
-                  rounded-xl
-                  bg-primary text-primary-foreground
-                  font-semibold
-                  flex items-center justify-center gap-2
-                "
+                disabled={onHandleButton}
+                className={
+                  usuario === "" || password === ""
+                    ? " mt-2 h-[44px] rounded-xl cursor-not-allowed bg-gray-300 text-primary-foreground font-semibold flex items-center justify-center gap-2"
+                    : "mt-2 h-[44px] rounded-xl  bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2"
+                }
               >
+                {}
                 {isLoading && <Loader2 size={18} className="animate-spin" />}
                 {isLoading ? "Entrando..." : "Acessar painel"}
               </Button>

@@ -26,7 +26,7 @@ function normalizeOrder(order) {
     type_payment: order.type_payment,
     total_value:
       Number(
-        String(order.total_value).replace("R$", "").replace(",", ".").trim()
+        String(order.total_value).replace("R$", "").replace(",", ".").trim(),
       ) || 0,
     status: statusMap[order.status] ?? "pending",
     completion_time: order.completion_time,
@@ -45,12 +45,12 @@ export default function ProductionPage() {
   } = useSWR(
     "https://api-7pecados.onrender.com/sale/orders/historic",
     fetcher,
-    { refreshInterval: 15000, revalidateOnFocus: true }
+    { refreshInterval: 15000, revalidateOnFocus: true },
   );
 
   const { data: accountsData, isLoading: loadingAccounts } = useSWR(
     "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true",
-    fetcher
+    fetcher,
   );
 
   if (loadingOrders || loadingAccounts) {
@@ -72,7 +72,7 @@ export default function ProductionPage() {
   }
 
   const openAccountIds = new Set(
-    (accountsData?.account ?? []).map((acc) => String(acc._id))
+    (accountsData?.account ?? []).map((acc) => String(acc._id)),
   );
 
   const orders = (ordersData?.orders ?? [])
@@ -95,7 +95,7 @@ export default function ProductionPage() {
 
   return (
     <DefaultLayout>
-      <main className="flex flex-col gap-6 p-6">
+      <main className="flex flex-col gap-6">
         {/* HEADER */}
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

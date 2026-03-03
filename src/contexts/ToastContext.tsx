@@ -44,6 +44,7 @@ const ToastContext = createContext<ToastContextType | null>(null);
 
 export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext);
+
   if (!context) {
     throw new Error("useToast must be used within ToastProvider");
   }
@@ -69,12 +70,12 @@ const Toast = ({ toast, onRemove }: ToastProps) => {
 
   const colors = {
     success:
-      "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200",
+      "bg-base dark:bg-base  shadow-md/30 dark:shadow-md/30 dark:shadow-green-500/30 border-green-500 border-y-0 border-l-7 border-r-0 dark:border-green-800 text-green-800 dark:text-green-200",
     error:
-      "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200",
+      "bg-base dark:bg-base  shadow-md/30 dark:shadow-md/30 dark:shadow-red-500/30 border-red-200 border-y-0 border-l-7 border-r-0 dark:border-red-800 text-red-800 dark:text-red-200",
     warning:
-      "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200",
-    info: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
+      "bg-base dark:bg-base  shadow-md/30 dark:shadow-md/30 dark:shadow-yellow-500/30 border-yellow-200 border-y-0 border-l-7 border-r-0 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200",
+    info: "bg-base dark:bg-base   shadow-md/30 dark:shadow-md/30 dark:shadow-blue-500/30 border-blue-200 dark:border-blue-800 border-y-0 border-l-7 border-r-0 text-blue-800 dark:text-blue-200",
   };
 
   const iconColors = {
@@ -137,11 +138,11 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
 
     setToasts((prev) => [...prev, newToast]);
 
-    if (newToast.duration > 0) {
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, newToast.duration);
-    }
+    // if (newToast.duration > 0) {
+    //   setTimeout(() => {
+    //     setToasts((prev) => prev.filter((t) => t.id !== id));
+    //   }, newToast.duration);
+    // }
 
     return id;
   }, []);

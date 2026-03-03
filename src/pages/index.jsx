@@ -2,11 +2,17 @@ import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/stockComponents/cardHistory";
-import { Wallet, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
+import {
+  Wallet,
+  BanknoteArrowUp,
+  BanknoteArrowDown,
+  Feather,
+} from "lucide-react";
 import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useToast } from "@/contexts/ToastContext";
 
 /* ================================
    Helpers
@@ -68,7 +74,7 @@ const buildDailyBalanceChartData = (database_list) => {
     const date = item.info;
 
     const numericValue = Number(
-      item.value.replace("R$", "").replace(".", "").replace(",", ".")
+      item.value.replace("R$", "").replace(".", "").replace(",", "."),
     );
 
     if (!dailyMap[date]) dailyMap[date] = 0;
@@ -95,10 +101,18 @@ const columns_list = [
 
 export default function IndexPage() {
   const navigate = useNavigate();
+  const toast = useToast();
+
+  useEffect(() => {
+    toast.success("olá Matheus Nunes", "Login bem sucedido!");
+    toast.error("olá");
+    toast.warning("olá");
+    toast.info("olá");
+  }, []);
 
   const { data: finance } = useSWR(
     "https://api-7pecados.onrender.com/admin/finance/historic/filter",
-    fetcher
+    fetcher,
   );
 
   const {
@@ -107,17 +121,17 @@ export default function IndexPage() {
     error,
   } = useSWR(
     "https://api-7pecados.onrender.com/admin/stock/inventory/historic",
-    fetcher
+    fetcher,
   );
 
   const database = useMemo(
     () => normalizeInventoryTransactions(inventory),
-    [inventory]
+    [inventory],
   );
 
   const chartData = useMemo(
     () => buildDailyBalanceChartData(database),
-    [database]
+    [database],
   );
 
   if (isLoading) {
