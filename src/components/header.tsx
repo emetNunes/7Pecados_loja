@@ -1,7 +1,7 @@
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Image, User } from "@heroui/react";
 import { Menu, UserCog, UserIcon } from "lucide-react";
-import icon_7pecados_name from "@/icons/7pecados_name.png";
+import icon_7pecados_name from "../../public/icons/7pecados_name.png";
 import { useLocation } from "react-router-dom";
 
 interface HeaderProps {

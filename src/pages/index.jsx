@@ -12,19 +12,12 @@ import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { useEffect, useMemo } from "react";
-import { useToast } from "@/contexts/ToastContext";
 
-/* ================================
-   Helpers
-================================ */
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 const formatMoney = (value = 0) =>
   `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
 
-/* ================================
-   Normalização do retorno da API
-================================ */
 const normalizeInventoryTransactions = (apiResponse) => {
   if (!apiResponse?.transactions) return [];
 
@@ -64,9 +57,6 @@ const normalizeInventoryTransactions = (apiResponse) => {
   });
 };
 
-/* ================================
-   Gráfico — Saldo diário
-================================ */
 const buildDailyBalanceChartData = (database_list) => {
   const dailyMap = {};
 
@@ -89,9 +79,6 @@ const buildDailyBalanceChartData = (database_list) => {
   }));
 };
 
-/* ================================
-   Tabela
-================================ */
 const columns_list = [
   { key: "description2", label: "Resumo" },
   { key: "type", label: "Tipo" },
@@ -99,9 +86,8 @@ const columns_list = [
   { key: "value", label: "Valor" },
 ];
 
-export default function IndexPage() {
+export default async function IndexPage() {
   const navigate = useNavigate();
-  const toast = useToast();
 
   const { data: finance } = useSWR(
     "https://api-7pecados.onrender.com/admin/finance/historic/filter",
@@ -117,7 +103,7 @@ export default function IndexPage() {
     fetcher,
   );
 
-  const database = useMemo(
+  const database = await useMemo(
     () => normalizeInventoryTransactions(inventory),
     [inventory],
   );
@@ -150,11 +136,7 @@ export default function IndexPage() {
   return (
     <DefaultLayout>
       <main className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-10">
-        {/* =========================
-            CONTEÚDO PRINCIPAL
-        ========================= */}
         <section className="flex flex-col gap-12">
-          {/* MÉTRICAS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CardDefaultValue
               icon={<Wallet size={40} />}
@@ -181,7 +163,6 @@ export default function IndexPage() {
             </CardDefaultValue>
           </div>
 
-          {/* GRÁFICO */}
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-bold">Evolução do saldo</h2>
             <BarChartComponent data={chartData} />

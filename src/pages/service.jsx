@@ -20,19 +20,18 @@ import {
 } from "lucide-react";
 
 import { useIsDesktop } from "@/hooks/useMediaQuery";
-import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function ServicePage() {
-  const [page, setPage] = useState(""); // "", "produtos", "carrinho", "pagamento"
+  const [page, setPage] = useState("");
   const [clientID, setClientID] = useState("");
   const [clientName, setClientName] = useState("");
 
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
 
-  const [products, setProducts] = useState([]); // [{ productID }]
+  const [products, setProducts] = useState([]);
   const [pedidoClient, setPedidoClient] = useState([]);
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -50,15 +49,8 @@ export default function ServicePage() {
     { name: "Outros", icon: <Lollipop size={size_default} /> },
   ];
 
-  /* =====================================================
-     RESPONSIVO (REATIVO)
-  ===================================================== */
   const isDesktop = useIsDesktop();
-  const toast = useToast();
 
-  /* =====================================================
-     PRODUTOS (ESTOQUE)
-  ===================================================== */
   const { data } = useSWR(
     "https://api-7pecados.onrender.com/admin/stock/products/historic",
     fetcher,
@@ -67,9 +59,6 @@ export default function ServicePage() {
 
   const listProduct = data?.product || [];
 
-  /* =====================================================
-     JOIN PRODUTOS DO PEDIDO + ESTOQUE
-  ===================================================== */
   const productsWithDetails = useMemo(() => {
     if (!products.length || !listProduct.length) return [];
 
@@ -89,24 +78,14 @@ export default function ServicePage() {
 
   const totalPedido = productsWithDetails.reduce((acc, p) => acc + p.price, 0);
 
-  /* =====================================================
-     AÇÕES
-  ===================================================== */
   const addProductInAccount = (newProduct) => {
     if (!newProduct?.productID) return;
 
-    // Encontrar o nome do produto para a notificação
     const productData = listProduct.find((p) => p._id === newProduct.productID);
     const productName = productData?.name || "Produto";
     const productPrice = productData?.prices?.[0]?.value || 0;
 
     setProducts((prev) => [...prev, newProduct]);
-
-    // Feedback visual com informações do produto
-    toast.success(
-      `${productName} adicionado ao carrinho`,
-      `R$ ${Number(productPrice).toFixed(2).replace(".", ",")}`,
-    );
   };
 
   const removeProductFromAccount = (index) => {
@@ -114,9 +93,6 @@ export default function ServicePage() {
     const productName = productToRemove?.name || "Produto";
 
     setProducts((prev) => prev.filter((_, i) => i !== index));
-
-    // Feedback visual
-    toast.info(`${productName} removido do carrinho`, "Produto removido");
   };
 
   function onSelectClient(id, name) {
@@ -132,9 +108,6 @@ export default function ServicePage() {
     );
   };
 
-  /* =====================================================
-     CONFIRMAR / CANCELAR PEDIDO
-  ===================================================== */
   async function handleSubmitOrder(action) {
     if (!clientID) return;
 
@@ -146,19 +119,12 @@ export default function ServicePage() {
       } else {
         setPage("produto");
       }
-      toast.warning(
-        `${itemCount} item(ns) removido(s) do carrinho`,
-        "Pedido cancelado",
-      );
+
       return;
     }
 
     if (action === "confirmar") {
       if (!products.length) {
-        toast.warning(
-          "Adicione produtos ao carrinho antes de confirmar",
-          "Carrinho vazio",
-        );
         return;
       }
 
@@ -190,15 +156,9 @@ export default function ServicePage() {
           },
           { revalidate: true },
         );
-
         const itemCount = products.length;
         setProducts([]);
         setPage("carrinho");
-
-        toast.success(
-          `Pedido confirmado com ${itemCount} item(ns) para ${clientName}`,
-          "Pedido criado com sucesso!",
-        );
       } catch (err) {
         console.error("Erro ao confirmar pedido:", err);
         toast.error(
@@ -211,9 +171,6 @@ export default function ServicePage() {
     }
   }
 
-  /* =====================================================
-     FILTRO + BUSCA
-  ===================================================== */
   const filteredProducts = useMemo(() => {
     let filtered = listProduct;
 
@@ -237,9 +194,6 @@ export default function ServicePage() {
     return filtered;
   }, [listProduct, search, selectedTypes]);
 
-  /* =====================================================
-     RESET
-  ===================================================== */
   useEffect(() => {
     if (!page) {
       setClientID("");
@@ -249,59 +203,11 @@ export default function ServicePage() {
     }
   }, [page]);
 
-  /* =====================================================
-     UI - MOBILE FIRST
-  ===================================================== */
   return (
     <DefaultLayout>
       <main className="w-full min-h-screen">
-        {/* ================= LAYOUT MOBILE-FIRST ================= */}
-        {/* Mobile: Stack vertical | Desktop: Side-by-side */}
         <div className="flex flex-col justify-between lg:flex-row gap-4 lg:gap-2 mr-4">
-          {/* ===== ÁREA PRINCIPAL (PRODUTOS) ===== */}
-
-          {/* Mobile: Full width | Desktop: 3/4 width  */}
           <div className="w-full">
-            {/* Página de seleção de cliente (mobile) */}
-
-            {!isDesktop && page === "" && (
-              <div className="p-4 sm:p-6">
-                <AccountClient
-                  onSelectClient={onSelectClient}
-                  setPage={setPage}
-                />
-              </div>
-            )}
-
-            {/* Página de pagamento (mobile) */}
-            {!isDesktop && page === "pagamento" && (
-              <div className="p-4 sm:p-6">
-                <PaymentClientByID
-                  clientID={clientID}
-                  pedidoClient={pedidoClient}
-                  setPage={setPage}
-                />
-              </div>
-            )}
-            {/* Página de carrinho (mobile) */}
-            {!isDesktop && page === "carrinho" && (
-              <div className="p-4 sm:p-6">
-                <AccountClientByID
-                  products={products}
-                  clientID={clientID}
-                  isDesktop={isDesktop}
-                  clientName={clientName}
-                  setPedidoClient={setPedidoClient}
-                  setPage={setPage}
-                  handleSubmitOrder={handleSubmitOrder}
-                  onCancelAccount={() => setCancelDialogOpen(true)}
-                  cancelDialogOpen={cancelDialogOpen}
-                  canceling={canceling}
-                  onConfirmCancel={() => {}}
-                  onCloseCancelDialog={() => setCancelDialogOpen(false)}
-                />
-              </div>
-            )}
             {/* Página de produtos */}
             {/* Mobile: só mostra quando page === "produtos" | Desktop: sempre mostra exceto quando page === "pagamento" */}
             {((!isDesktop && page === "produtos") ||

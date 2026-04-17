@@ -1,28 +1,24 @@
 import { useState, useMemo } from "react";
 import { mutate } from "swr";
-import { X, PrinterCheck, Coins, CreditCard, QrCode, Loader2 } from "lucide-react";
+import {
+  X,
+  PrinterCheck,
+  Coins,
+  CreditCard,
+  QrCode,
+  Loader2,
+} from "lucide-react";
 
 import AddPaymentDialog from "./AddPaymentDialog";
-import { useToast } from "@/contexts/ToastContext";
 
-/* =====================================================
-   COMPONENT
-===================================================== */
 function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
-  /* ================================
-     STATES
-  ================================ */
   const [payments, setPayments] = useState([]);
   const [addPaymentDialogOpen, setAddPaymentDialog] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [creating, setCreating] = useState(false);
   const [isDebit, setIsDebit] = useState(false);
   const [subTotal, setSubTotal] = useState(0);
-  const toast = useToast();
 
-  /* ================================
-     TOTAL
-  ================================ */
   const total = useMemo(() => {
     return pedidoClient.reduce((acc, item) => acc + (item.priceTotal || 0), 0);
   }, [pedidoClient]);
@@ -31,9 +27,6 @@ function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
   const totalPago = Number(subTotal);
   const restante = Math.max(totalPedido - totalPago, 0);
 
-  /* ================================
-     ADD PAYMENT
-  ================================ */
   const addPaymentsInAccount = (newPayment) => {
     const totalPagamentos = payments.reduce((acc, p) => acc + p.amount, 0);
 
@@ -44,25 +37,20 @@ function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
     }
 
     if (novoSubTotal > total) {
-      toast.warning("O valor do pagamento excede o total da conta", "Valor inválido");
       return;
     }
 
     setSubTotal(novoSubTotal);
     setPayments((prev) => [...prev, newPayment]);
-    
+
     // Feedback visual
-    const paymentMethodName = {
-      dinheiro: "Dinheiro",
-      pix: "PIX",
-      cartao_debito: "Cartão de Débito",
-      cartao_credito: "Cartão de Crédito",
-    }[newPayment.method] || "Pagamento";
-    
-    toast.success(
-      `${paymentMethodName} de R$ ${Number(newPayment.amount).toFixed(2).replace(".", ",")} adicionado`,
-      "Pagamento registrado"
-    );
+    const paymentMethodName =
+      {
+        dinheiro: "Dinheiro",
+        pix: "PIX",
+        cartao_debito: "Cartão de Débito",
+        cartao_credito: "Cartão de Crédito",
+      }[newPayment.method] || "Pagamento";
   };
 
   /* ================================
@@ -153,10 +141,6 @@ function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
 
           if (!updateRes.ok) throw new Error("Erro ao atualizar conta");
 
-          toast.success(
-            `Conta fechada com sucesso! Total: R$ ${totalPedido.toFixed(2).replace(".", ",")}`,
-            "Pagamento finalizado"
-          );
           setPage("");
           return currentData;
         },
@@ -164,10 +148,6 @@ function PaymentClientByID({ setPage, clientID, pedidoClient = [] }) {
       );
     } catch (err) {
       console.error("Erro ao finalizar pagamento:", err);
-      toast.error(
-        "Não foi possível finalizar o pagamento. Tente novamente.",
-        "Erro ao fechar conta"
-      );
     } finally {
       setCreating(false);
     }

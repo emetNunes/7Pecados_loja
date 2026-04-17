@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 
 import Input from "../Input";
 import ModelDefaultDialog from "../ModelDefaultDialog";
-import { useToast } from "@/contexts/ToastContext";
 
 const API_LIST =
   "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
@@ -73,20 +72,14 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
             account: [...(currentData?.account || []), createdAccount],
           };
         },
-        { revalidate: true }
+        { revalidate: true },
       );
 
-      // ✅ FECHA SEMPRE NO SUCESSO
-      toast.success(
-        `Conta criada para ${clientName.trim()}`,
-        "Cliente cadastrado com sucesso!"
-      );
       handleClose();
     } catch (err) {
       console.error("Erro ao criar cliente:", err);
       const errorMessage = "Não foi possível criar a conta. Tente novamente.";
       setError(errorMessage);
-      toast.error(errorMessage, "Erro ao cadastrar cliente");
     } finally {
       setCreating(false);
     }
@@ -151,7 +144,7 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
         </div>
       </div>
     </ModelDefaultDialog>,
-    document.body
+    document.body,
   );
 };
 

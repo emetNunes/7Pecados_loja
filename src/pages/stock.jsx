@@ -3,6 +3,7 @@ import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
 import { CardHistory } from "@/components/stockComponents/cardHistory";
 import { Wallet, BanknoteArrowUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { PieChartComponent } from "@/components/charts/pieChartComponent";
 import { CardStatusOrders } from "@/components/stockComponents/cardIngredients";
 
@@ -10,7 +11,6 @@ import AddMerchandiseDialog from "@/components/stockComponents/AddMerchandiseDia
 import AddIngredientDialog from "@/components/stockComponents/AddIngredientDialog";
 import AddProductDialog from "@/components/stockComponents/AddProductDialog";
 
-import { useState } from "react";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

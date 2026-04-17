@@ -8,7 +8,7 @@ import {
   ShoppingCart,
   LogOut,
 } from "lucide-react";
-import icon_nabar_7pecados from "@/icons/icon_nabar_7pecados.png";
+import icon_nabar_7pecados from "../../public/icons/icon_nabar_7pecados.png";
 import { LogoutButton } from "../components/LogoutButton";
 
 const ICON_SIZE = 26;

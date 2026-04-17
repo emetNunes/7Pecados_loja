@@ -1,20 +1,13 @@
 import { Button } from "@heroui/button";
 import { Hash, CircleCheck, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/contexts/ToastContext";
 
-/* ================================
-   LABELS
-================================ */
 const ACTION_LABEL = {
   pending: "Enviar para produção",
   in_production: "Marcar como pronto",
   ready: "Marcar como entregue",
 };
 
-/* ================================
-   STATUS MAP (front → api)
-================================ */
 const NEXT_STATUS_API = {
   pending: "em_producao",
   in_production: "pronto",
@@ -35,7 +28,6 @@ export const CardProduction = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(status);
-  const toast = useToast();
 
   const isDelivered = currentStatus === "delivered";
 
@@ -68,7 +60,7 @@ export const CardProduction = ({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: nextStatusApi }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error();
@@ -80,17 +72,10 @@ export const CardProduction = ({
       };
 
       setCurrentStatus(mapApiStatusToFront(nextStatusApi));
-      toast.success(
-        `Pedido #${id.slice(-6)} atualizado para "${statusLabels[nextStatusApi]}"`,
-        "Status atualizado"
-      );
+
       onStatusChange?.();
     } catch (err) {
       console.error(err);
-      toast.error(
-        "Não foi possível atualizar o status do pedido",
-        "Erro ao atualizar"
-      );
     } finally {
       setLoading(false);
     }
@@ -109,23 +94,16 @@ export const CardProduction = ({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "em_producao" }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error();
 
       setCurrentStatus("in_production");
-      toast.success(
-        `Pedido #${id.slice(-6)} restaurado para produção`,
-        "Pedido restaurado"
-      );
+
       onStatusChange?.();
     } catch (err) {
       console.error(err);
-      toast.error(
-        "Não foi possível restaurar o pedido",
-        "Erro ao restaurar"
-      );
     } finally {
       setLoading(false);
     }

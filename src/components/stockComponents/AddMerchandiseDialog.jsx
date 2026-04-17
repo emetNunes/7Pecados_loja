@@ -5,7 +5,6 @@ import useSWR from "swr";
 import Input from "../Input";
 import ModelDefaultDialog from "../ModelDefaultDialog";
 import { Button, Select, SelectItem } from "@heroui/react";
-import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -20,14 +19,13 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
 
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
-  const toast = useToast();
 
   /* ================================
      DATA
   ================================ */
   const { data } = useSWR(
     "https://api-7pecados.onrender.com/admin/stock/ingredients/historic",
-    fetcher
+    fetcher,
   );
 
   const ingredients = Array.isArray(data?.ingredient) ? data.ingredient : [];
@@ -51,7 +49,7 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
   ================================ */
   const totalValue = useMemo(
     () => items.reduce((acc, item) => acc + item.quantity * item.unitCost, 0),
-    [items]
+    [items],
   );
 
   /* ================================
@@ -78,7 +76,7 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
     setFormError(
       Object.keys(newErrors).length
         ? "Corrija os campos destacados antes de salvar."
-        : ""
+        : "",
     );
 
     return Object.keys(newErrors).length === 0;
@@ -111,21 +109,17 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Erro ao salvar mercadoria");
 
-      toast.success(
-        `Entrada de ${items.length} ingrediente(s) registrada com sucesso`,
-        `Total: R$ ${totalValue.toFixed(2).replace(".", ",")}`
-      );
       handleClose();
     } catch (err) {
       console.error(err);
+
       const errorMessage = "Erro ao salvar mercadoria. Tente novamente.";
       setFormError(errorMessage);
-      toast.error(errorMessage, "Erro ao registrar entrada");
     } finally {
       setSaving(false);
     }
@@ -201,7 +195,7 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
                   quantity: 1,
                   unitCost: ing?.unitCost ?? 0,
                 };
-              })
+              }),
             );
 
             setErrors((p) => ({ ...p, items: null }));
@@ -244,8 +238,8 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
                           const v = Math.max(1, Number(e.target.value));
                           setItems((prev) =>
                             prev.map((i, idx) =>
-                              idx === index ? { ...i, quantity: v } : i
-                            )
+                              idx === index ? { ...i, quantity: v } : i,
+                            ),
                           );
                         }}
                         className="
@@ -265,8 +259,8 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
                           const v = Math.max(0, Number(e.target.value));
                           setItems((prev) =>
                             prev.map((i, idx) =>
-                              idx === index ? { ...i, unitCost: v } : i
-                            )
+                              idx === index ? { ...i, unitCost: v } : i,
+                            ),
                           );
                         }}
                         className="
@@ -311,6 +305,6 @@ export default function AddMerchandiseDialog({ isOpen, handleClose }) {
         </div>
       </div>
     </ModelDefaultDialog>,
-    document.body
+    document.body,
   );
 }

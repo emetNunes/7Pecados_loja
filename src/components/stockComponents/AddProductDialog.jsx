@@ -12,7 +12,6 @@ import {
   SelectItem,
   NumberInput,
 } from "@heroui/react";
-import { useToast } from "@/contexts/ToastContext";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -36,14 +35,13 @@ export default function AddProductDialog({ isOpen, handleClose }) {
 
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
-  const toast = useToast();
 
   /* ================================
      DATA
   ================================ */
   const { data } = useSWR(
     "https://api-7pecados.onrender.com/admin/stock/ingredients/historic",
-    fetcher
+    fetcher,
   );
 
   const ingredientList = data?.ingredient ?? [];
@@ -83,7 +81,7 @@ export default function AddProductDialog({ isOpen, handleClose }) {
         size: s,
         value: Number(prices[s] || 0),
       })),
-    [sizes, prices]
+    [sizes, prices],
   );
 
   /* ================================
@@ -109,7 +107,7 @@ export default function AddProductDialog({ isOpen, handleClose }) {
     setFormError(
       Object.keys(newErrors).length
         ? "Preencha corretamente os campos antes de continuar."
-        : ""
+        : "",
     );
 
     return Object.keys(newErrors).length === 0;
@@ -152,26 +150,21 @@ export default function AddProductDialog({ isOpen, handleClose }) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
-            }
+            },
           );
 
           if (!res.ok) throw new Error("Erro ao criar produto");
 
           return res.json();
         },
-        { revalidate: true }
+        { revalidate: true },
       );
 
-      toast.success(
-        `${name.trim()} cadastrado com sucesso`,
-        "Produto adicionado ao catálogo"
-      );
       handleClose();
     } catch (err) {
       console.error("Erro ao criar produto:", err);
       const errorMessage = "Erro ao salvar produto. Tente novamente.";
       setFormError(errorMessage);
-      toast.error(errorMessage, "Erro ao cadastrar produto");
     } finally {
       setCreating(false);
     }
@@ -387,8 +380,8 @@ export default function AddProductDialog({ isOpen, handleClose }) {
                                   prev.map((p) =>
                                     p.id_ingredient === item.id_ingredient
                                       ? { ...p, quantityUsed: value }
-                                      : p
-                                  )
+                                      : p,
+                                  ),
                                 );
                               }}
                             />
@@ -403,8 +396,8 @@ export default function AddProductDialog({ isOpen, handleClose }) {
                                 setIngredients((prev) =>
                                   prev.filter(
                                     (p) =>
-                                      p.id_ingredient !== item.id_ingredient
-                                  )
+                                      p.id_ingredient !== item.id_ingredient,
+                                  ),
                                 )
                               }
                             >
@@ -452,6 +445,6 @@ export default function AddProductDialog({ isOpen, handleClose }) {
         </div>
       </div>
     </ModelDefaultDialog>,
-    document.body
+    document.body,
   );
 }
