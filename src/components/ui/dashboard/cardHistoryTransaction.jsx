@@ -14,7 +14,7 @@ import clsx from "clsx";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-export default function CardHistoryTransaction (){
+export default function CardHistoryTransaction() {
   const [page, setPage] = useState(1);
 
   const {
@@ -27,7 +27,7 @@ export default function CardHistoryTransaction (){
   );
 
   let database = [];
-  if(!isLoading && !error){
+  if (!isLoading && !error) {
     database = inventory.formatted;
   }
 
@@ -37,7 +37,6 @@ export default function CardHistoryTransaction (){
     const start = (page - 1) * rowsPerPage;
     return database.slice(start, start + rowsPerPage);
   }, [page, database]);
-
 
   return (
     <section
@@ -86,62 +85,70 @@ export default function CardHistoryTransaction (){
             )
           }
         >
-        <TableHeader>
-          <TableColumn>Resumo</TableColumn>
-          <TableColumn>Tipo</TableColumn>
-          <TableColumn>Data</TableColumn>
-          <TableColumn>Valor</TableColumn>
-        </TableHeader>
-        <TableBody>
+          <TableHeader>
+            <TableColumn>Resumo</TableColumn>
+            <TableColumn>Tipo</TableColumn>
+            <TableColumn>Data</TableColumn>
+            <TableColumn>Valor</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <ItemCardHistory
+                    type_movement_to_icon={item.type_movement}
+                    description_item={
+                      item.description || item.location || "Estoque"
+                    }
+                  >
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold text-default-900 dark:text-white">
+                        {clsx(
+                          {
+                            "Compra de mercadoria":
+                              item.type_movement == "exit",
+                          },
+                          {
+                            "Venda na loja": item.type_movement === "entrance",
+                          },
+                        )}
+                      </span>
 
-          {items.map((item)=>(
-               <TableRow key={item.id}>
-                  <TableCell>
-                      <ItemCardHistory
-                        type_movement_to_icon={item.type_movement}
-                        description_item={item.description || item.location || "Estoque"}
-                      >
-                        <div className="flex flex-col gap-1">
-                          <span className="text-sm font-semibold text-default-900 dark:text-white">
-                            {
-                            clsx({"Compra de mercadoria": item.type_movement == 'exit'}, {"Venda na loja": item.type_movement === "entrance"})
-                            }
-                          </span>
-
-
-                          {item.info && (
-                            <span className="text-xs text-default-500 dark:text-default-400">
-                              {item.info}
-                            </span>
-                          )}
-                        </div>
-                      </ItemCardHistory>
-                    </TableCell>
-                  <TableCell>
-                    <span className="text-sm font-medium text-default-700 dark:text-default-300">
-                      {clsx({'Entrada' : item.type_movement == 'entrance'}, {'Saida' : item.type_movement == 'exit'})}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-default-600 dark:text-default-400">
-                      {item.info || "-"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`text-sm font-semibold text-primary`}
-                    >
-                      {item.value}
-                    </span>
-                  </TableCell>
-                </TableRow>
-                
-              ))}
+                      {item.info && (
+                        <span className="text-xs text-default-500 dark:text-default-400">
+                          {item.info}
+                        </span>
+                      )}
+                    </div>
+                  </ItemCardHistory>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm font-medium text-default-700 dark:text-default-300">
+                    {clsx(
+                      { Entrada: item.type_movement == "entrance" },
+                      { Saida: item.type_movement == "exit" },
+                    )}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-default-600 dark:text-default-400">
+                    {item.info || "-"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={clsx(`text-sm font-semibold text-primary `, {
+                      "text-secondary": item.type_movement == "entrance",
+                    })}
+                  >
+                    {item.value}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       )}
     </section>
   );
-};
-
-
+}

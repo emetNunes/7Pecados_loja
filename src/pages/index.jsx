@@ -18,15 +18,8 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json());
 const formatMoney = (value = 0) =>
   `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
 
-
-
-export default  function IndexPage() {
+export default function IndexPage() {
   const navigate = useNavigate();
-
-  const { data: finance } = useSWR(
-    "https://api-7pecados.onrender.com/admin/finance/historic/filter",
-    fetcher,
-  );
 
   const {
     data: inventory,
@@ -37,21 +30,20 @@ export default  function IndexPage() {
     fetcher,
   );
 
-
   let dataInventory = [];
-  if(!isLoading && !error){
+  let dataFinance = [];
+  if (!isLoading && !error) {
     dataInventory = inventory.formatted;
+    dataFinance = inventory.balance;
   }
-  
+
   return (
-    
     <DefaultLayout>
       <>
-      { isLoading ? 
-        (
-        <div className="flex items-center justify-center h-[60vh] text-default-500">
-          Carregando dashboard…
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[60vh] text-default-500">
+            Carregando dashboard…
+          </div>
         ) : (
           <main className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-10">
             <section className="flex flex-col gap-12">
@@ -61,7 +53,7 @@ export default  function IndexPage() {
                   description="Saldo total"
                   type_color="primary"
                 >
-                  {formatMoney(finance?.balance)}
+                  {formatMoney(dataFinance?.saldo)}
                 </CardDefaultValue>
 
                 <CardDefaultValue
@@ -69,7 +61,7 @@ export default  function IndexPage() {
                   description="Entradas"
                   type_color="secondary"
                 >
-                  {formatMoney(finance?.totalEntrances)}
+                  {formatMoney(dataFinance?.entrances)}
                 </CardDefaultValue>
 
                 <CardDefaultValue
@@ -77,7 +69,7 @@ export default  function IndexPage() {
                   description="Saídas"
                   type_color="tertiary"
                 >
-                  {formatMoney(finance?.totalExits)}
+                  {formatMoney(dataFinance?.exits)}
                 </CardDefaultValue>
               </div>
 
@@ -90,7 +82,6 @@ export default  function IndexPage() {
                 <h2 className="text-2xl font-bold">Histórico de transações</h2>
                 <CardHistoryTransaction />
               </div>
-
             </section>
 
             <aside className="flex flex-col gap-6">
