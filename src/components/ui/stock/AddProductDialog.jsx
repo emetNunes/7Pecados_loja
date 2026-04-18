@@ -2,8 +2,8 @@ import { createPortal } from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import useSWR, { mutate } from "swr";
 
-import Input from "../Input";
-import ModelDefaultDialog from "../ModelDefaultDialog";
+import Input from "../../Input";
+import ModelDefaultDialog from "../../ModelDefaultDialog";
 
 import {
   Button,

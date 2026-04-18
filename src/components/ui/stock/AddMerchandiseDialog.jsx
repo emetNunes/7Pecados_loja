@@ -2,8 +2,8 @@ import { createPortal } from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
-import Input from "../Input";
-import ModelDefaultDialog from "../ModelDefaultDialog";
+import Input from "../../Input";
+import ModelDefaultDialog from "../../ModelDefaultDialog";
 import { Button, Select, SelectItem } from "@heroui/react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

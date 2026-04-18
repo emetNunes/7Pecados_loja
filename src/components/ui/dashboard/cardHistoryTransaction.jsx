@@ -1,0 +1,147 @@
+import { useCallback, useMemo, useState } from "react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Pagination,
+} from "@heroui/react";
+import { ItemCardHistory } from "./itemCardHistory";
+import useSWR from "swr";
+import clsx from "clsx";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
+export default function CardHistoryTransaction (){
+  const [page, setPage] = useState(1);
+
+  const {
+    data: inventory,
+    isLoading,
+    error,
+  } = useSWR(
+    "https://api-7pecados.onrender.com/admin/stock/inventory/historic",
+    fetcher,
+  );
+
+  let database = [];
+  if(!isLoading && !error){
+    database = inventory.formatted;
+  }
+
+  const rowsPerPage = 5;
+  const pages = Math.max(1, Math.ceil(database.length / rowsPerPage));
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    return database.slice(start, start + rowsPerPage);
+  }, [page, database]);
+
+
+  return (
+    <section
+      className="
+        mt-6 rounded-2xl
+        border border-default-200 dark:border-zinc-800
+        bg-base dark:bg-zinc-900
+        shadow-sm
+      "
+    >
+      {isLoading ? (
+        <div className="py-10 text-center text-sm text-default-500">
+          Carregando dados…
+        </div>
+      ) : database.length === 0 ? (
+        <div className="py-10 text-center text-sm text-default-500">
+          Nenhuma transação encontrada.
+        </div>
+      ) : (
+        <Table
+          removeWrapper
+          aria-label="Histórico"
+          classNames={{
+            th: `
+              px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide
+              text-default-500 dark:text-default-400
+            `,
+            td: `
+              px-5 py-4 text-sm
+              border-b border-dashed
+              border-default-200 dark:border-zinc-800
+            `,
+          }}
+          bottomContent={
+            pages > 1 && (
+              <div className="flex justify-center py-4">
+                <Pagination
+                  isCompact
+                  showControls
+                  page={page}
+                  total={pages}
+                  onChange={setPage}
+                  color="secondary"
+                />
+              </div>
+            )
+          }
+        >
+        <TableHeader>
+          <TableColumn>Resumo</TableColumn>
+          <TableColumn>Tipo</TableColumn>
+          <TableColumn>Data</TableColumn>
+          <TableColumn>Valor</TableColumn>
+        </TableHeader>
+        <TableBody>
+
+          {items.map((item)=>(
+               <TableRow key={item.id}>
+                  <TableCell>
+                      <ItemCardHistory
+                        type_movement_to_icon={item.type_movement}
+                        description_item={item.description || item.location || "Estoque"}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-semibold text-default-900 dark:text-white">
+                            {
+                            clsx({"Compra de mercadoria": item.type_movement == 'exit'}, {"Venda na loja": item.type_movement === "entrance"})
+                            }
+                          </span>
+
+
+                          {item.info && (
+                            <span className="text-xs text-default-500 dark:text-default-400">
+                              {item.info}
+                            </span>
+                          )}
+                        </div>
+                      </ItemCardHistory>
+                    </TableCell>
+                  <TableCell>
+                    <span className="text-sm font-medium text-default-700 dark:text-default-300">
+                      {clsx({'Entrada' : item.type_movement == 'entrance'}, {'Saida' : item.type_movement == 'exit'})}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-default-600 dark:text-default-400">
+                      {item.info || "-"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`text-sm font-semibold text-primary`}
+                    >
+                      {item.value}
+                    </span>
+                  </TableCell>
+                </TableRow>
+                
+              ))}
+          </TableBody>
+        </Table>
+      )}
+    </section>
+  );
+};
+
+

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Button, Select, SelectItem } from "@heroui/react";
 import { mutate } from "swr";
 
-import Input from "../Input";
-import ModelDefaultDialog from "../ModelDefaultDialog";
+import Input from "../../Input";
+import ModelDefaultDialog from "../../ModelDefaultDialog";
 
 /* ================================
    ENUMS — BACKEND SAFE

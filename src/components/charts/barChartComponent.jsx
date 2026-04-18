@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -6,12 +7,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
+  Cell
 } from "recharts";
 
-/* ================================
-   TOOLTIP
-================================ */
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
 
@@ -35,12 +34,47 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export const BarChartComponent = ({ data = [] }) => {
-  const maxAbsValue = Math.max(...data.map((d) => Math.abs(d.saldo || 0)), 10);
 
-  return (
+const buildDailyBalanceChartData = (database_list) => {
+  const dailyMap = {};
+
+  console.log(database_list)
+
+  database_list.forEach((item) => {
+    const date = item.info;
+
+    const numericValue = Number(
+      item.value.replace("R$", "").replace(".00", "").replace(",", "."),
+    );
+
+    if (!dailyMap[date]) dailyMap[date] = 0;
+
+    dailyMap[date] +=
+      item.type_movement === "entrance" ? numericValue : -numericValue;
+  });
+
+  return Object.entries(dailyMap).map(([date, saldo]) => ({
+    date,
+    saldo: Number(saldo.toFixed(2)),
+  }));
+};
+
+
+export const BarChartComponent = ({ data = [] }) => {
+
+
+  
+  data = useMemo(
+    () => buildDailyBalanceChartData(data),
+    [data],
+  );
+  
+
+  const maxAbsValue = Math.max(...data.map((d) => Math.abs(d.value || 0)), 10);
+
+  
+  return (  
     <div className="w-full h-[350px] bg-base px-8 pt-8 pb-6 rounded-xl shadow-2xs">
-      {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-default-500 uppercase tracking-wide">
           Saldo diário
@@ -50,32 +84,29 @@ export const BarChartComponent = ({ data = [] }) => {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          barCategoryGap={10} // 🔥 MENOS ESPAÇO ENTRE CATEGORIAS
-          barGap={1} // 🔥 MENOS ESPAÇO ENTRE BARRAS
+          barCategoryGap={10} 
+          barGap={1} 
           margin={{
             top: 10,
             right: 10,
             left: 0,
-            bottom: 28, // 🔥 MAIS DISTÂNCIA DO BOTTOM
+            bottom: 28, 
           }}
         >
-          {/* GRID */}
           <CartesianGrid
             strokeDasharray="4 4"
             vertical={false}
             strokeOpacity={0.25}
           />
 
-          {/* X */}
           <XAxis
             dataKey="date"
             tick={{ fontSize: 12 }}
-            tickMargin={16} // 🔥 AFASTA DATA DO EIXO
+            tickMargin={16} 
             axisLine={false}
             tickLine={false}
           />
 
-          {/* Y */}
           <YAxis
             domain={[-maxAbsValue, maxAbsValue]}
             tickFormatter={(v) =>
@@ -86,13 +117,11 @@ export const BarChartComponent = ({ data = [] }) => {
             tickLine={false}
           />
 
-          {/* TOOLTIP */}
           <Tooltip content={<CustomTooltip />} cursor={{ fillOpacity: 0.06 }} />
 
-          {/* BARS */}
           <Bar
             dataKey="saldo"
-            barSize={50} // 🔥 BARRAS MAIS JUNTAS
+            barSize={50}
             radius={[10, 10, 10, 10]}
             minPointSize={6}
             isAnimationActive

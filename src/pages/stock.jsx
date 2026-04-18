@@ -1,15 +1,15 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import { CardHistory } from "@/components/stockComponents/cardHistory";
+import CardHistoryTransaction from "@/components/ui/dashboard/cardHistoryTransaction";
 import { Wallet, BanknoteArrowUp } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PieChartComponent } from "@/components/charts/pieChartComponent";
-import { CardStatusOrders } from "@/components/stockComponents/cardIngredients";
+import { CardStatusOrders } from "@/components/ui/stock/cardIngredients";
 
-import AddMerchandiseDialog from "@/components/stockComponents/AddMerchandiseDialog";
-import AddIngredientDialog from "@/components/stockComponents/AddIngredientDialog";
-import AddProductDialog from "@/components/stockComponents/AddProductDialog";
+import AddMerchandiseDialog from "@/components/ui/stock/AddMerchandiseDialog";
+import AddIngredientDialog from "@/components/ui/stock/AddIngredientDialog";
+import AddProductDialog from "@/components/ui/stock/AddProductDialog";
 
 import useSWR from "swr";
 
@@ -95,7 +95,7 @@ export default function StockPage() {
               Produtos cadastrados
             </h2>
 
-            <CardHistory
+            <CardHistoryTransaction
               database={products}
               columns={columns_list}
               isLoading={isLoading}

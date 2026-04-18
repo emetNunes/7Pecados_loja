@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { ItemCardStatusOrders } from "../itemCardStatusOrders.jsx";
+import { ItemCardStatusOrders } from "../../itemCardStatusOrders.jsx";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
