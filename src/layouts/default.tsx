@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { Header } from "@/components/header";
-import { NavbarVertical } from "@/components/navbarVertical";
+import { Header } from "@/components/ui/navbar/header";
+import { NavbarVertical } from "@/components/ui/navbar/navbarVertical";
 
 const SIDEBAR_WIDTH = 80;
 
@@ -14,17 +14,15 @@ export default function DefaultLayout({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* HEADER */}
       <Header onToggleMenu={() => setMenuOpen(true)} />
 
       <div className="flex pt-[72px] min-h-screen">
-        {/* SIDEBAR DESKTOP */}
         <aside
           className="
             hidden md:flex
             w-20
             bg-base
-            border-r border-border
+            border-r border-gray-300
             sticky top-[72px]
             h-[calc(100dvh-72px)]
             z-40
@@ -33,7 +31,6 @@ export default function DefaultLayout({
           <NavbarVertical />
         </aside>
 
-        {/* DRAWER MOBILE (MESMO VISUAL DO DESKTOP) */}
         <AnimatePresence>
           {menuOpen && (
             <>
@@ -57,7 +54,6 @@ export default function DefaultLayout({
                 <NavbarVertical />
               </motion.aside>
 
-              {/* OVERLAY */}
               <div
                 onClick={() => setMenuOpen(false)}
                 className="
@@ -72,7 +68,6 @@ export default function DefaultLayout({
           )}
         </AnimatePresence>
 
-        {/* MAIN */}
         <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6">{children}</main>
       </div>
     </div>

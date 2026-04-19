@@ -1,24 +1,20 @@
-import { Button } from "@heroui/react";
+import { Button, Tooltip } from "@heroui/react";
 import { ReactNode } from "react";
-
+import {
+  LogOut,
+} from "lucide-react";
 const API_URL = "https://api-7pecados.onrender.com";
 
-interface User {
-  id: number;
-}
 
-type LogoutButtonProps = {
-  children: ReactNode;
-};
 
-export const LogoutButton = ({ children }: LogoutButtonProps) => {
+export const LogoutButton = () => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("authToken");
       const userString = localStorage.getItem("user");
 
       if (token && userString) {
-        const user: User = JSON.parse(userString);
+        const user = JSON.parse(userString);
 
         await fetch(`${API_URL}/user/logout`, {
           method: "PATCH",
@@ -42,8 +38,22 @@ export const LogoutButton = ({ children }: LogoutButtonProps) => {
   };
 
   return (
-    <Button onClick={handleLogout} className="bg-base">
-      {children}
+    <Button className="
+              w-12 h-12
+              flex items-center justify-center
+              text-primary
+              bg-base rounded-none
+              hover:bg-primary hover:text-base
+              border-r-1 border-gray-300
+            " onClick={handleLogout}>
+
+      <Tooltip content="Sair" placement="right" showArrow>
+          <div
+            
+          >
+            <LogOut size={24} strokeWidth={2.3} />
+          </div>
+        </Tooltip>
     </Button>
   );
 };

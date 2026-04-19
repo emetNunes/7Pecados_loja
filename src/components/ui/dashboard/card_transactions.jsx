@@ -8,13 +8,19 @@ import {
   TableCell,
   Pagination,
 } from "@heroui/react";
-import { ItemCardHistory } from "./itemCardHistory";
+
+import {
+  BanknoteArrowUp,
+  BanknoteArrowDown,
+  ShoppingBasket,
+} from "lucide-react";
+
 import useSWR from "swr";
 import clsx from "clsx";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-export default function CardHistoryTransaction() {
+export default function CardTransactions() {
   const [page, setPage] = useState(1);
 
   const {
@@ -95,32 +101,53 @@ export default function CardHistoryTransaction() {
             {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-                  <ItemCardHistory
-                    type_movement_to_icon={item.type_movement}
-                    description_item={
-                      item.description || item.location || "Estoque"
-                    }
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-semibold text-default-900 dark:text-white">
-                        {clsx(
-                          {
-                            "Compra de mercadoria":
-                              item.type_movement == "exit",
-                          },
-                          {
-                            "Venda na loja": item.type_movement === "entrance",
-                          },
-                        )}
-                      </span>
 
-                      {item.info && (
-                        <span className="text-xs text-default-500 dark:text-default-400">
-                          {item.info}
-                        </span>
+                  <div className="flex items-center rounded-lg gap-4">
+                    <div
+                      className={clsx(
+                        "p-2 rounded-lg text-base",
+                        {
+                          "text-base bg-primary dark:text-dark dark:bg-primary border-primary":
+                            item.type_movement == "exit",
+                        },
+                        {
+                          "dark:text-secondary bg-secondary dark:bg-base":
+                            item.type_movement == "entrance",
+                        },
+                      )}
+                    >
+                      {item.type == "exit" ? (
+                        <BanknoteArrowDown size={32} />
+                      ) : (
+                        <BanknoteArrowUp size={32} />
                       )}
                     </div>
-                  </ItemCardHistory>
+                    <div className="grid grid-rows-1">
+                      <div className="font-bold">
+
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-semibold text-default-900 dark:text-white">
+                            {clsx(
+                              {
+                                "Compra de mercadoria":
+                                  item.type_movement == "exit",
+                              },
+                              {
+                                "Venda na loja": item.type_movement === "entrance",
+                              },
+                            )}
+                          </span>
+
+                          {item.info && (
+                            <span className="text-xs text-default-500 dark:text-default-400">
+                              {item.info}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-[0.8rem] text-default-500">{item.description}</div>
+                    </div>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm font-medium text-default-700 dark:text-default-300">

@@ -1,139 +1,77 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import CardHistoryTransaction from "@/components/ui/dashboard/cardHistoryTransaction";
-import { Wallet, BanknoteArrowUp } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import CardHistoryTransaction from "@/components/ui/dashboard/card_transactions";
+import { Wallet, BanknoteArrowUp, CirclePlus, ScanBarcode, AppleIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PieChartComponent } from "@/components/charts/pieChartComponent";
-import { CardStatusOrders } from "@/components/ui/stock/cardIngredients";
+import  CardIngredients  from "@/components/ui/stock/cardIngredients";
 
 import AddMerchandiseDialog from "@/components/ui/stock/AddMerchandiseDialog";
-import AddIngredientDialog from "@/components/ui/stock/AddIngredientDialog";
 import AddProductDialog from "@/components/ui/stock/AddProductDialog";
 
 import useSWR from "swr";
+import CardProduct from "@/components/ui/stock/card_products";
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const columns_list = [
-  { key: "description", label: "Produto" },
-  { key: "prices", label: "Preços" },
-];
 
 export default function StockPage() {
   const [addMerchandiseOpen, setAddMerchandiseOpen] = useState(false);
-  const [addIngredientOpen, setAddIngredientOpen] = useState(false);
   const [addProductOpen, setAddProductOpen] = useState(false);
 
-  const { data: productsData, isLoading } = useSWR(
-    "https://api-7pecados.onrender.com/admin/stock/products/historic",
-    fetcher,
-  );
 
-  const products = productsData?.product ?? [];
-  const totalProducts = productsData?.total ?? 0;
 
-  const iconSize = 44;
-  const iconStroke = 2;
+  // const products = productsData?.product ?? [];
+
 
   return (
     <DefaultLayout>
       <main className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-10">
-        {/* ======================
-              CONTEÚDO PRINCIPAL
-          ====================== */}
+        
         <section className="flex flex-col gap-12">
-          {/* MÉTRICAS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <CardDefaultValue
-              icon={<Wallet size={iconSize} strokeWidth={iconStroke} />}
+              icon={<ScanBarcode size={44} strokeWidth={2} />}
               description="Total de produtos"
               type_color="primary"
             >
-              {totalProducts} produtos
+              {1} produtos
             </CardDefaultValue>
+          </div>
 
-            <CardDefaultValue
-              icon={
-                <BanknoteArrowUp size={iconSize} strokeWidth={iconStroke} />
-              }
-              description="Total de vendas"
-              type_color="secondary"
-            >
-              +100 vendas
-            </CardDefaultValue>
+          {/* <section className="flex flex-col gap-6">
+            <h2 className="text-2xl font-bold text-default-800 dark:text-default-100">
+              Informações do estoque
+            </h2>
+            <PieChartComponent />
+          </section> */}
 
-            <CardAccess
+          <section className="flex flex-col gap-4">
+            <h2 className="flex gap-3 text-2xl font-bold text-default-800 dark:text-white">
+              Produtos cadastrados
+             <CirclePlus className="mt-[7px] hover:text-primary" onClick={() => setAddProductOpen(true)}/>
+            </h2>
+
+            <CardProduct/>
+          </section>
+        </section>
+     
+        <aside className="flex flex-col gap-6">
+         
+           <CardAccess
               title="Adicionar mercadoria"
               description="Cadastre novas entradas no estoque"
               action={() => setAddMerchandiseOpen(true)}
               actionLabel="Adicionar mercadoria"
             />
-          </div>
 
-          {/* ESTOQUE */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-2xl font-bold text-default-800 dark:text-default-100">
-              Informações do estoque
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-[580px_1fr] gap-6 items-start">
-              <PieChartComponent />
-
-              <CardAccess
-                title="Adicionar ingrediente"
-                description="Cadastre novos ingredientes no estoque"
-                action={() => setAddIngredientOpen(true)}
-                actionLabel="Adicionar ingrediente"
-              />
-            </div>
-          </section>
-
-          {/* PRODUTOS */}
-          <section className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold text-default-800 dark:text-default-100">
-              Produtos cadastrados
-            </h2>
-
-            <CardHistoryTransaction
-              database={products}
-              columns={columns_list}
-              isLoading={isLoading}
-            />
-          </section>
-        </section>
-
-        {/* ======================
-              SIDEBAR
-          ====================== */}
-        <aside className="flex flex-col gap-6">
-          <CardAccess
-            title="Cadastrar produto"
-            description="Crie novos produtos para venda"
-            action={() => setAddProductOpen(true)}
-            actionLabel="Adicionar produto"
-          />
-
-          <CardStatusOrders
-            title="Ingredientes cadastrados"
-            description="Últimos ingredientes adicionados"
-          />
+          <CardIngredients/>
         </aside>
       </main>
 
-      {/* ======================
-          DIALOGS
-      ====================== */}
       <AddMerchandiseDialog
         isOpen={addMerchandiseOpen}
         handleClose={() => setAddMerchandiseOpen(false)}
       />
-
-      <AddIngredientDialog
-        isOpen={addIngredientOpen}
-        handleClose={() => setAddIngredientOpen(false)}
-      />
-
       <AddProductDialog
         isOpen={addProductOpen}
         handleClose={() => setAddProductOpen(false)}

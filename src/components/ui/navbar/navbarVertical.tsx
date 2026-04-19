@@ -8,8 +8,8 @@ import {
   ShoppingCart,
   LogOut,
 } from "lucide-react";
-import icon_nabar_7pecados from "../../public/icons/icon_nabar_7pecados.png";
-import { LogoutButton } from "../components/LogoutButton";
+import icon_nabar_7pecados from "../../../../public/icons/icon_nabar_7pecados.png";
+import { LogoutButton } from "./LogoutButton";
 
 const ICON_SIZE = 26;
 const ICON_STROKE = 2.3;
@@ -54,22 +54,10 @@ export const NavbarVertical = () => {
 
       <Divider className="w-10 my-4" />
 
-      {/* LOGOUT */}
       <LogoutButton>
-        <Tooltip content="Sair" placement="right" showArrow>
-          <div
-            className="
-              w-12 h-12
-              flex items-center justify-center
-              rounded-xl
-              text-primary
-              hover:bg-danger/10
-            "
-          >
-            <LogOut size={24} strokeWidth={2.3} />
-          </div>
-        </Tooltip>
+        
       </LogoutButton>
+
     </nav>
   );
 };

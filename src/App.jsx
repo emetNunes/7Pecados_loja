@@ -7,6 +7,7 @@ import LoginPage from "./pages/login";
 import StockPage from "./pages/stock";
 import ProductionPage from "./pages/production.jsx";
 import ServicePage from "./pages/service.jsx";
+import ProductID from "./pages/product/productID.jsx";
 
 export default function App() {
   const location = useLocation();
@@ -14,6 +15,7 @@ export default function App() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route element={<LoginPage />} path="/login" />
+        
         <Route
           element={
             <ProtectedRoute>
@@ -45,6 +47,14 @@ export default function App() {
             </ProtectedRoute>
           }
           path="/service"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <ProductID />
+            </ProtectedRoute>
+          }
+          path="/stock/product/"
         />
       </Routes>
     </AnimatePresence>

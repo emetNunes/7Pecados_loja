@@ -1,7 +1,8 @@
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Image, User } from "@heroui/react";
 import { Menu, UserCog, UserIcon } from "lucide-react";
-import icon_7pecados_name from "../../public/icons/7pecados_name.png";
+import icon_7pecados_name from "../../../../public/icons/7pecados_name.png";
+
 import { useLocation } from "react-router-dom";
 
 interface HeaderProps {
@@ -28,12 +29,11 @@ export const Header = ({ onToggleMenu }: HeaderProps) => {
         z-50
         flex items-center justify-between
         px-4 sm:px-6
-        bg-background/90
+        bg-base
         backdrop-blur
-        border-b border-border
+        border-b border-gray-300 
       "
     >
-      {/* ESQUERDA */}
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleMenu}
@@ -56,14 +56,13 @@ export const Header = ({ onToggleMenu }: HeaderProps) => {
         </div>
       </div>
 
-      {/* DIREITA */}
       <div className="flex items-center gap-4">
         <ThemeSwitch />
         <User
-          name={user?.name}
+          name={'Olá, '+ user?.name}
           description={user?.permission}
           avatarProps={{
-            icon: user?.permission === "admin" ? <UserCog /> : <UserIcon />,
+            icon: user?.permission === "admin" ? <UserIcon /> : <UserIcon />,
           }}
         />
       </div>

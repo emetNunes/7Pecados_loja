@@ -1,7 +1,7 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import CardHistoryTransaction from "@/components/ui/dashboard/cardHistoryTransaction";
+import CardTransaction from "@/components/ui/dashboard/card_transactions";
 import {
   Wallet,
   BanknoteArrowUp,
@@ -32,6 +32,7 @@ export default function IndexPage() {
 
   let dataInventory = [];
   let dataFinance = [];
+  
   if (!isLoading && !error) {
     dataInventory = inventory.formatted;
     dataFinance = inventory.balance;
@@ -80,7 +81,7 @@ export default function IndexPage() {
 
               <div className="flex flex-col">
                 <h2 className="text-2xl font-bold">Histórico de transações</h2>
-                <CardHistoryTransaction />
+                <CardTransaction />
               </div>
             </section>
 
@@ -90,6 +91,12 @@ export default function IndexPage() {
                 description="Inicie uma nova venda ou atendimento ao cliente"
                 action={() => navigate("/service", { replace: true })}
                 actionLabel="Iniciar atendimento"
+              />
+
+              <CardAccess
+                title="Total de vendas"
+                description={" +100 vendas"}
+                type_color="secondary"
               />
             </aside>
           </main>
