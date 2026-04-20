@@ -20,7 +20,7 @@ import clsx from "clsx";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-export default function CardTransactions() {
+export default function TableTransactions() {
   const [page, setPage] = useState(1);
 
   const {
@@ -101,7 +101,6 @@ export default function CardTransactions() {
             {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-
                   <div className="flex items-center rounded-lg gap-4">
                     <div
                       className={clsx(
@@ -124,7 +123,6 @@ export default function CardTransactions() {
                     </div>
                     <div className="grid grid-rows-1">
                       <div className="font-bold">
-
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-semibold text-default-900 dark:text-white">
                             {clsx(
@@ -133,7 +131,8 @@ export default function CardTransactions() {
                                   item.type_movement == "exit",
                               },
                               {
-                                "Venda na loja": item.type_movement === "entrance",
+                                "Venda na loja":
+                                  item.type_movement === "entrance",
                               },
                             )}
                           </span>
@@ -145,7 +144,9 @@ export default function CardTransactions() {
                           )}
                         </div>
                       </div>
-                      <div className="text-[0.8rem] text-default-500">{item.description}</div>
+                      <div className="text-[0.8rem] text-default-500">
+                        {item.description}
+                      </div>
                     </div>
                   </div>
                 </TableCell>

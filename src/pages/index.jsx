@@ -1,14 +1,15 @@
 import DefaultLayout from "@/layouts/default";
+import TableTransactions from "@/components/ui/dashboard/TableTransactions";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import CardTransaction from "@/components/ui/dashboard/card_transactions";
+import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
+
 import {
   Wallet,
   BanknoteArrowUp,
   BanknoteArrowDown,
   Feather,
 } from "lucide-react";
-import { BarChartComponent } from "@/components/charts/barChartComponent.jsx";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { useEffect, useMemo } from "react";
@@ -32,7 +33,7 @@ export default function IndexPage() {
 
   let dataInventory = [];
   let dataFinance = [];
-  
+
   if (!isLoading && !error) {
     dataInventory = inventory.formatted;
     dataFinance = inventory.balance;
@@ -81,7 +82,7 @@ export default function IndexPage() {
 
               <div className="flex flex-col">
                 <h2 className="text-2xl font-bold">Histórico de transações</h2>
-                <CardTransaction />
+                <TableTransactions />
               </div>
             </section>
 
