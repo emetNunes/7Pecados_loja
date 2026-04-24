@@ -4,8 +4,8 @@ import { Button } from "@heroui/react";
 import { mutate } from "swr";
 import { Loader2 } from "lucide-react";
 
-import Input from "../Input";
-import ModelDefaultDialog from "../ModelDefaultDialog";
+import Input from "../../Input";
+import ModelDefaultDialog from "../../ModelDefaultDialog";
 
 const API_LIST =
   "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";

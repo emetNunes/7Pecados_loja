@@ -1,7 +1,8 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import CardHistoryTransaction from "@/components/ui/dashboard/TableTransactions";
+import CardProduct from "@/components/ui/stock/card_products";
+
 import {
   Wallet,
   BanknoteArrowUp,
@@ -17,7 +18,6 @@ import AddMerchandiseDialog from "@/components/ui/stock/AddMerchandiseDialog";
 import AddProductDialog from "@/components/ui/stock/AddProductDialog";
 
 import useSWR from "swr";
-import CardProduct from "@/components/ui/stock/card_products";
 
 export default function StockPage() {
   const [addMerchandiseOpen, setAddMerchandiseOpen] = useState(false);

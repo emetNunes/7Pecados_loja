@@ -2,7 +2,7 @@ import { HandPlatter, X, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import useSWR from "swr";
 
-import AddClientDialog from "@/components/serviceComponents/AddClientDialog";
+import AddClientDialog from "@/components/ui/service/AddClientDialog";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 

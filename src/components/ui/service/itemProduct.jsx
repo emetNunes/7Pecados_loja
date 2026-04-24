@@ -12,22 +12,15 @@ export function ItemProduct({
   const [fruta, setFruta] = useState("");
   const [sabor, setSabor] = useState("");
 
-  /* ================================
-     INGREDIENTES POR CATEGORIA
-  ================================ */
   const frutas = useMemo(
     () => ingredients.filter((i) => i.category === "Fruta"),
-    [ingredients]
+    [ingredients],
   );
 
   const sabores = useMemo(
     () => ingredients.filter((i) => i.category === "Sabor"),
-    [ingredients]
+    [ingredients],
   );
-
-  /* ================================
-     ADD
-  ================================ */
 
   const handleAdd = () => {
     const details = [
@@ -40,15 +33,12 @@ export function ItemProduct({
     onAdd({
       productID,
       sizeOption,
-      details, // 👈 agora é ARRAY DE IDS
+      details,
     });
 
     setIsDetailsOpen(false);
   };
 
-  /* ================================
-     VALIDATION
-  ================================ */
   const isValid =
     (frutas.length === 0 || fruta) && (sabores.length === 0 || sabor);
 

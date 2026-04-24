@@ -1,8 +1,8 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
-import ModelDefaultDialog from "../ModelDefaultDialog";
-import Input from "../Input";
+import ModelDefaultDialog from "../../ModelDefaultDialog";
+import Input from "../../Input";
 
 const AddPaymentDialog = ({
   type,
@@ -128,7 +128,7 @@ const AddPaymentDialog = ({
         </div>
       </div>
     </ModelDefaultDialog>,
-    document.body
+    document.body,
   );
 };
 

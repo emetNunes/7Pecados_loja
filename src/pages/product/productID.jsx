@@ -9,18 +9,21 @@ import {
   Dessert,
   Beer,
   Lollipop,
+  CirclePlus,
+  CircleX,
 } from "lucide-react";
-import { Button, ButtonGroup } from "@heroui/button";
 import { Link, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import { useState } from "react";
 import CategoryRadio from "@/components/ui/stock/CategoryRadio";
+import { Input, Button, ButtonGroup } from "@heroui/react";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export default function ProductID() {
   const [searchParams] = useSearchParams();
   const [categorySelect, setCategorySelect] = useState("");
+  const [description, setDescription] = useState("");
 
   const id = searchParams.get("id");
 
@@ -41,16 +44,18 @@ export default function ProductID() {
         setCategorySelect(product.category);
       }
     }
+
+    if (product.description && description === "") {
+      if (product.description !== "") {
+        setDescription(product.description);
+      }
+    }
   }
 
-  // const listTypesProducts_ = [
-  //   { name: "Todos", icon: <Utensils size={size_default} /> },
-  //   { name: "Taças", icon: <IceCreamBowl size={size_default} /> },
-  //   { name: "Doces", icon: <Candy size={size_default} /> },
-  //   { name: "Tortas", icon: <Dessert size={size_default} /> },
-  //   { name: "Bebidas", icon: <Beer size={size_default} /> },
-  //   { name: "Outros", icon: <Lollipop size={size_default} /> },
-  // ];
+  const handlerSetDescription = (event) => {
+    console.log(event.target.value);
+    setDescription(event.target.value);
+  };
 
   return (
     <DefaultLayout>
@@ -78,9 +83,6 @@ export default function ProductID() {
                     <h1 className="text-2xl font-semibold text-primary">
                       {product.name}
                     </h1>
-                    <p className="text-sm text-muted-foreground">
-                      Detalhes do produto
-                    </p>
                   </div>
                 </div>
 
@@ -104,7 +106,16 @@ export default function ProductID() {
                 <div className="md:col-span-2">
                   <div className="p-6 space-y-6">
                     <div>
-                      <h2 className="text-lg font-bold">Informações Gerais</h2>
+                      <h2 className="text-lg font-bold">Detalhes do produto</h2>
+                    </div>
+
+                    <div>
+                      <div className="border-l-2 p-1 text-primary">
+                        <p className="text-muted-foreground">Descrição</p>
+                        <p className="mt-2 text-foreground pl-2">
+                          {description}
+                        </p>
+                      </div>
                     </div>
 
                     <div className="w-full">
@@ -113,28 +124,68 @@ export default function ProductID() {
                         setCategorySelect={setCategorySelect}
                       />
                     </div>
+                  </div>
+                </div>
 
-                    <div>
-                      <p className="text-sm text-muted-foreground">Descrição</p>
-                      <p className="mt-1">{product.description}</p>
+                <div className="md:col-span-2">
+                  <div className="p-6 space-y-6">
+                    <div className="flex gap-2 justify-between">
+                      <p className="text-muted-foreground">Tabela de Preços</p>
+                      {/* <a
+                        href="#"
+                        className="flex gap-2 hover:text-primary/80 text-primary"
+                      >
+                        <CirclePlus onClick={() => setAddProductOpen(true)} />
+                        <p className="">Adicionar preço</p>
+                      </a> */}
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      {product.prices.map((price) => (
+                        <div
+                          className="border border-foreground p-2 "
+                          key={price._id}
+                        >
+                          <div className="flex justify-between">
+                            <p className="text-sm text-muted-foreground">
+                              Tamanho: {price.size}
+                            </p>
+                            {/* <CircleX size="20" /> */}
+                          </div>
+                          <p className="font-bold mt-2">
+                            R${price.value.toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
                   <div className="p-6 space-y-6">
-                    <div>
-                      <h2 className="text-lg font-bold">Tabela de Preços</h2>
+                    <div className="flex gap-2 justify-between">
+                      <p className="text-muted-foreground">
+                        Ingredientes vinculados
+                      </p>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-4">
-                      {product.prices.map((price) => (
-                        <div key={price._id}>
-                          <p className="text-sm text-muted-foreground">
-                            Tamanho: {price.size}
+                    <div className="grid grid-cols-3 gap-4">
+                      {product.ingredients.map((ingredient) => (
+                        <div
+                          className="border border-foreground p-2 "
+                          key={ingredient.id_ingredient._id}
+                        >
+                          <div className="flex justify-between">
+                            <p className="font-bold text-muted-foreground">
+                              {ingredient.id_ingredient.name}
+                            </p>
+                          </div>
+                          <p className="">
+                            Categoria: {ingredient.id_ingredient.category}
                           </p>
-                          <p className="font-medium">
-                            Preço: R${price.value.toFixed(2)}
+                          <p className=" mt-2 text-sm italic text-secondary">
+                            Necessario: <br />- {ingredient.quantityUsed}/
+                            {ingredient.id_ingredient.measurement}
                           </p>
                         </div>
                       ))}

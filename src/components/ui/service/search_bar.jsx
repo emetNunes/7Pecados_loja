@@ -1,21 +1,14 @@
 import { Input, Button } from "@heroui/react";
 import { Search } from "lucide-react";
+import { useState } from "react";
 
-type CardSearchProps = {
-  value: string;
-  text_label: string;
-  text_button?: string;
-  onChange: (value: string) => void;
-  onSearch: () => void;
-};
-
-export const CardSearch = ({
+export default function CardSearch({
   value,
   text_label,
   text_button = "Buscar",
   onChange,
   onSearch,
-}: CardSearchProps) => {
+}) {
   return (
     <section className="w-full">
       <div
@@ -87,4 +80,4 @@ export const CardSearch = ({
       </div>
     </section>
   );
-};
+}

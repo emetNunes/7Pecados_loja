@@ -25,19 +25,25 @@ export default function CategoryRadio({ categorySelect, setCategorySelect }) {
 
   return (
     <div className="w-full">
-      <h4>Categorias</h4>
+      <p className="text-muted-foreground">Categorias</p>
       <div className="grid grid-cols-3  grid-lg-cols-2 mt-2 gap-2">
         {categoryProducts.map((category) => (
           <div
             className={clsx(
-              "rounded-2xl p-4 flex justify-between w-35 border-1 border-gray-400",
-              { "border-primary border-2": categorySelect === category.name },
+              "rounded-2xl p-4 flex justify-between border-1 border-foreground",
+              {
+                "border-primary border-2 bg-primary/10":
+                  categorySelect === category.name,
+              },
             )}
           >
             <div
-              className={clsx("flex gap-2 pr-2 font-medium text-gray-800", {
-                "text-primary font-bold": categorySelect === category.name,
-              })}
+              className={clsx(
+                "flex gap-2 pr-2 font-medium text-muted-foreground",
+                {
+                  "text-primary font-bold ": categorySelect === category.name,
+                },
+              )}
             >
               {category.icon}
               <label for="category">{category.name}</label>
@@ -47,7 +53,12 @@ export default function CategoryRadio({ categorySelect, setCategorySelect }) {
               type="radio"
               id={category.name}
               name="category"
-              className="text-"
+              className="appearance-none
+                          h-5 w-5
+                          border-2 border-gray-300 rounded-full
+                          checked:bg-primary checked:border-primary
+                          focus:outline-none focus:ring-2 focus:ring-primary
+                          transition duration-200"
               value={category.name}
               checked={categorySelect === category.name}
               onChange={handleCategoryChange}
