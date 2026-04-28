@@ -4,7 +4,7 @@ import useSWR, { mutate } from "swr";
 import CardSearch from "./search_bar";
 import CategorySearch from "./CategorySearch";
 import CardProduct from "./cardProduct";
-import { CirclePlus } from "lucide-react";
+import { CircleAlert, CirclePlus, User, UserIcon } from "lucide-react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -27,7 +27,7 @@ export default function ProductSection() {
   );
 
   const filteredProducts = useMemo(() => {
-    let filtered = listProduct ? listProduct.product : [];
+    let filtered = listProduct ? listProduct.products : [];
 
     if (search.trim()) {
       const s = search.toLowerCase();
@@ -48,14 +48,23 @@ export default function ProductSection() {
   }, [listProduct, search, categorySelected]);
 
   return (
-    <main className="">
-      <section className=" space-y-4 ">
-        <CardSearch
-          value={search}
-          text_label="Pesquisar produto"
-          text_button="Pesquisar"
-          onChange={setSearch}
-        />
+    <main className="w-full">
+      <section>
+        <div className="grid grid-cols-3  gap-5">
+          <div className="col-span-2">
+            <CardSearch value={search} onChange={setSearch} />
+          </div>
+
+          <div className="flex flex-row justify-center-safe gap-3 bg-base rounded-2xl p-2 w-[200px]">
+            <div className="bg-secondary text-base p-2 rounded-2xl">
+              <UserIcon size={30} />
+            </div>
+            <div>
+              <p>Matheus Nunes</p>
+              <p className="text-zinc-600">0 pedidos</p>
+            </div>
+          </div>
+        </div>
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
           <CategorySearch
             onToggle={setCategorySelected}
@@ -64,17 +73,37 @@ export default function ProductSection() {
         </div>
       </section>
 
-      <section>
-        <div className="grid grid-cols-1 bg-yellow-500 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {filteredProducts.length > 0 ? (
+      <section className=" dark:bg-zinc-800/20 rounded-2xl w-full">
+        {filteredProducts.length > 0 ? (
+          <>
+            {categorySelected == "Todos" ? (
+              <div className="flex justify-between">
+                <p className="text-[20px] font-bold py-3">
+                  Cardapio de Produtos
+                </p>
+                <p className="text-[15px] text-primary font-bold  py-3">
+                  {filteredProducts.length} produtos
+                </p>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <p className="text-[20px] font-bold py-3">
+                  Cardapio de{" "}
+                  <span className="text-primary">'{categorySelected}'</span>
+                </p>
+                <p className="text-[15px] text-primary font-bold  py-3">
+                  {filteredProducts.length} produtos
+                </p>
+              </div>
+            )}
             <CardProduct productsData={filteredProducts} />
-          ) : (
-            <div className="bg-red-300 ">
-              <CirclePlus />
-              Nenhum produto encontrado
-            </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="p-10 grid bg-base rounded-2xl shadow-sm text-primary grid-1-col justify-items-center ">
+            <CircleAlert size={50} />
+            <p className="font-bold">Nenhum produto encontrado!</p>
+          </div>
+        )}
       </section>
     </main>
   );

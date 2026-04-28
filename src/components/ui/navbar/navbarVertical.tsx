@@ -1,15 +1,18 @@
 import { Divider } from "@heroui/divider";
 import { CustomNavLink } from "./customNavLink";
-import { Image, Tooltip } from "@heroui/react";
+import { Image, Tooltip, User } from "@heroui/react";
 import {
   House,
   PackageSearch,
   SquareKanban,
   ShoppingCart,
-  LogOut,
+  UserIcon,
 } from "lucide-react";
+
 import icon_nabar_7pecados from "../../../../public/icons/icon_nabar_7pecados.png";
 import { LogoutButton } from "./LogoutButton";
+import { ThemeSwitch } from "@/components/theme-switch";
+import UserButton from "./UserButton";
 
 const ICON_SIZE = 26;
 const ICON_STROKE = 2.3;
@@ -20,6 +23,8 @@ const navItems = [
   { to: "/production", label: "Produção", icon: SquareKanban },
   { to: "/service", label: "Atendimento", icon: ShoppingCart },
 ];
+
+const user = JSON.parse(localStorage.getItem("user") || "{}");
 
 export const NavbarVertical = () => {
   return (
@@ -52,12 +57,26 @@ export const NavbarVertical = () => {
         ))}
       </ul>
 
+      <ThemeSwitch />
+
       <Divider className="w-10 my-4" />
 
-      <LogoutButton>
-        
-      </LogoutButton>
+      <Tooltip content={user?.name} placement="right" showArrow>
+        <div
+          className="
+                  w-12 h-12
+                  flex items-center justify-center
+                  rounded-xl
+                  transition
+                  bg-primary/10
+                  hover:bg-primary/20 mb-4
+                "
+        >
+          <UserIcon size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+        </div>
+      </Tooltip>
 
+      <LogoutButton />
     </nav>
   );
 };

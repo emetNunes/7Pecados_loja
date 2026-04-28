@@ -32,7 +32,7 @@ export default function CardProduct() {
 
   let database = [];
   if (!isLoading && !error) {
-    database = data.product;
+    database = data.products;
   }
 
   const rowsPerPage = 5;
@@ -101,20 +101,18 @@ export default function CardProduct() {
             {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-                    <div className="flex items-center rounded-lg gap-4">
-                      <div
-                        className="p-2 rounded-lg bg-secondary text-base"
-                      >
-                      <IceCreamBowl size={32}/>
-                      </div>
-                
-                      <div className="grid grid-rows-1">
-                        <div className="font-bold">{item.name}</div>
-                          <div className="text-[0.8rem] text-default-500">
-                            {item.description}
-                          </div>
+                  <div className="flex items-center rounded-lg gap-4">
+                    <div className="p-2 rounded-lg bg-secondary text-base">
+                      <IceCreamBowl size={32} />
+                    </div>
+
+                    <div className="grid grid-rows-1">
+                      <div className="font-bold">{item.name}</div>
+                      <div className="text-[0.8rem] text-default-500">
+                        {item.description}
                       </div>
                     </div>
+                  </div>
                 </TableCell>
 
                 <TableCell>
@@ -122,13 +120,15 @@ export default function CardProduct() {
                     {item.category}
                   </span>
                 </TableCell>
-               
-                 <TableCell>
-                  <Link to={`/stock/product/?id=${item._id}`} className="rounded-lg bg-primary hover:bg-primary/80 p-3 text-base font-bold  ">
+
+                <TableCell>
+                  <Link
+                    to={`/stock/product/?id=${item._id}`}
+                    className="rounded-lg bg-primary hover:bg-primary/80 p-3 text-base font-bold  "
+                  >
                     Ver produto
                   </Link>
                 </TableCell>
-
               </TableRow>
             ))}
           </TableBody>

@@ -23,8 +23,6 @@ export default function StockPage() {
   const [addMerchandiseOpen, setAddMerchandiseOpen] = useState(false);
   const [addProductOpen, setAddProductOpen] = useState(false);
 
-  // const products = productsData?.product ?? [];
-
   return (
     <DefaultLayout>
       <main className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-10">

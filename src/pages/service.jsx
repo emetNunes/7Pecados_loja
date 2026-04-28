@@ -148,7 +148,9 @@ export default function ServicePage() {
           <>
             <ProductSection />
 
-            <div className="bg-blue-400">Sou Desktop PDV!</div>
+            <div className="bg-base p-4 rounded-2xl w-[600px]">
+              {/* <AccountClient /> */}
+            </div>
           </>
         ) : (
           <ServiceMobile />
