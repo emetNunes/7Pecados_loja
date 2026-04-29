@@ -9,6 +9,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
+import ProductDetails from "./ProductDetails";
 
 // const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -107,7 +108,7 @@ export default function CardProduct({ productsData }) {
 
           <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold text-foreground leading-tight">
+              <h3 className="text-2xl font-semibold text-foreground leading-tight">
                 {product.name}
               </h3>
               <p className="text-sm text-default-500 leading-relaxed line-clamp-2">
@@ -118,8 +119,8 @@ export default function CardProduct({ productsData }) {
             {productSelected == product._id && (
               <>
                 <section className="flex flex-col gap-2 border-t border-dashed border-zinc-400">
-                  <p className="text-medium font-bold tracking-wide my-2">
-                    Tamanhos
+                  <p className="text-[12px] font-bold text-zinc-500 tracking-wide mt-3">
+                    TAMANHO
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {product.prices.map((size) => (
@@ -127,14 +128,18 @@ export default function CardProduct({ productsData }) {
                         key={size._id}
                         onClick={() => setSelectedSize([size._id, size.value])}
                         className={clsx(
-                          "px-4 py-1.5 rounded-full text-sm font-semibold border transition border-default-300 text-default-700 hover:border-primary",
+                          "px-6 py-3 rounded-full text-sm font-semibold border border-dashed transition border-default-300 text-default-700 hover:border-primary",
                           {
                             "bg-primary text-white border-primary shadow-sm":
                               selectedSize[0] === size._id,
                           },
                         )}
                       >
-                        {size.size}
+                        {clsx(
+                          { "100ml": size.size == "P" },
+                          { "250ml": size.size == "M" },
+                          { "470ml": size.size == "G" },
+                        )}
                       </button>
                     ))}
                   </div>
@@ -143,59 +148,20 @@ export default function CardProduct({ productsData }) {
                 <section>
                   <div>
                     {product.ingredients !== "" ? (
-                      <div className="flex gap-6">
+                      <div>
                         {product.ingredients.Fruta &&
                           product.ingredients.Fruta.length > 0 && (
-                            <div>
-                              <p className="text-medium font-bold tracking-wide mb-2">
-                                Frutas
-                              </p>
-                              {product.ingredients.Fruta.map((fruta) => (
-                                <div className="flex items-center">
-                                  <input
-                                    key={fruta._id}
-                                    id={fruta._id}
-                                    name="lista-radio"
-                                    type="radio"
-                                    className="h-4 w-4 border-2 border-gray-300 rounded-full  
-                                              checked:bg-primary checked:border-primary
-                                              focus:outline-none focus:ring-2 focus:ring-primary
-                                              transition duration-200"
-                                  />
-                                  <label
-                                    for={fruta._id}
-                                    className="ml-3 block text-sm font-medium text-gray-700"
-                                  >
-                                    {fruta.name}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
+                            <ProductDetails
+                              title={"Frutas"}
+                              detailsData={product.ingredients.Fruta}
+                            />
                           )}
                         {product.ingredients.Borda &&
                           product.ingredients.Borda.length > 0 && (
-                            <div>
-                              <p className="text-medium font-bold tracking-wide mb-2">
-                                Bordas
-                              </p>
-                              {product.ingredients.Borda.map((borda) => (
-                                <div className="flex items-center">
-                                  <input
-                                    key={borda._id}
-                                    id={borda._id}
-                                    name="lista-radio"
-                                    type="radio"
-                                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                                  />
-                                  <label
-                                    for={borda._id}
-                                    className="ml-3 block text-sm font-medium text-gray-700"
-                                  >
-                                    {borda.name}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
+                            <ProductDetails
+                              title={"Bordas"}
+                              detailsData={product.ingredients.Borda}
+                            />
                           )}
                       </div>
                     ) : (
@@ -204,9 +170,36 @@ export default function CardProduct({ productsData }) {
                   </div>
                 </section>
                 <section>
-                  <button className="bg-primary text-base w-full p-4 rounded-2xl shadow-lg">
-                    Adicionar a conta
-                  </button>
+                  <div
+                    class="inline-flex w-full rounded-2xl shadow-sm"
+                    role="group"
+                  >
+                    <button
+                      type="button"
+                      class="px-4 py-2 text-sm font-medium  bg-primary
+                      text-white
+                      p-5 
+                      rounded-l-2xl 
+                      shadow-lg
+                      hover:opacity-90
+                      transition"
+                    >
+                      R${selectedSize[1].toFixed(2)}
+                    </button>
+                    <button
+                      type="button"
+                      class="px-4 py-3 text-sm font-medium  bg-primary
+                      text-white
+                      w-full p-5 
+                      border-l-1 border-base/30
+                      rounded-r-2xl 
+                      shadow-lg
+                      hover:opacity-90
+                      transition"
+                    >
+                      Adicionar a conta
+                    </button>
+                  </div>
                 </section>
               </>
             )}

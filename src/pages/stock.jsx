@@ -1,7 +1,7 @@
 import DefaultLayout from "@/layouts/default";
 import { CardDefaultValue } from "@/components/cardDefaultValue";
 import { CardAccess } from "@/components/cardAccess";
-import CardProduct from "@/components/ui/stock/card_products";
+import CardProduct from "@/components/ui/stock/CardProduct";
 
 import {
   Wallet,
