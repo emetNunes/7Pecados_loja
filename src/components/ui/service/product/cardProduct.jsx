@@ -3,7 +3,6 @@ import { Button } from "@heroui/button";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import clsx from "clsx";
-import ProductDetails from "./ProductDetails";
 import {
   ButtonGroupProvider,
   Divider,
@@ -173,7 +172,6 @@ export default function CardProduct({ productsData }) {
                               ))}
                             </div>
                           )}
-                        {console.log(product.ingredients)}
                         {product.ingredients.Borda &&
                           product.ingredients.Borda.length > 0 && (
                             <div>

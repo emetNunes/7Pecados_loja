@@ -1,14 +1,14 @@
 import DefaultLayout from "@/layouts/default";
-import CardSearch from "@/components/ui/service/search_bar";
-import AccountClient from "@/components/ui/service/accountClient";
-import AccountClientByID from "@/components/ui/service/accountClientByID";
-import PaymentClientByID from "@/components/ui/service/PaymentById";
+import CardSearch from "@/components/ui/service/product/search_bar";
+import AccountClient from "@/components/ui/service/billing/accountClient";
+import AccountClientByID from "@/components/ui/service/billing/accountClientByID";
+import PaymentClientByID from "@/components/ui/service/billing/PaymentById";
 
 import { X, ArrowLeft, ShoppingBag } from "lucide-react";
 
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useEffect, useMemo, useState } from "react";
-import ProductSection from "@/components/ui/service/ProductSection";
+import ProductSection from "@/components/ui/service/product/ProductSection";
 import ServiceMobile from "@/components/ui/service/serviceMobile";
 
 export default function ServicePage() {

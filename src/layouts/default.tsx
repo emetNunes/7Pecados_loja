@@ -6,23 +6,22 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="flex min-h-screen">
-        <aside
+    <main className="min-h-screen bg-background text-foreground">
+      <section className="flex h-full min-h-screen">
+        <div
           className="
             hidden md:flex
             w-20
             bg-base
-            border-r border-gray-300
-            sticky 
-            z-40
+            
+            sticky top-0 
+            z-40 h-screen
           "
         >
           <NavbarVertical />
-        </aside>
-
-        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6">{children}</main>
-      </div>
-    </div>
+        </div>
+        <div className="flex-1 px-4 sm:px-6 lg:px-10 py-6">{children}</div>
+      </section>
+    </main>
   );
 }
