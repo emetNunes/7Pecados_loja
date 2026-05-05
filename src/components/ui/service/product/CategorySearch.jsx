@@ -26,6 +26,7 @@ export default function CategorySearch({ onToggle, selected }) {
       <div className="grid grid-cols-6 gap-8">
         {listCategory.map((category) => (
           <button
+            key={category.name}
             type="button"
             onClick={() => {
               onToggle(category.name);
