@@ -34,7 +34,7 @@ export default function CategorySearch({ onToggle, selected }) {
             className={clsx(
               "flex flex-col items-center gap-2 px-5 py-4  rounded-2xl border border-default-200 h-[160px] justify-center shadow-sm dark:border-zinc-800 bg-base hover:border-primary/50",
               {
-                "border-primary/0 bg-primary/50 text-blue-100  dark:bg-primary/60 dark:":
+                "border-primary/0 bg-primary text-blue-100  dark:bg-primary/60 dark:":
                   selected == category.name,
               },
             )}
@@ -44,7 +44,7 @@ export default function CategorySearch({ onToggle, selected }) {
               p-3 rounded-xl transition-colors 
               ${
                 selected == category.name
-                  ? "bg-primary text-primary-foreground"
+                  ? "text-primary-foreground"
                   : "bg-secondary/20 text-secondary"
               }
             `}
@@ -54,8 +54,8 @@ export default function CategorySearch({ onToggle, selected }) {
 
             <span
               className={clsx(
-                "text-lg font-semibold transition-colors text-muted-foreground",
-                { "text-primary": selected == category.name },
+                "text-[23px] font-semibold transition-colors text-muted-foreground",
+                { "text-base": selected == category.name },
               )}
             >
               {category.name}

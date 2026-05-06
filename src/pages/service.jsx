@@ -7,7 +7,7 @@ import ServiceMobile from "@/components/ui/service/serviceMobile";
 import BillingSection from "@/components/ui/service/billing/BillingSection";
 
 export default function ServicePage() {
-  const [clientSelect, setClientSelect] = useState("");
+  const [clientSelect, setClientSelect] = useState([]);
   const isDesktop = true;
 
   return (
@@ -16,13 +16,17 @@ export default function ServicePage() {
         {isDesktop ? (
           <>
             <div className="flex-1">
-              <ProductSection />
+              <ProductSection clientSelect={clientSelect} />
             </div>
 
             <div className="w-[30%]">
               <div className="fixed top-4 w-[28%] h-screen ">
                 <div className="bg-base p-4 rounded-2xl h-[95%] overflow-auto">
-                  <BillingSection clientID />
+                  <BillingSection
+                    handlerClient={(id, name) => {
+                      setClientSelect([id, name]);
+                    }}
+                  />
                 </div>
               </div>
             </div>

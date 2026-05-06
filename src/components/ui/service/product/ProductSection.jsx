@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR, { mutate } from "swr";
 
 import CardSearch from "./search_bar";
@@ -6,12 +6,12 @@ import CategorySearch from "./CategorySearch";
 import ProductSkeleton from "./ProductSkeleton";
 import CardProduct from "./cardProduct";
 import { CircleAlert, CirclePlus, User, UserIcon } from "lucide-react";
+import ClientSelected from "../billing/ClientSelectedCard";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function ProductSection() {
+export default function ProductSection({ clientSelect }) {
   const [categorySelected, setCategorySelected] = useState("Todos");
-
   const [search, setSearch] = useState("");
 
   const {
@@ -60,15 +60,7 @@ export default function ProductSection() {
                 <CardSearch value={search} onChange={setSearch} />
               </div>
 
-              <div className="flex flex-row justify-center-safe gap-3 bg-base rounded-2xl p-2 w-[200px]">
-                <div className="bg-secondary text-base p-2 rounded-2xl">
-                  <UserIcon size={30} />
-                </div>
-                <div>
-                  <p>Matheus Nunes</p>
-                  <p className="text-zinc-600">0 pedidos</p>
-                </div>
-              </div>
+              <ClientSelected clientSelected={clientSelect} />
             </div>
             <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
               <CategorySearch
@@ -86,7 +78,7 @@ export default function ProductSection() {
                     <p className="text-[20px] font-bold py-3">
                       Cardapio de Produtos
                     </p>
-                    <p className="text-[15px] text-primary font-bold  py-3">
+                    <p className="text-[15px] text-primary font-bold  py-3 pr-4">
                       {filteredProducts.length} produtos
                     </p>
                   </div>
@@ -101,7 +93,10 @@ export default function ProductSection() {
                     </p>
                   </div>
                 )}
-                <CardProduct productsData={filteredProducts} />
+                <CardProduct
+                  productsData={filteredProducts}
+                  clientSelect={clientSelect}
+                />
               </>
             ) : (
               <div className="p-10 grid bg-base rounded-2xl shadow-sm text-primary grid-1-col justify-items-center ">

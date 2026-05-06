@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import ProductDetails from "./ProductDetails";
 
-export default function CardProduct({ productsData }) {
+export default function CardProduct({ productsData, clientSelect }) {
   const [productSelected, setProductSelected] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
 
@@ -30,7 +30,7 @@ export default function CardProduct({ productsData }) {
                 group flex flex-col
                 rounded-3xl
                 border border-default-400/60 -,
-                
+
                 bg-base p-4
                 
                 dark:border-zinc-700
@@ -41,7 +41,7 @@ export default function CardProduct({ productsData }) {
                 overflow-hidden
               "
             onClick={() => {
-              if (product._id != productSelected) {
+              if (product._id != productSelected && clientSelect.length > 0) {
                 setProductSelected(product._id);
 
                 selectedSize.length > 0 && setSelectedSize([]);

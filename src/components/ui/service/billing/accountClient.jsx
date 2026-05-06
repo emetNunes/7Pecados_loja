@@ -4,7 +4,7 @@ import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function AccountClient({ onSelectClient, setPage }) {
+export default function AccountClient({ onSelectClient }) {
   const API_URL =
     "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
 
