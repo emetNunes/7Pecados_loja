@@ -6,7 +6,6 @@ import CategorySearch from "./CategorySearch";
 import ProductSkeleton from "./ProductSkeleton";
 import CardProduct from "./cardProduct";
 import { CircleAlert, CirclePlus, User, UserIcon } from "lucide-react";
-import ClientSelected from "../billing/ClientSelectedCard";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -55,13 +54,7 @@ export default function ProductSection({ clientSelect }) {
       ) : (
         <>
           <section>
-            <div className="grid grid-cols-3  gap-5">
-              <div className="col-span-2">
-                <CardSearch value={search} onChange={setSearch} />
-              </div>
-
-              <ClientSelected clientSelected={clientSelect} />
-            </div>
+            <CardSearch value={search} onChange={setSearch} />
             <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
               <CategorySearch
                 onToggle={setCategorySelected}

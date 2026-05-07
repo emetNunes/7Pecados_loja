@@ -130,7 +130,7 @@ export default function CardProduct({ productsData, clientSelect }) {
                   </section>
                   <section>
                     <div
-                      class="inline-flex w-full rounded-2xl shadow-sm"
+                      className="inline-flex w-full rounded-2xl shadow-sm"
                       role="group"
                     >
                       <button
@@ -138,7 +138,7 @@ export default function CardProduct({ productsData, clientSelect }) {
                         onClick={() => {
                           handlerAddProduct();
                         }}
-                        class="px-4 py-2 text-sm font-medium  bg-primary
+                        className="px-4 py-2 text-sm font-medium  bg-primary
                           text-white
                           p-5 
                           rounded-l-2xl 
@@ -153,7 +153,7 @@ export default function CardProduct({ productsData, clientSelect }) {
                       </button>
                       <button
                         type="button"
-                        class="px-4 py-3 text-sm font-medium  bg-primary w-full p-5 text-white border-l-1 border-base/30 rounded-r-2xl shadow-lg
+                        className="px-4 py-3 text-sm font-medium  bg-primary w-full p-5 text-white border-l-1 border-base/30 rounded-r-2xl shadow-lg
                                 hover:opacity-90 transition"
                       >
                         Adicionar a conta

@@ -13,59 +13,45 @@ import { ConfirmNewOrderCard } from "./ConfirmNewOrderCard";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-function AccountClientByID({
-  products,
-  clientID,
-  setPage,
-  isDesktop,
-  clientName,
-  // setPedidoClient,
-  handleSubmitOrder,
-  isSubmittingOrder = false,
-
-  cancelDialogOpen,
-  canceling,
-  onConfirmCancel,
-  onCloseCancelDialog,
-}) {
-  const { data, error, isLoading } = useSWR(
+function AccountClientByID({ clientID, setPage }) {
+  const {
+    data: pedidos,
+    error,
+    isLoading,
+  } = useSWR(
     clientID
       ? `https://api-7pecados.onrender.com/sale/account_client/id/${clientID}`
       : null,
     fetcher,
   );
 
-  const pedidos = Array.isArray(data) ? data : [];
+  // const pedidos = Array.isArray(data) ? data : [];
 
-  const { data: productsDb } = useSWR(
-    "https://api-7pecados.onrender.com/admin/stock/products/historic",
-    fetcher,
-  );
+  // const { data: productsDb } = useSWR(
+  //   "https://api-7pecados.onrender.com/admin/stock/products/historic",
+  //   fetcher,
+  // );
 
-  const filteredProduct = useMemo(() => {
-    if (!products || !productsDb?.product) return [];
-    return products
-      .map((p) => {
-        const match = productsDb.product.find((d) => d._id === p.productID);
-        return match ? { ...match, ...p } : null;
-      })
-      .filter(Boolean);
-  }, [products, productsDb]);
+  // const filteredProduct = useMemo(() => {
+  //   if (!products || !productsDb?.product) return [];
+  //   return products
+  //     .map((p) => {
+  //       const match = productsDb.product.find((d) => d._id === p.productID);
+  //       return match ? { ...match, ...p } : null;
+  //     })
+  //     .filter(Boolean);
+  // }, [products, productsDb]);
 
-  const totalCarrinho = filteredProduct.reduce(
-    (acc, p) => acc + (p.prices?.[0]?.value || 0),
-    0,
-  );
-
-  const hasOrders = pedidos.length > 0;
+  // const totalCarrinho = filteredProduct.reduce(
+  //   (acc, p) => acc + (p.prices?.[0]?.value || 0),
+  //   0,
+  // );
 
   // useEffect(() => {
   //   if (!isLoading && pedidos.length > 0) {
   //     setPedidoClient(pedidos);
   //   }
   // }, [isLoading, pedidos, setPedidoClient]);
-
-  let a = 1;
 
   return (
     <div className="flex flex-col h-full  dark:bg-zinc-900">
@@ -82,12 +68,59 @@ function AccountClientByID({
           </header>
 
           <main className="flex-1 p-4 space-y-5">
-            {hasOrders && (
+            {pedidos !== "" ? (
               <div className="space-y-4">
-                <button className="px-8 border border-zinc-300 py-[30px] w-full text-left rounded-2xl">
-                  <p className="text-2xl font-bold">1º Pedido</p>
-                </button>
+                <Accordion>
+                  {console.log(pedidos)}
+                  {pedidos.map((pedido) => (
+                    <AccordionItem
+                      key={pedido.idOrder}
+                      classNames={{
+                        title: "text-primary font-bold text-[20px] ",
+                      }}
+                      aria-label="Accordion 1"
+                      title={`Pedido #${pedido.idOrder.slice(-5)}  - ${pedido.status == "em_producao" ? "Em produção" : pedido.status}`}
+                    >
+                      {pedido.order.map((item) => (
+                        <div
+                          key={item.idItem}
+                          className="flex flex-row border-t-1 mt-2 border-b-1 border-zinc-400 border-dashed justify-between pr-3"
+                        >
+                          <div className="mb-4 mt-2">
+                            <p className="text-[24px] font-bold">{item.name}</p>
+                            <p className="text-zinc-800">
+                              #{item.idItem.slice(-5)}
+                            </p>
+                            <div className="border-l-4 border-primary pl-2">
+                              <p className="font-semibold text-primary mt-2 text-[16px]">
+                                Detalhes do pedido:
+                              </p>
+                              <p>Tamanho: {item.size.toUpperCase()}</p>
 
+                              {item.follow_up ? (
+                                <ul>
+                                  {item.follow_up.map((follow_up) => (
+                                    <>
+                                      <p>Acompanhamentos:</p>
+                                      <li>
+                                        - {follow_up.category}: {follow_up.name}
+                                      </li>
+                                    </>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p>Sem detalhes</p>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-primary font-bold text-[20px] mt-2">
+                            R$ {item.price[0].toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
+                    </AccordionItem>
+                  ))}
+                </Accordion>
                 {/* {pedidos.map((pedido, index) => (
                     <div
                       key={pedido._id}
@@ -153,6 +186,8 @@ function AccountClientByID({
                         ))}
                       </ul> */}
               </div>
+            ) : (
+              <p>Sem pedidos cadastrados</p>
             )}
 
             {/* CARRINHO */}
@@ -271,22 +306,22 @@ function AccountClientByID({
 
           <footer className="sticky bottom-0  dark:bg-zinc-900 border-t border-default-200 dark:border-zinc-800 p-4 space-y-3">
             <button
-              onClick={() => hasOrders && setPage("pagamento")}
-              disabled={!hasOrders}
+              onClick={() => pedidos.lenght && setPage("pagamento")}
+              disabled={!pedidos.lenght}
               className={`
             w-full py-4 rounded-xl font-semibold transition
             ${
-              hasOrders
+              pedidos.lenght
                 ? "bg-primary text-primary-foreground hover:bg-primary/90"
                 : "bg-default-200 dark:bg-zinc-800 text-muted-foreground cursor-not-allowed flex items-center justify-center gap-2"
             }
           `}
             >
-              {!hasOrders && <Lock size={16} />}
+              {!pedidos.lenght && <Lock size={16} />}
               Fechar conta
             </button>
 
-            {!hasOrders && (
+            {!pedidos.lenght && (
               <p className="text-xs text-muted-foreground text-center">
                 É necessário ter ao menos um pedido para fechar a conta.
               </p>
