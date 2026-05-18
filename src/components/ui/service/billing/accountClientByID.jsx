@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Accordion, AccordionItem, Card } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
+import { Accordion, AccordionItem, Card, Divider } from "@heroui/react";
 import useSWR from "swr";
 import {
   HandPlatter,
@@ -8,15 +8,22 @@ import {
   Lock,
   Plus,
   ShoppingCart,
+  ArrowLeftIcon,
+  Circle,
+  Dot,
+  Divide,
 } from "lucide-react";
 import { ConfirmNewOrderCard } from "./ConfirmNewOrderCard";
+import { Link } from "react-router-dom";
+import clsx from "clsx";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-function AccountClientByID({ clientID, setPage }) {
+function AccountClientByID({ clientID, onSelectClient }) {
+  const [statusOn, setStatus] = useState("em_producao");
   const {
-    data: pedidos,
-    error,
+    data: ordersClient,
+    error: isError,
     isLoading,
   } = useSWR(
     clientID
@@ -25,309 +32,176 @@ function AccountClientByID({ clientID, setPage }) {
     fetcher,
   );
 
-  // const pedidos = Array.isArray(data) ? data : [];
+  let groupOrders = [];
+  if (!isLoading && ordersClient.status != 500) {
+    groupOrders = ordersClient.orders.reduce((acc, pedido) => {
+      const status = pedido.status;
 
-  // const { data: productsDb } = useSWR(
-  //   "https://api-7pecados.onrender.com/admin/stock/products/historic",
-  //   fetcher,
-  // );
+      if (!acc[status]) {
+        acc[status] = [];
+      }
 
-  // const filteredProduct = useMemo(() => {
-  //   if (!products || !productsDb?.product) return [];
-  //   return products
-  //     .map((p) => {
-  //       const match = productsDb.product.find((d) => d._id === p.productID);
-  //       return match ? { ...match, ...p } : null;
-  //     })
-  //     .filter(Boolean);
-  // }, [products, productsDb]);
+      acc[status].push(pedido);
 
-  // const totalCarrinho = filteredProduct.reduce(
-  //   (acc, p) => acc + (p.prices?.[0]?.value || 0),
-  //   0,
-  // );
-
-  // useEffect(() => {
-  //   if (!isLoading && pedidos.length > 0) {
-  //     setPedidoClient(pedidos);
-  //   }
-  // }, [isLoading, pedidos, setPedidoClient]);
+      return acc;
+    }, {});
+  }
 
   return (
-    <div className="flex flex-col h-full  dark:bg-zinc-900">
+    <div className="flex flex-col h-full overflow-hidden">
+      <header className="flex items-center justify-between px-5 py-4 border-b border-default-200 dark:border-zinc-800">
+        <div>
+          <p className="text-2xl font-bold text-foreground">Pedidos da conta</p>
+
+          {!isLoading && ordersClient.status != 500 ? (
+            <div>
+              <p className="text-primary font-semibold text-[17px]">
+                Cliente {ordersClient.accountClient.name}
+              </p>
+              <p className="text-[13px] text-zinc-500">
+                ContaID: #{ordersClient.accountClient.clientID.slice(-5)}
+              </p>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+        <Link
+          onClick={() => {
+            onSelectClient();
+          }}
+          to="/service"
+          className="flex text-zinc-400/80 hove:text-primary hover:text-primary/70 cursor-pointer"
+        >
+          <ArrowLeftIcon /> voltar
+        </Link>
+      </header>
       {isLoading ? (
         <div className="flex items-center justify-center h-full text-muted-foreground">
-          Carregando pedidos…
+          Carregando ordersClient da conta…
+        </div>
+      ) : ordersClient.status == 500 ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground">
+          Falha ao carregar ordersClient!
         </div>
       ) : (
-        <>
-          <header className="flex items-center justify-between px-5 py-4 border-b border-default-200 dark:border-zinc-800">
-            <div>
-              <p className="text-2xl font-bold text-foreground">Carrinho</p>
-            </div>
-          </header>
-
-          <main className="flex-1 p-4 space-y-5">
-            {pedidos !== "" ? (
+        <div className=" h-full flex flex-col">
+          <main className="overflow-scroll h-[200px] lg:h-[500px] md:h-[100px]">
+            {ordersClient.orders !== "" ? (
               <div className="space-y-4">
-                <Accordion>
-                  {console.log(pedidos)}
-                  {pedidos.map((pedido) => (
-                    <AccordionItem
-                      key={pedido.idOrder}
-                      classNames={{
-                        title: "text-primary font-bold text-[20px] ",
+                <div className="w-full flex flex-row gap-2 justify-between border-1 border-zinc-300 rounded-2xl bg-background">
+                  {Object.entries(groupOrders).map(([status, pedidosGrupo]) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatus(status);
                       }}
-                      aria-label="Accordion 1"
-                      title={`Pedido #${pedido.idOrder.slice(-5)}  - ${pedido.status == "em_producao" ? "Em produção" : pedido.status}`}
+                      className={clsx(
+                        "p-2 rounded-2xl shadow-lg w-full text-sm font-bold cursor-pointer",
+                        { "bg-primary  text-base": statusOn == status },
+                        {
+                          "bg-base text-secondary hover:bg-zinc-100":
+                            statusOn != status,
+                        },
+                      )}
                     >
-                      {pedido.order.map((item) => (
-                        <div
-                          key={item.idItem}
-                          className="flex flex-row border-t-1 mt-2 border-b-1 border-zinc-400 border-dashed justify-between pr-3"
-                        >
-                          <div className="mb-4 mt-2">
-                            <p className="text-[24px] font-bold">{item.name}</p>
-                            <p className="text-zinc-800">
-                              #{item.idItem.slice(-5)}
-                            </p>
-                            <div className="border-l-4 border-primary pl-2">
-                              <p className="font-semibold text-primary mt-2 text-[16px]">
-                                Detalhes do pedido:
-                              </p>
-                              <p>Tamanho: {item.size.toUpperCase()}</p>
-
-                              {item.follow_up ? (
-                                <ul>
-                                  {item.follow_up.map((follow_up) => (
-                                    <>
-                                      <p>Acompanhamentos:</p>
-                                      <li>
-                                        - {follow_up.category}: {follow_up.name}
-                                      </li>
-                                    </>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p>Sem detalhes</p>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-primary font-bold text-[20px] mt-2">
-                            R$ {item.price[0].toFixed(2)}
-                          </p>
-                        </div>
-                      ))}
-                    </AccordionItem>
+                      {status.toUpperCase()}
+                    </button>
                   ))}
-                </Accordion>
-                {/* {pedidos.map((pedido, index) => (
-                    <div
-                      key={pedido._id}
-                      className="
-                        rounded-xl
-                        border border-default-200 dark:border-zinc-800
-                        bg-background dark:bg-zinc-900
-                        p-4
-                        space-y-3
-                      "
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold">
-                            Pedido #{index + 1}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ID #{pedido._id.slice(-6)}
-                          </span>
-                        </div>
-
-                        <span
-                          className="
-                        text-xs font-semibold
-                        px-3 py-1 rounded-full
-                        bg-primary/10 text-primary
-                      "
-                        >
-                          {pedido.statusOrder}
-                        </span>
-                      </div>
-
-                      
-                    </div>
-                  ))} */}
-                {/* PRODUTOS */}
-                {/* <ul className="space-y-2 pt-2">
-                        {pedido.products.map((p) => (
-                          <li
-                            key={p._id}
-                            className="
-                              flex items-center justify-between
-                              text-sm
-                              border-b border-dashed border-default-200 dark:border-zinc-800
-                              pb-2
-                            "
+                </div>
+                {Object.entries(groupOrders).map(([status, pedidosGrupo]) => (
+                  <>
+                    {statusOn == status && (
+                      <Accordion>
+                        {pedidosGrupo.map((pedido) => (
+                          <AccordionItem
+                            key={pedido.idOrder}
+                            aria-label="Accordion 1"
+                            title={"Pedido"}
+                            subtitle={`OrderID: #${pedido.idOrder.slice(-5)}`}
+                            classNames={{
+                              title: "text-default-800 font-semibold",
+                              subtitle: "text-sm text-default-500",
+                              trigger:
+                                " hover:bg-default-200/30  transition-all isOpen:bg-red-300",
+                              indicator: "text-xl",
+                            }}
                           >
-                            <div className="flex items-center gap-2">
-                              <HandPlatter
-                                size={14}
-                                className="text-secondary"
-                              />
-                              <span className="font-medium">
-                                {p.productID.name}
-                              </span>
-                            </div>
+                            {pedido.order.map((item) => (
+                              <div
+                                key={item.idItem}
+                                className="flex flex-row justify-between pr-3"
+                              >
+                                <div className="mb-4 w-full">
+                                  <div className="flex items-center w-full justify-between ">
+                                    <div className="flex gap-2">
+                                      <p className="">1x {item.name}</p>
+                                    </div>
 
-                            <span className="font-semibold text-primary">
-                              R${" "}
-                              {Number(p.productID.prices[0].value).toFixed(2)}
-                            </span>
-                          </li>
+                                    <p className="text-primary font-bold ">
+                                      R$ {item.price[0].toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <div className=" border-l-4 text-sm text-zinc-800 border-primary pl-2">
+                                    <p className="font-semibold text-zinc-700 mt-2 ">
+                                      Observação:
+                                    </p>
+                                    <div className="flex flex-row justify-between ">
+                                      <p>Tamanho:</p>
+                                      <p className="font-semibold">
+                                        {item.size.toUpperCase() == "P"
+                                          ? "100ml"
+                                          : item.size.toUpperCase() == "M"
+                                            ? "250ml"
+                                            : "470ml"}
+                                      </p>
+                                    </div>
+
+                                    {item.follow_up ? (
+                                      <div className="flex flex-row justify-between">
+                                        {item.follow_up.map((follow_up) => (
+                                          <>
+                                            <div className="mt-1">
+                                              {follow_up.category}
+                                            </div>
+                                            <div className="font-semibold">
+                                              {follow_up.name}
+                                            </div>
+                                          </>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p>Sem detalhes</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </AccordionItem>
                         ))}
-                      </ul> */}
+                      </Accordion>
+                    )}
+                  </>
+                ))}
               </div>
             ) : (
-              <p>Sem pedidos cadastrados</p>
+              <p>Sem ordersClient cadastrados</p>
             )}
-
-            {/* CARRINHO */}
-            {/* <Card className="p-4 border border-default-200 dark:border-zinc-800">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold">
-                  Itens no carrinho ({filteredProduct.length})
-                </h2>
-
-                <div className="flex items-center gap-2">
-                  {filteredProduct.length === 0 ? (
-                    <span className="text-xs text-muted-foreground">
-                      Aguardando itens
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setPage("produtos")}
-                      className="
-                    flex items-center gap-1.5
-                    px-3 py-1.5
-                    text-xs font-medium
-                    text-primary
-                    bg-primary/10 hover:bg-primary/20
-                    rounded-lg
-                    transition-colors
-                  "
-                      title="Adicionar mais produtos"
-                    >
-                      <Plus size={14} />
-                      Adicionar
-                    </button>
-                  )}
-                </div>
-              </div>
-              {filteredProduct.length === 0 && !isDesktop ? (
-                <div className="flex flex-col items-center justify-center py-6 gap-4">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <div
-                      className="
-                    w-16 h-16 rounded-full
-                    bg-default-100 dark:bg-zinc-800
-                    flex items-center justify-center
-                    mb-2
-                  "
-                    >
-                      <ShoppingCart
-                        size={24}
-                        className="text-muted-foreground"
-                      />
-                    </div>
-                    <p className="text-sm text-muted-foreground font-medium">
-                      Nenhum item adicionado ainda.
-                    </p>
-                    <p className="text-xs text-muted-foreground/80">
-                      Adicione produtos do cardápio para criar um novo pedido
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setPage("produtos")}
-                    className="
-                  w-full
-                  flex items-center justify-center gap-2
-                  px-6 py-3
-                  rounded-xl
-                  bg-primary
-                  text-primary-foreground
-                  font-semibold
-                  hover:bg-primary/90
-                  active:scale-[0.98]
-                  transition-all
-                  shadow-sm hover:shadow-md
-                "
-                  >
-                    <Plus size={18} />
-                    Adicionar produtos ao pedido
-                  </button>
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {filteredProduct.map((product) => (
-                    <li
-                      key={product._id}
-                      className="flex justify-between items-center border-b pb-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <HandPlatter size={16} className="text-secondary" />
-                        <span className="font-medium">{product.name}</span>
-                      </div>
-
-                      <strong className="text-primary">
-                        R$ {Number(product.prices[0].value).toFixed(2)}
-                      </strong>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card> */}
-
-            {/* CONFIRMAÇÃO DE PEDIDO */}
-            {/* {filteredProduct.length > 0 && (
-              <ConfirmNewOrderCard
-                clientName={clientName}
-                productName={
-                  filteredProduct.length === 1
-                    ? filteredProduct[0].name
-                    : `${filteredProduct.length} itens`
-                }
-                total={totalCarrinho}
-                onConfirm={() => handleSubmitOrder("confirmar")}
-                onCancel={() => handleSubmitOrder("cancelar")}
-                isLoading={isSubmittingOrder}
-              />
-            )} */}
           </main>
 
-          <footer className="sticky bottom-0  dark:bg-zinc-900 border-t border-default-200 dark:border-zinc-800 p-4 space-y-3">
-            <button
-              onClick={() => pedidos.lenght && setPage("pagamento")}
-              disabled={!pedidos.lenght}
-              className={`
-            w-full py-4 rounded-xl font-semibold transition
-            ${
-              pedidos.lenght
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-default-200 dark:bg-zinc-800 text-muted-foreground cursor-not-allowed flex items-center justify-center gap-2"
-            }
-          `}
-            >
-              {!pedidos.lenght && <Lock size={16} />}
-              Fechar conta
+          <footer className="p-4 border-t border-zinc-300 mt-auto   ">
+            <div className="mb-5">
+              <p className="text-lg mb-2 font-bold">Resumo da conta</p>
+              <div className="flex flex-row justify-between">
+                <p className="">Total</p>
+                <p className="font-bold text-primary">R$10,00</p>
+              </div>
+            </div>
+            <button className="w-full py-4 rounded-xl font-semibold transition bg-primary text-primary-foreground hover:bg-primary/90">
+              Finalizar conta
             </button>
-
-            {!pedidos.lenght && (
-              <p className="text-xs text-muted-foreground text-center">
-                É necessário ter ao menos um pedido para fechar a conta.
-              </p>
-            )}
           </footer>
-        </>
+        </div>
       )}
     </div>
   );

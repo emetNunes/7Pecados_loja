@@ -1,7 +1,6 @@
 import { HandPlatter, X, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import useSWR from "swr";
-
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function AccountClient({ onSelectClient }) {
@@ -43,7 +42,7 @@ export default function AccountClient({ onSelectClient }) {
           </div>
         </div>
       ) : (
-        <div>
+        <div className=" h-full flex flex-col">
           <header className="flex items-center justify-between px-4 py-4 ">
             <div>
               <p className="text-2xl font-bold text-foreground">
@@ -51,7 +50,7 @@ export default function AccountClient({ onSelectClient }) {
               </p>
             </div>
           </header>
-          <div className="h-[500px] overflow-scroll">
+          <div className=" overflow-scroll">
             {accounts.map((acc) => (
               <div
                 key={acc._id}
@@ -71,7 +70,11 @@ export default function AccountClient({ onSelectClient }) {
                   <div>
                     <p className="font-bold text-lg">{acc.name}</p>
                     <span className="text-xs text-muted-foreground">
-                      7 Pedidos registrado
+                      aberto em:{" "}
+                      {new Intl.DateTimeFormat("pt-BR", {
+                        timeZone: "UTC", // Garante que o dia não mude devido ao fuso horário local
+                      }).format(new Date(acc.createdAt))}{" "}
+                      #{acc._id}
                     </span>
                   </div>
                 </div>
@@ -79,12 +82,8 @@ export default function AccountClient({ onSelectClient }) {
             ))}
           </div>
 
-          <footer className="p-4 border-t border-zinc-300 mt-auto ">
-            <button
-              className={`
-                        w-full py-4 rounded-xl font-semibold transition bg-primary text-primary-foreground hover:bg-primary/90"
-                      `}
-            >
+          <footer className="p-4 border-t  border-zinc-300 mt-auto   ">
+            <button className="w-full py-4 rounded-xl font-semibold transition bg-primary text-primary-foreground hover:bg-primary/90">
               Adicionar conta
             </button>
           </footer>
