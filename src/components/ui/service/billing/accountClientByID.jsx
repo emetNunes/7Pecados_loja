@@ -32,9 +32,8 @@ function AccountClientByID({ clientID, onSelectClient }) {
     fetcher,
   );
 
-  let groupOrders = [];
-  if (!isLoading && ordersClient.status != 500) {
-    groupOrders = ordersClient.orders.reduce((acc, pedido) => {
+  const groupOrders =
+    ordersClient?.orders?.reduce((acc, pedido) => {
       const status = pedido.status;
 
       if (!acc[status]) {
@@ -44,8 +43,7 @@ function AccountClientByID({ clientID, onSelectClient }) {
       acc[status].push(pedido);
 
       return acc;
-    }, {});
-  }
+    }, {}) || {};
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -53,13 +51,13 @@ function AccountClientByID({ clientID, onSelectClient }) {
         <div>
           <p className="text-2xl font-bold text-foreground">Pedidos da conta</p>
 
-          {!isLoading && ordersClient.status != 500 ? (
+          {!isLoading && ordersClient?.status != 500 ? (
             <div>
               <p className="text-primary font-semibold text-[17px]">
-                Cliente {ordersClient.accountClient.name}
+                Cliente {ordersClient?.accountClient.name}
               </p>
               <p className="text-[13px] text-zinc-500">
-                ContaID: #{ordersClient.accountClient.clientID.slice(-5)}
+                ContaID: #{ordersClient?.accountClient.clientID.slice(-5)}
               </p>
             </div>
           ) : (
@@ -78,16 +76,16 @@ function AccountClientByID({ clientID, onSelectClient }) {
       </header>
       {isLoading ? (
         <div className="flex items-center justify-center h-full text-muted-foreground">
-          Carregando ordersClient da conta…
+          Carregando pedidos da conta…
         </div>
-      ) : ordersClient.status == 500 ? (
+      ) : ordersClient?.status == 500 ? (
         <div className="flex items-center justify-center h-full text-muted-foreground">
-          Falha ao carregar ordersClient!
+          Sem pedidos vinculados há essa conta!
         </div>
       ) : (
         <div className=" h-full flex flex-col">
           <main className="overflow-scroll h-[200px] lg:h-[500px] md:h-[100px]">
-            {ordersClient.orders !== "" ? (
+            {ordersClient?.orders !== "" ? (
               <div className="space-y-4">
                 <div className="w-full flex flex-row gap-2 justify-between border-1 border-zinc-300 rounded-2xl bg-background">
                   {Object.entries(groupOrders).map(([status, pedidosGrupo]) => (

@@ -3,13 +3,25 @@ import { useState, useMemo } from "react";
 import useSWR from "swr";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function AccountClient({ onSelectClient }) {
+export default function AccountClient({ onSelectClient, setPageCurrent }) {
   const API_URL =
     "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
 
-  const { data, error, isLoading, mutate } = useSWR(API_URL, fetcher);
+  const { data: accounts, error, isLoading, mutate } = useSWR(API_URL, fetcher);
 
-  const accounts = data?.account ?? [];
+  // const accounts = data?.account ?? [];
+
+  const formatDate = (date) => {
+    const parsedDate = new Date(date);
+
+    if (isNaN(parsedDate.getTime())) {
+      return "--";
+    }
+
+    return new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "UTC",
+    }).format(parsedDate);
+  };
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -50,40 +62,52 @@ export default function AccountClient({ onSelectClient }) {
               </p>
             </div>
           </header>
-          <div className=" overflow-scroll">
-            {accounts.map((acc) => (
-              <div
-                key={acc._id}
-                className="
+
+          {accounts?.account?.length > 0 ? (
+            <div className=" overflow-scroll">
+              {accounts?.account.map((acc) => (
+                <div
+                  key={acc._id}
+                  className="
               px-4 py-4
               flex items-center justify-between border border-dashed my-2 rounded-2xl border-zinc-400
               hover:bg-default-100 dark:hover:bg-zinc-800
               transition cursor-pointer
             "
-                onClick={() => onSelectClient(acc._id, acc.name)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-2xl bg-primary text-base">
-                    <HandPlatter size={40} />
-                  </div>
+                  onClick={() => onSelectClient(acc._id, acc.name)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-2xl bg-primary text-base">
+                      <HandPlatter size={40} />
+                    </div>
 
-                  <div>
-                    <p className="font-bold text-lg">{acc.name}</p>
-                    <span className="text-xs text-muted-foreground">
-                      aberto em:{" "}
-                      {new Intl.DateTimeFormat("pt-BR", {
-                        timeZone: "UTC", // Garante que o dia não mude devido ao fuso horário local
-                      }).format(new Date(acc.createdAt))}{" "}
-                      #{acc._id}
-                    </span>
+                    <div>
+                      <p className="font-bold text-lg">{acc.name}</p>
+
+                      <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground">
+                          ContaID: #{acc._id?.slice(-5)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          aberto em: {formatDate(acc.createdAt)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p>Nenhum pedido encontrado aqui!</p>
+          )}
 
           <footer className="p-4 border-t  border-zinc-300 mt-auto   ">
-            <button className="w-full py-4 rounded-xl font-semibold transition bg-primary text-primary-foreground hover:bg-primary/90">
+            <button
+              onClick={() => {
+                setPageCurrent("createAccount");
+              }}
+              className="w-full py-4 rounded-xl font-semibold transition bg-primary text-primary-foreground hover:bg-primary/90"
+            >
               Adicionar conta
             </button>
           </footer>

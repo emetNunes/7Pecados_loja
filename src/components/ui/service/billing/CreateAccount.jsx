@@ -1,99 +1,91 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
-import { Button } from "@heroui/react";
+import { Button, Divider } from "@heroui/react";
 import { mutate } from "swr";
 import { Loader2 } from "lucide-react";
 
 import Input from "../../../Input";
 import ModelDefaultDialog from "../../../ModelDefaultDialog";
 
-const API_LIST =
-  "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true";
-
-const API_CREATE = "https://api-7pecados.onrender.com/sale/account_client";
-
-const AddClientDialog = ({ isOpen, handleClose }) => {
+export default function CreateAccount({ setPageCurrent }) {
   const [clientName, setClientName] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
-  /* ================================
-     RESET AO ABRIR / FECHAR
-  ================================ */
   useEffect(() => {
-    if (!isOpen) {
-      setClientName("");
-      setCreating(false);
-      setError("");
-    }
-  }, [isOpen]);
+    setClientName("");
+    setCreating(false);
+    setError("");
+  }, []);
 
-  /* ================================
-     CRIAR CLIENTE (ROBUSTO)
-  ================================ */
   async function createAccountClient() {
-    if (!clientName.trim() || creating) return;
+    if (!clientName.trim() || creating)
+      return setError("É necessario informar um nome!");
 
     setCreating(true);
     setError("");
 
     try {
       await mutate(
-        API_LIST,
+        "https://api-7pecados.onrender.com/sale/account_client/historic/?isOpen=true",
         async (currentData) => {
-          const response = await fetch(API_CREATE, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: clientName.trim() }),
-          });
+          const response = await fetch(
+            "https://api-7pecados.onrender.com/sale/account_client",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: clientName.trim() }),
+            },
+          );
 
           if (!response.ok) {
             throw new Error("Erro ao criar conta");
           }
 
-          // 🔒 DEFENSIVO: pode não ser JSON
-          const text = await response.text();
-          let createdAccount = null;
+          // // 🔒 DEFENSIVO: pode não ser JSON
+          // const text = await response.text();
+          // let createdAccount = null;
 
-          try {
-            const parsed = JSON.parse(text);
-            createdAccount = parsed.account ?? parsed;
-          } catch {
-            // Backend respondeu string → cria fallback
-            createdAccount = {
-              _id: Math.random().toString(36).slice(2),
-              name: clientName.trim(),
-              isOpen: true,
-            };
-          }
+          // try {
+          //   const parsed = JSON.parse(text);
+          //   createdAccount = parsed.account ?? parsed;
+          // } catch {
+          //   // Backend respondeu string → cria fallback
+          //   createdAccount = {
+          //     _id: Math.random().toString(36).slice(2),
+          //     name: clientName.trim(),
+          //     isOpen: true,
+          //   };
+          // }
 
           return {
             ...currentData,
-            account: [...(currentData?.account || []), createdAccount],
+            account: [...(currentData?.account || []), response.json()],
           };
         },
-        { revalidate: true },
+        { revalidate: false },
       );
-
-      handleClose();
     } catch (err) {
       console.error("Erro ao criar cliente:", err);
-      const errorMessage = "Não foi possível criar a conta. Tente novamente.";
-      setError(errorMessage);
+      setError("Não foi possível criar a conta. Tente novamente.");
     } finally {
       setCreating(false);
+      setPageCurrent("viewAccounts");
     }
   }
 
-  if (!isOpen) return null;
-
-  return createPortal(
-    <ModelDefaultDialog
-      title_dialog="Cadastrar cliente"
-      info_dialog="Informe o nome do cliente para abrir uma nova conta."
-    >
+  return (
+    <div className="px-4 py-4">
+      <header className="flex items-center justify-between">
+        <div>
+          <p className="text-2xl font-bold text-foreground">Criar nova conta</p>
+          <p className="text-zinc-500 text-sm">
+            Informe o nome do cliente para abrir uma nova conta.
+          </p>
+        </div>
+      </header>
+      <Divider className="my-2" />
       <div className="flex flex-col gap-5">
-        {/* INPUT */}
         <Input
           id="client_name"
           autoFocus
@@ -104,16 +96,16 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
           disabled={creating}
         />
 
-        {/* ERROR */}
         {error && (
           <p className="text-sm text-destructive font-medium">{error}</p>
         )}
 
-        {/* ACTIONS */}
         <div className="flex gap-3 pt-2">
           <Button
             variant="bordered"
-            onPress={handleClose}
+            onClick={() => {
+              setPageCurrent("viewAccounts");
+            }}
             disabled={creating}
             className="w-full rounded-xl"
           >
@@ -143,9 +135,6 @@ const AddClientDialog = ({ isOpen, handleClose }) => {
           </Button>
         </div>
       </div>
-    </ModelDefaultDialog>,
-    document.body,
+    </div>
   );
-};
-
-export default AddClientDialog;
+}
