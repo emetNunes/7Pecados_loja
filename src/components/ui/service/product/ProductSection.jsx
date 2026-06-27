@@ -9,7 +9,11 @@ import { CircleAlert, CirclePlus, User, UserIcon } from "lucide-react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function ProductSection({ clientSelect }) {
+export default function ProductSection({
+  clientSelect,
+  sendOrder,
+  setIngredientsGroup,
+}) {
   const [categorySelected, setCategorySelected] = useState("Todos");
   const [search, setSearch] = useState("");
 
@@ -89,6 +93,10 @@ export default function ProductSection({ clientSelect }) {
                 <CardProduct
                   productsData={filteredProducts}
                   clientSelect={clientSelect}
+                  sendOrder={(prodc) => {
+                    sendOrder(prodc);
+                  }}
+                  setIngredientsGroup={setIngredientsGroup}
                 />
               </>
             ) : (

@@ -8,19 +8,52 @@ import {
   Divider,
   Select,
   SelectItem,
+  Textarea,
 } from "@heroui/react";
 import ProductDetails from "./ProductDetails";
 
-export default function CardProduct({ productsData, clientSelect }) {
+export default function CardProduct({
+  productsData,
+  clientSelect,
+  sendOrder,
+  setIngredientsGroup,
+}) {
   const [productSelected, setProductSelected] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
+  const [observacao, setObservacao] = useState("");
+  const [ingredientsData, setIngredientsData] = useState([]);
 
-  function handlerAddProduct() {
-    const payload = {};
+  const handleObservacao = (event) => {
+    setObservacao(event.target.value);
+  };
+  const changeDetail = (e) => {
+    setIngredientsData([...ingredientsData, e.id_ingredient]);
+  };
+
+  console.log(ingredientsData);
+
+  function handlerAddProduct(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const details = Object.fromEntries(formData.entries());
+
+    console.log(formData);
+    sendOrder({
+      productID: productSelected[0],
+      name: productSelected[1],
+      size: selectedSize[2].toLowerCase(),
+      price: selectedSize[1],
+      quantity: 1,
+      follow_up: JSON.stringify(details),
+      obs: observacao,
+    });
+    setProductSelected([]);
+    setObservacao("");
   }
 
   return (
-    <div>
+    <form onSubmit={handlerAddProduct}>
       <div className="grid grid-cols-3 w items-start sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 ">
         {productsData.map((product) => (
           <div
@@ -41,8 +74,11 @@ export default function CardProduct({ productsData, clientSelect }) {
                 overflow-hidden
               "
             onClick={() => {
-              if (product._id != productSelected && clientSelect.length > 0) {
-                setProductSelected(product._id);
+              if (
+                product._id != productSelected[0] &&
+                clientSelect.length > 0
+              ) {
+                setProductSelected([product._id, product.name]);
 
                 selectedSize.length > 0 && setSelectedSize([]);
               }
@@ -73,7 +109,7 @@ export default function CardProduct({ productsData, clientSelect }) {
                 </p>
               </div>
 
-              {productSelected == product._id && (
+              {productSelected[0] == product._id && (
                 <div className="">
                   <section className="flex flex-col gap-2 border-t border-dashed border-zinc-400">
                     <p className="text-[12px] font-bold text-zinc-500 tracking-wide mt-3">
@@ -83,8 +119,9 @@ export default function CardProduct({ productsData, clientSelect }) {
                       {product.prices.map((size) => (
                         <button
                           key={size._id}
+                          type="button"
                           onClick={() =>
-                            setSelectedSize([size._id, size.value])
+                            setSelectedSize([size._id, size.value, size.size])
                           }
                           className={clsx(
                             "px-6 py-3 rounded-full text-sm font-semibold border border-dashed transition border-default-300 text-default-700 hover:border-primary",
@@ -108,25 +145,32 @@ export default function CardProduct({ productsData, clientSelect }) {
                     <div>
                       {product.ingredients !== "" ? (
                         <div>
-                          {product.ingredients.Fruta &&
-                            product.ingredients.Fruta.length > 0 && (
+                          {Object.entries(product.ingredients).map(
+                            ([category, items]) => (
                               <ProductDetails
-                                title={"Frutas"}
-                                detailsData={product.ingredients.Fruta}
+                                title={category}
+                                detailsData={items}
+                                changeDetail={changeDetail}
                               />
-                            )}
-                          {product.ingredients.Borda &&
-                            product.ingredients.Borda.length > 0 && (
-                              <ProductDetails
-                                title={"Bordas"}
-                                detailsData={product.ingredients.Borda}
-                              />
-                            )}
+                            ),
+                          )}
                         </div>
                       ) : (
                         <p>Sem opções aqui</p>
                       )}
                     </div>
+                  </section>
+                  <section>
+                    <p className="text-[12px] font-bold text-zinc-500 tracking-wide mt-3">
+                      Observação
+                    </p>
+                    <Textarea
+                      aria-label="Quick project update"
+                      className="h-32 mt-2"
+                      onChange={handleObservacao}
+                      value={observacao}
+                      placeholder="Digite algo aqui..."
+                    />
                   </section>
                   <section>
                     <div
@@ -152,11 +196,11 @@ export default function CardProduct({ productsData, clientSelect }) {
                           : selectedSize[1].toFixed(2)}
                       </button>
                       <button
-                        type="button"
+                        type="submit"
                         className="px-4 py-3 text-sm font-medium  bg-primary w-full p-5 text-white border-l-1 border-base/30 rounded-r-2xl shadow-lg
                                 hover:opacity-90 transition"
                       >
-                        Adicionar a conta
+                        Adicionar ao carrinho
                       </button>
                     </div>
                   </section>
@@ -166,6 +210,6 @@ export default function CardProduct({ productsData, clientSelect }) {
           </div>
         ))}
       </div>
-    </div>
+    </form>
   );
 }

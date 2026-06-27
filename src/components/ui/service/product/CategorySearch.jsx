@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 
 export default function CategorySearch({ onToggle, selected }) {
+  4;
+
   const listCategory = [
     { name: "Todos", icon: <Utensils size={40} /> },
     { name: "Taças", icon: <IceCreamBowl size={40} /> },
@@ -34,7 +36,7 @@ export default function CategorySearch({ onToggle, selected }) {
             className={clsx(
               "flex flex-col items-center gap-2 px-5 py-4  rounded-2xl border border-default-200 h-[160px] justify-center shadow-sm dark:border-zinc-800 bg-base hover:border-primary/50",
               {
-                "border-primary/0 bg-primary text-blue-100  dark:bg-primary/60 dark:":
+                "border-primary/0 bg-primary text-blue-100  dark:bg-primary/60 ":
                   selected == category.name,
               },
             )}

@@ -1,10 +1,10 @@
 import { Chip } from "@heroui/react";
 import { AppleIcon } from "lucide-react";
 
-export default function ProductDetails({ title, detailsData }) {
+export default function ProductDetails({ title, detailsData, changeDetail }) {
   return (
-    <div className="my-4">
-      <div className="bg-gray-300/80 px-4 py-3 mx-[-20px]">
+    <div key={title} className="my-4">
+      <div className="bg-gray-300/30 px-4 py-3 mx-[-20px]">
         <p className="text-medium font-bold tracking-wide mb-2 text-zinc-800">
           {title}
         </p>
@@ -21,7 +21,15 @@ export default function ProductDetails({ title, detailsData }) {
           className="flex justify-between border-b-1 border-dashed border-zinc-300 py-5" // TTI 234 / LUIS LUZ
         >
           <label for={data._id}>{data.name}</label>
-          <input type="radio" id={data._id} name={title} />
+          <input
+            type="radio"
+            id={data._id}
+            name={title}
+            onChange={() => {
+              changeDetail({ title: title, id_ingredient: data.id });
+            }}
+            value={data.name}
+          />
         </div>
       ))}
     </div>

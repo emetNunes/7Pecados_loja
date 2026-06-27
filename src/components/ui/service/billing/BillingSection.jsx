@@ -2,21 +2,27 @@ import { useState } from "react";
 import AccountClient from "./accountClient";
 import AccountClientByID from "./accountClientByID";
 import CreateAccount from "./CreateAccount";
+import PaymentClientByID from "./PaymentById";
 
-export default function BillingSection({ handlerClient }) {
-  const [client, setClient] = useState([]);
-  const [pageCurrent, setPageCurrent] = useState("createAccount");
+export default function BillingSection({
+  handlerClient,
+  clientSelect,
+  sendOrder,
+  onChangeNewOrder,
+  cancelNewOrder,
+  ConfirmNewOrderCard,
+}) {
+  const [pageCurrent, setPageCurrent] = useState("viewAccounts");
 
-  const onSelectClient = (id, name) => {
-    handlerClient(id, name);
-    setClient([id, name]);
+  const onSelectClient = (client) => {
+    handlerClient(client);
   };
 
   const pages = [
     {
       value: (
         <AccountClient
-          onSelectClient={onSelectClient}
+          handlerClient={handlerClient}
           setPageCurrent={setPageCurrent}
         />
       ),
@@ -26,16 +32,31 @@ export default function BillingSection({ handlerClient }) {
       value: <CreateAccount setPageCurrent={setPageCurrent} />,
       name: "createAccount",
     },
+    {
+      value: (
+        <PaymentClientByID
+          setPageCurrent={setPageCurrent}
+          clientID={clientSelect[0]}
+          handlerClient={handlerClient}
+        />
+      ),
+      name: "paymentClient",
+    },
   ];
 
   return (
     <div className="h-full">
-      {client.length > 0 ? (
+      {clientSelect.length > 0 && pageCurrent !== "paymentClient" ? (
         <AccountClientByID
-          clientID={client[0]}
-          onSelectClient={() => {
-            setClient([]);
+          sendOrder={sendOrder}
+          cancelNewOrder={cancelNewOrder}
+          onChangeNewOrder={onChangeNewOrder}
+          setPageCurrent={setPageCurrent}
+          clientID={clientSelect[0]}
+          ConfirmNewOrderCard={() => {
+            ConfirmNewOrderCard();
           }}
+          handlerClient={handlerClient}
         />
       ) : (
         <>

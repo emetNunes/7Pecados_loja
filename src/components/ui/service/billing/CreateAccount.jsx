@@ -42,22 +42,6 @@ export default function CreateAccount({ setPageCurrent }) {
             throw new Error("Erro ao criar conta");
           }
 
-          // // 🔒 DEFENSIVO: pode não ser JSON
-          // const text = await response.text();
-          // let createdAccount = null;
-
-          // try {
-          //   const parsed = JSON.parse(text);
-          //   createdAccount = parsed.account ?? parsed;
-          // } catch {
-          //   // Backend respondeu string → cria fallback
-          //   createdAccount = {
-          //     _id: Math.random().toString(36).slice(2),
-          //     name: clientName.trim(),
-          //     isOpen: true,
-          //   };
-          // }
-
           return {
             ...currentData,
             account: [...(currentData?.account || []), response.json()],

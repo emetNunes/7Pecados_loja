@@ -89,8 +89,6 @@ export default function ProductionPage() {
     ["delivered", "Entregues"],
   ];
 
-  console.log(orders);
-
   const totalOrders = orders.length;
 
   return (
